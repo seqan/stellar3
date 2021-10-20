@@ -28,16 +28,20 @@ def main(source_base, binary_base):
     print('=========================')
     print()
 
+    # stellar/tests directory
+    app_test_dir=os.path.join(source_base, 'tests') # original: 'apps/stellar/tests'
+    relative_binary_path="." # original: 'apps/stellar'
+
     ph = app_tests.TestPathHelper(
         source_base, binary_base,
-        'apps/stellar/tests')  # tests dir
+        app_test_dir)  # tests dir
 
     # ============================================================
     # Auto-detect the binary path.
     # ============================================================
 
     path_to_program = app_tests.autolocateBinary(
-      binary_base, 'apps/stellar', 'stellar')
+      binary_base, relative_binary_path, 'stellar')
 
     # ============================================================
     # Built TestConf list.
@@ -52,7 +56,7 @@ def main(source_base, binary_base):
     # make it more canonical and host independent.
     ph.outFile('-')  # To ensure that the out path is set.
     transforms = [
-        app_tests.ReplaceTransform(os.path.join(ph.source_base_path, 'apps/stellar/tests') + os.sep, '', right=True),
+        app_tests.ReplaceTransform(os.path.join(ph.source_base_path, app_test_dir) + os.sep, '', right=True),
         app_tests.ReplaceTransform(ph.temp_dir + os.sep, '', right=True),
         app_tests.NormalizeScientificExponentsTransform(),
         ]
