@@ -29,7 +29,7 @@ def main(source_base, binary_base):
     print()
 
     # stellar/tests directory
-    app_test_dir=os.path.join(source_base, 'tests') # original: 'apps/stellar/tests'
+    app_test_dir=os.path.join(source_base, 'test/cli') # original: 'apps/stellar/tests'
     relative_binary_path="." # original: 'apps/stellar'
 
     ph = app_tests.TestPathHelper(

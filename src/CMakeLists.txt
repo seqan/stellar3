@@ -29,21 +29,7 @@ if (EXISTS "${SEQAN_BUILD_SYSTEM_CMAKE_DIR}")
 endif ()
 
 add_custom_target (seqan_library) # place-holder needed for SeqAnBuildSystem
-include (SeqAnBuildSystem) # for seqan_setup_install_vars, seqan_add_app_test
-enable_testing () # enable app tests
-
-find_path (SEQAN_APP_TEST_PYTHON_LIB_DIR NAMES seqan/app_tests.py HINTS "${STELLAR_ROOT_DIR}/lib/seqan/util/py_lib/")
-macro (seqan_add_app_test APP_NAME)
-    find_package (Python3)
-    if (Python3_Interpreter_FOUND)
-      add_test (NAME app_test_${APP_NAME}${ARGV1}
-                COMMAND ${CMAKE_COMMAND} -E env
-                            PYTHONPATH=${SEQAN_APP_TEST_PYTHON_LIB_DIR} # make seqan/app_tests.py available
-                        ${Python3_EXECUTABLE}
-                        ${STELLAR_ROOT_DIR}/tests/run_tests${ARGV1}.py
-                        ${STELLAR_ROOT_DIR} ${CMAKE_BINARY_DIR})
-    endif (Python3_Interpreter_FOUND)
-endmacro (seqan_add_app_test APP_NAME)
+include (SeqAnBuildSystem) # for seqan_setup_install_vars
 
 # ----------------------------------------------------------------------------
 # Setup SeqAn 3
@@ -115,22 +101,6 @@ install (FILES example/NC_001474.fasta
                example/NC_001477.fasta
                example/reads.fasta
          DESTINATION ${SEQAN_PREFIX_SHARE_DOC}/example)
-
-# ----------------------------------------------------------------------------
-# App Test
-# ----------------------------------------------------------------------------
-
-seqan_add_app_test (stellar)
-
-# ----------------------------------------------------------------------------
-# Setup Common Tool Description for Generic Workflow Nodes
-# ----------------------------------------------------------------------------
-
-# Include executable stellar in CTD structure.
-set (SEQAN_CTD_EXECUTABLES ${SEQAN_CTD_EXECUTABLES} stellar CACHE INTERNAL "")
-
-#Add test to check correct ctd generation.
-seqan_add_ctd_test (stellar)
 
 # ----------------------------------------------------------------------------
 # CPack Install
