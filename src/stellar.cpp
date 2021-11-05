@@ -30,8 +30,6 @@
 
 #include "stellar/stellar.main.hpp"
 
-using namespace seqan;
-
 namespace stellar
 {
 namespace app
@@ -230,28 +228,28 @@ int main(int argc, const char * argv[])
     ScientificNotationExponentOutputNormalizer scientificNotationNormalizer;
 
     // command line parsing
-    ArgumentParser parser("stellar");
+    seqan::ArgumentParser parser("stellar");
 
     stellar::StellarOptions options{};
     stellar::app::_setParser(parser);
-    ArgumentParser::ParseResult res = seqan::parse(parser, argc, argv);
+    seqan::ArgumentParser::ParseResult res = seqan::parse(parser, argc, argv);
 
-    if (res == ArgumentParser::PARSE_OK)
+    if (res == seqan::ArgumentParser::PARSE_OK)
         res = stellar::app::_parseOptions(parser, options);
 
-    if (res != ArgumentParser::PARSE_OK)
-        return res == ArgumentParser::PARSE_ERROR;
+    if (res != seqan::ArgumentParser::PARSE_OK)
+        return res == seqan::ArgumentParser::PARSE_ERROR;
 
     if (options.alphabet == "dna")
-        stellar::app::mainWithOptions(options, String<Dna>());
+        stellar::app::mainWithOptions(options, seqan::String<seqan::Dna>());
     else if (options.alphabet == "dna5")
-        stellar::app::mainWithOptions(options, String<Dna5>());
+        stellar::app::mainWithOptions(options, seqan::String<seqan::Dna5>());
     else if (options.alphabet == "rna")
-        stellar::app::mainWithOptions(options, String<Rna>());
+        stellar::app::mainWithOptions(options, seqan::String<seqan::Rna>());
     else if (options.alphabet == "rna5")
-        stellar::app::mainWithOptions(options, String<Rna5>());
+        stellar::app::mainWithOptions(options, seqan::String<seqan::Rna5>());
     else if (options.alphabet == "protein")
-        stellar::app::mainWithOptions(options, String<AminoAcid>());
+        stellar::app::mainWithOptions(options, seqan::String<seqan::AminoAcid>());
     else if (options.alphabet == "char")
-        stellar::app::mainWithOptions(options, String<char>());
+        stellar::app::mainWithOptions(options, seqan::String<char>());
 }
