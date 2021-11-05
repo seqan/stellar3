@@ -132,6 +132,9 @@ if (STELLAR_PARALLEL_BUILD)
 
     add_library (stellar_arg_parser OBJECT stellar/stellar.arg_parser.cpp)
     target_link_libraries (stellar_arg_parser PUBLIC "${PROJECT_NAME}_interface")
+
+    add_library (stellar_diagnostics OBJECT stellar/stellar.diagnostics.cpp)
+    target_link_libraries (stellar_diagnostics PUBLIC "${PROJECT_NAME}_interface")
 endif ()
 
 if (STELLAR_PARALLEL_BUILD AND STELLAR_PRECOMPILED_HEADER_BUILD)
@@ -146,7 +149,7 @@ add_executable (stellar stellar.cpp
                        stellar_types.h)
 
 if (STELLAR_PARALLEL_BUILD)
-    target_link_libraries (stellar PRIVATE stellar_main stellar_arg_parser)
+    target_link_libraries (stellar PRIVATE stellar_main stellar_arg_parser stellar_diagnostics)
 endif ()
 
 # Add dependencies found by find_package (SeqAn).

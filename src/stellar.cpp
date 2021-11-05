@@ -29,10 +29,12 @@
 #include "stellar_output.h"
 
 #include "stellar/stellar.arg_parser.hpp"
+#include "stellar/stellar.diagnostics.hpp"
 #include "stellar/stellar.main.hpp"
 
 #ifndef STELLAR_PARALLEL_BUILD
 #include "stellar/stellar.arg_parser.cpp"
+#include "stellar/stellar.diagnostics.cpp"
 #include "stellar/stellar.main.tpp"
 #endif // STELLAR_PARALLEL_BUILD
 
