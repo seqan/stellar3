@@ -32,31 +32,31 @@ using namespace seqan;
 // Options for Stellar
 struct StellarOptions {
     // i/o options
-    CharString databaseFile;		// name of database file
-    CharString queryFile;			// name of query file
-    CharString outputFile;			// name of result file
-    CharString disabledQueriesFile;	// name of result file containing disabled queries
-    CharString outputFormat;		// Possible formats: gff, text
+    CharString databaseFile;        // name of database file
+    CharString queryFile;           // name of query file
+    CharString outputFile;          // name of result file
+    CharString disabledQueriesFile; // name of result file containing disabled queries
+    CharString outputFormat;        // Possible formats: gff, text
     CharString alphabet;            // Possible values: dna, rna, protein, char
-    bool noRT;				// suppress printing of running time if set to true
+    bool noRT;                      // suppress printing of running time if set to true
 
     // main options
-    unsigned qGram;				// length of the q-grams
-    double epsilon;				// maximal error rate
-    int minLength;				// minimal length of an epsilon-match
-    double xDrop;				// maximal x-drop
+    unsigned qGram;             // length of the q-grams
+    double epsilon;             // maximal error rate
+    int minLength;              // minimal length of an epsilon-match
+    double xDrop;               // maximal x-drop
 
     // more options
-    bool forward;				// compute matches to forward strand of database
-    bool reverse;				// compute matches to reverse complemented database
-    CharString fastOption;		// verification strategy: exact, bestLocal, bandedGlobal
-    unsigned disableThresh;		// maximal number of matches allowed per query before disabling verification of hits for that query
-    unsigned compactThresh;		// number of matches after which removal of overlaps and duplicates is started
-    unsigned numMatches;		// maximal number of matches per query and database
-    unsigned maxRepeatPeriod;	// maximal period of low complexity repeats to be filtered
-    unsigned minRepeatLength;	// minimal length of low complexity repeats to be filtered
+    bool forward;               // compute matches to forward strand of database
+    bool reverse;               // compute matches to reverse complemented database
+    CharString fastOption;      // verification strategy: exact, bestLocal, bandedGlobal
+    unsigned disableThresh;     // maximal number of matches allowed per query before disabling verification of hits for that query
+    unsigned compactThresh;     // number of matches after which removal of overlaps and duplicates is started
+    unsigned numMatches;        // maximal number of matches per query and database
+    unsigned maxRepeatPeriod;   // maximal period of low complexity repeats to be filtered
+    unsigned minRepeatLength;   // minimal length of low complexity repeats to be filtered
     double qgramAbundanceCut;
-    bool verbose;				// verbose mode
+    bool verbose;               // verbose mode
 
 
     StellarOptions() {
@@ -73,7 +73,7 @@ struct StellarOptions {
 
         forward = true;
         reverse = true;
-        fastOption = "exact";		// exact verification
+        fastOption = "exact";       // exact verification
         disableThresh = std::numeric_limits<unsigned>::max();
         compactThresh = 500;
         numMatches = 50;
@@ -103,16 +103,16 @@ struct QueryMatches {
 // Container for storing a local alignment match
 template<typename TSequence_, typename TId_>
 struct StellarMatch {
-    typedef TSequence_							TSequence;
-    typedef TId_								TId;
-    typedef typename Position<TSequence>::Type	TPos;
+    typedef TSequence_                          TSequence;
+    typedef TId_                                TId;
+    typedef typename Position<TSequence>::Type  TPos;
 
-    typedef Align<TSequence, ArrayGaps>			TAlign;
-    typedef typename Row<TAlign>::Type			TRow;
+    typedef Align<TSequence, ArrayGaps>         TAlign;
+    typedef typename Row<TAlign>::Type         TRow;
 
     static const TId INVALID_ID;
 
-    TId id;			// database ID
+    TId id;         // database ID
     bool orientation;
     TPos begin1;
     TPos end1;

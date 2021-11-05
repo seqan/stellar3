@@ -31,8 +31,8 @@
 // Container for storing possible end positions in extension of eps-core
 template<typename TPos_>
 struct ExtensionEndPosition {
-    typedef TPos_			TPosition;
-    typedef Pair<TPosition>	TCoordinate;
+    typedef TPos_           TPosition;
+    typedef Pair<TPosition> TCoordinate;
 
     TPosition length;
     TCoordinate coord;
@@ -397,8 +397,8 @@ _fillMatrixBestEndsLeft(TMatrix & matrixLeft,
     appendValue(str, infixV);
 
     // _align_banded_nw_best_ends(matrixLeft, possibleEndsLeft, str, scoreMatrix,
-    // 						   upperDiagonal(seedOld) - upperDiagonal(seed),
-    // 						   upperDiagonal(seedOld) - lowerDiagonal(seed));
+    //                            upperDiagonal(seedOld) - upperDiagonal(seed),
+    //                            upperDiagonal(seedOld) - lowerDiagonal(seed));
 
     // Compute diagonals for updated seeds module with infixH/first alignment row being in the horizontal direction.
     typedef typename Diagonal<TSeed>::Type TDiagonal;
@@ -446,8 +446,8 @@ _fillMatrixBestEndsRight(TMatrix & matrixRight,
     //           << "1: " << infixV << "\n";
 
     // _align_banded_nw_best_ends(matrixRight, possibleEndsRight, str, scoreMatrix,
-    // 						   lowerDiagonal(seedOld) - upperDiagonal(seed),
-    // 						   lowerDiagonal(seedOld) - lowerDiagonal(seed));
+    //                            lowerDiagonal(seedOld) - upperDiagonal(seed),
+    //                            lowerDiagonal(seedOld) - lowerDiagonal(seed));
 
     // Compute diagonals for updated seeds module with infixH/first alignment row being in the horizontal direction.
     typedef typename Diagonal<TSeed>::Type TDiagonal;
@@ -578,7 +578,7 @@ _tracebackLeft(TMatrix const & matrixLeft,
                TPos const endLeftH,
                TPos const endLeftV,
                TAlign & align) {
-    typedef Segment<TSequence, InfixSegment>			TInfix;
+    typedef Segment<TSequence, InfixSegment>            TInfix;
 
     StringSet<TInfix> str;
     TInfix infixH(host(infH), beginPositionH(seed), beginPositionH(seedOld));
@@ -630,7 +630,7 @@ _tracebackRight(TMatrix const & matrixRight,
                TPos const endRightH,
                TPos const endRightV,
                TAlign & align) {
-    typedef Segment<TSequence, InfixSegment>			TInfix;
+    typedef Segment<TSequence, InfixSegment>            TInfix;
 
     TInfix infixH(host(infH), endPositionH(seedOld), endPositionH(seed));
     TInfix infixV(host(infV), endPositionV(seedOld), endPositionV(seed));
@@ -684,7 +684,7 @@ _bestExtension(TInfix const & infH,
                TEps const eps,
                TAlign & align)
 {
-    typedef String<TraceBack>							    TAlignmentMatrix;
+    typedef String<TraceBack>                               TAlignmentMatrix;
     typedef ExtensionEndPosition<TPos>                      TEndInfo;
     typedef typename Iterator<String<TEndInfo> const>::Type TEndIterator;
 

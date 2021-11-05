@@ -363,8 +363,8 @@ void maskOverlaps(String<StellarMatch<TSequence, TId> > & matches, TSize minLeng
 template<typename TSequence, typename TId, typename TSize>
 void
 compactMatches(String<StellarMatch<TSequence, TId> > & matches, TSize numMatches) {
-    typedef StellarMatch<TSequence, TId>						TMatch;
-    typedef typename Iterator<String<TMatch>, Standard>::Type	TIterator;
+    typedef StellarMatch<TSequence, TId>                        TMatch;
+    typedef typename Iterator<String<TMatch>, Standard>::Type   TIterator;
 
     // sort matches by length (and validity)
     sortMatches(matches, LessLength<TMatch>());
@@ -405,8 +405,8 @@ _insertMatch(QueryMatches<StellarMatch<TSource, TId> > & queryMatches,
         return false;
     }
     if (length(queryMatches.matches) > compactThresh) {
-        maskOverlaps(queryMatches.matches, minLength);		// remove overlaps and duplicates
-        compactMatches(queryMatches.matches, numMatches);	// keep only the <numMatches> longest matches
+        maskOverlaps(queryMatches.matches, minLength);      // remove overlaps and duplicates
+        compactMatches(queryMatches.matches, numMatches);   // keep only the <numMatches> longest matches
 
         // raise compact threshold if many matches are kept
         if ((length(queryMatches.matches) << 1) > compactThresh)
@@ -720,8 +720,8 @@ void stellar(Finder<TText, Swift<SwiftLocal> > & finder,
     for(; it < itEnd; ++it) {
         QueryMatches<TMatch> &qm = *it;
         if (length(qm) > 0 && !qm.disabled) {
-            maskOverlaps(qm.matches, minLength);	// remove overlaps and duplicates
-            compactMatches(qm.matches, numMatches);	// keep only the <numMatches> longest matches
+            maskOverlaps(qm.matches, minLength);    // remove overlaps and duplicates
+            compactMatches(qm.matches, numMatches); // keep only the <numMatches> longest matches
         }
     }
 }
