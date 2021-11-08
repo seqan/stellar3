@@ -213,19 +213,11 @@ _stellarOnAll(StringSet<TSequence> & databases,
     }
     std::cout << std::endl;
 
-    // file output
-    if (options.disableThresh != std::numeric_limits<unsigned>::max())
-    {
-        if (!_outputMatches(matches, queries, queryIDs, databases, options.verbose,
-                            options.outputFile, options.outputFormat, options.disabledQueriesFile))
-            return 1;
-    }
-    else
-    {
-        if (!_outputMatches(matches, queryIDs, databases, options.verbose,
-                            options.outputFile, options.outputFormat))
-            return 1;
-    }
+    bool writeDisabledFile = options.disableThresh != std::numeric_limits<unsigned>::max();
+
+    if (!_outputMatches(matches, queries, queryIDs, databases, options.verbose,
+                        options.outputFile, options.outputFormat, writeDisabledFile, options.disabledQueriesFile))
+        return 1;
 
     return 0;
 }
