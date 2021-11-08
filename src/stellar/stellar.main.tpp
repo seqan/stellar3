@@ -265,7 +265,9 @@ _checkUniqueId(std::set<TId> & uniqueIds, TId const & id)
 
     TIterator it = begin(id);
     TIterator itEnd = end(id);
-    while (it != itEnd && *it > 32)
+
+    // (cut at first whitespace)
+    while (it != itEnd && *it > ' ')
     {
         appendValue(shortId, *it);
         ++it;
