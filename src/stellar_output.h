@@ -338,6 +338,42 @@ _writeMatch(TId const & databaseID,
     file << "----------------------------------------------------------------------\n" << std::endl;
 }
 
+template <typename TInfix, typename TQueryId>
+void _writeMatchesToGffFile(QueryMatches<StellarMatch<TInfix const, TQueryId> > const & queryMatches, CharString const & id, bool const orientation, std::ofstream & outputFile)
+{
+    for (StellarMatch<TInfix const, TQueryId> const & match : queryMatches.matches) {
+        if (match.orientation != orientation)
+            continue;
+
+        _writeMatchGff(match.id, id, match.orientation, queryMatches.lengthAdjustment,
+                       match.row1, match.row2, outputFile);
+    }
+};
+
+template <typename TInfix, typename TQueryId>
+void _writeMatchesToTxtFile(QueryMatches<StellarMatch<TInfix const, TQueryId> > const &queryMatches, CharString const & id, bool const orientation, std::ofstream & outputFile)
+{
+    for (StellarMatch<TInfix const, TQueryId> const & match : queryMatches.matches) {
+        if (match.orientation != orientation)
+            continue;
+
+        _writeMatch(match.id, id, match.orientation, queryMatches.lengthAdjustment,
+                    match.row1, match.row2, outputFile);
+    }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// Calls _writeMatchGff for each match in String of matches.
+//   = Writes matches in gff format to a file.
+template <typename TInfix, typename TQueryId>
+void _writeQueryMatchesToFile(QueryMatches<StellarMatch<TInfix const, TQueryId> > const & queryMatches, CharString const & id, bool const orientation, CharString const & outputFormat, std::ofstream & outputFile)
+{
+    if (outputFormat == "gff")
+        _writeMatchesToGffFile(queryMatches, id, orientation, outputFile);
+    else
+        _writeMatchesToTxtFile(queryMatches, id, orientation, outputFile);
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 // Calls _writeMatchGff for each match in StringSet of String of matches.
 //   = Writes matches in gff format to a file.
@@ -407,16 +443,7 @@ _outputMatches(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > &
             maxLength = std::max<size_t>(maxLength, len);
         }
 
-        for (StellarMatch<TInfix const, TQueryId> const & match : queryMatches.matches) {
-            if (match.orientation) {
-                if (format == "gff")
-                    _writeMatchGff(match.id, ids[i], match.orientation, queryMatches.lengthAdjustment,
-                                   match.row1, match.row2, file);
-                else
-                    _writeMatch(match.id, ids[i], match.orientation, queryMatches.lengthAdjustment,
-                                match.row1, match.row2, file);
-            }
-        }
+        _writeQueryMatchesToFile(queryMatches, ids[i], true, format, file);
     }
 
     if (IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE)
@@ -427,16 +454,7 @@ _outputMatches(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > &
         for (size_t i = 0; i < length(matches); i++) {
             QueryMatches<StellarMatch<TInfix const, TQueryId>> const & queryMatches = value(matches, i);
 
-            for (StellarMatch<TInfix const, TQueryId> const & match : queryMatches.matches) {
-                if (!match.orientation) {
-                    if (format == "gff")
-                        _writeMatchGff(match.id, ids[i], match.orientation, queryMatches.lengthAdjustment,
-                                       match.row1, match.row2, file);
-                    else
-                        _writeMatch(match.id, ids[i], match.orientation, queryMatches.lengthAdjustment,
-                                    match.row1, match.row2, file);
-                }
-            }
+            _writeQueryMatchesToFile(queryMatches, ids[i], false, format, file);
         }
     }
 
