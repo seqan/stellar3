@@ -374,52 +374,47 @@ void _writeQueryMatchesToFile(QueryMatches<StellarMatch<TInfix const, TQueryId> 
         _writeMatchesToTxtFile(queryMatches, id, orientation, outputFile);
 };
 
+template <typename TQuery>
+void _appendDisabledQueryToFastaFile(CharString const & id, TQuery const & query, std::ofstream & disabledQueriesFile)
+{
+    disabledQueriesFile << ">" << id << "\n";
+    disabledQueriesFile << query << "\n\n";
+}
+
+template <typename TInfix, typename TQueryId, typename TIds, typename TQueries>
+void _writeDisabledQueriesToFastaFile(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > const & matches, TIds const & ids, TQueries const & queries, std::ofstream & disabledQueriesFile)
+{
+    assert(disabledQueriesFile.is_open());
+
+    for (size_t i = 0u; i < length(matches); i++) {
+        QueryMatches<StellarMatch<TInfix const, TQueryId>> const & queryMatches = value(matches, i);
+
+        if (!queryMatches.disabled)
+            continue;
+
+        _appendDisabledQueryToFastaFile(ids[i], queries[i], disabledQueriesFile);
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Calls _writeMatchGff for each match in StringSet of String of matches.
 //   = Writes matches in gff format to a file.
-// Writes disabled query sequences to disabledFile.
-template<typename TInfix, typename TQueryId, typename TQueries, typename TDatabases, typename TIds,
+template<typename TInfix, typename TQueryId, typename TDatabases, typename TIds,
          typename TMode, typename TFile, typename TString>
 bool
 _outputMatches(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > & matches,
-               TQueries const & queries,
                TIds const & ids,
                TDatabases & databases,
                TMode const verbose,
                TFile const & fileName,
-               TString const & format,
-               bool const writeDisabledFile,
-               TString const & disabledFile) {
+               TString const & format) {
     typedef typename Value<TInfix>::Type TAlphabet;
 
-    std::ofstream daFile, file;
+    std::ofstream file;
     file.open(toCString(fileName), ::std::ios_base::out | ::std::ios_base::app);
     if (!file.is_open()) {
         std::cerr << "Could not open output file." << std::endl;
         return 1;
-    }
-
-    if (writeDisabledFile)
-    {
-        daFile.open(toCString(disabledFile), ::std::ios_base::out | ::std::ios_base::app);
-        if (!daFile.is_open()) {
-            std::cerr << "Could not open file for disabled queries." << std::endl;
-            return 1;
-        }
-    }
-
-    // write disabled query file
-    if (writeDisabledFile)
-    {
-        for (size_t i = 0; i < length(matches); i++) {
-            QueryMatches<StellarMatch<TInfix const, TQueryId>> const & queryMatches = value(matches, i);
-
-            if (!queryMatches.disabled)
-                continue;
-
-            daFile << ">" << ids[i] << "\n";
-            daFile << queries[i] << "\n\n";
-        }
     }
 
     // adjust length for each matches of a single query (only for dna5 and rna5)
@@ -452,10 +447,6 @@ _outputMatches(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > &
         }
     }
 
-    if (writeDisabledFile)
-    {
-        daFile.close();
-    }
     file.close();
 
     return 0;

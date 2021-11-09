@@ -213,13 +213,28 @@ _stellarOnAll(StringSet<TSequence> & databases,
     }
     std::cout << std::endl;
 
-    bool writeDisabledFile = options.disableThresh != std::numeric_limits<unsigned>::max();
+    bool const writeDisabledQueriesFile = options.disableThresh != std::numeric_limits<unsigned>::max();
 
-    if (!_outputMatches(matches, queries, queryIDs, databases, options.verbose,
-                        options.outputFile, options.outputFormat, writeDisabledFile, options.disabledQueriesFile))
+    // Writes disabled query sequences to disabledFile.
+    if (writeDisabledQueriesFile)
+    {
+        std::ofstream disabledQueriesFile(toCString(options.disabledQueriesFile),
+                                          ::std::ios_base::out | ::std::ios_base::app);
+
+        if (!disabledQueriesFile.is_open()) {
+            std::cerr << "Could not open file for disabled queries." << std::endl;
+            return 1;
+        }
+
+        // write disabled query file
+        _writeDisabledQueriesToFastaFile(matches, queryIDs, queries, disabledQueriesFile);
+    }
+
+    if (!_outputMatches(matches, queryIDs, databases, options.verbose,
+                        options.outputFile, options.outputFormat))
         return 1;
 
-    _writeOutputStatistics(matches, options.verbose, writeDisabledFile);
+    _writeOutputStatistics(matches, options.verbose, writeDisabledQueriesFile);
 
     return 0;
 }
