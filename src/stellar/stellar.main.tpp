@@ -63,27 +63,58 @@ _stellarOnOne(String<TAlphabet> const & database,
     // finder
     StellarSwiftFinder<TAlphabet> swiftFinder(database, options.minRepeatLength, options.maxRepeatPeriod);
 
+    using TMatch = StellarMatch<String<TAlphabet> const, TId>;
+    auto _stellar = [&](StellarSwiftFinder<TAlphabet> & finder,
+                        StellarSwiftPattern<TAlphabet> & swiftPattern,
+                        StringSet<QueryMatches<TMatch> > & matches,
+                        auto tag) mutable -> StellarComputeStatistics
+    {
+        using TTag = decltype(tag);
+        SwiftHitVerifier<TTag> swiftVerifier
+        {
+            STELLAR_DESIGNATED_INITIALIZER(.epsilon = , options.epsilon),
+            STELLAR_DESIGNATED_INITIALIZER(.minLength = , options.minLength),
+            STELLAR_DESIGNATED_INITIALIZER(.xDrop = , options.xDrop),
+            STELLAR_DESIGNATED_INITIALIZER(.disableThresh = , options.disableThresh),
+            // compactThresh is basically an output-parameter; will be updated in kernel and propagated back
+            // outside of this function, the reason why StellarOptions can't be passed as const to this function.
+            // TODO: We might want to make this tied to the QueryMatches itself, as it should know then to consolidate
+            // the matches
+            STELLAR_DESIGNATED_INITIALIZER(.compactThresh = , options.compactThresh),
+            STELLAR_DESIGNATED_INITIALIZER(.numMatches = , options.numMatches),
+            STELLAR_DESIGNATED_INITIALIZER(.databaseID = , databaseID),
+            STELLAR_DESIGNATED_INITIALIZER(.databaseStrand = , databaseStrand)
+        };
+
+        return _stellarKernel(finder, swiftPattern, matches, swiftVerifier);
+    };
+
+    StellarComputeStatistics statistics;
+
     // stellar
     if (options.fastOption == CharString("exact"))
-        stellar(swiftFinder, swiftPattern, options.epsilon, options.minLength, options.xDrop,
-                options.disableThresh, options.compactThresh, options.numMatches, options.verbose,
-                databaseID, databaseStrand, matches, AllLocal());
+        statistics = _stellar(swiftFinder, swiftPattern, matches, AllLocal());
     else if (options.fastOption == "bestLocal")
-        stellar(swiftFinder, swiftPattern, options.epsilon, options.minLength, options.xDrop,
-                options.disableThresh, options.compactThresh, options.numMatches, options.verbose,
-                databaseID, databaseStrand, matches, BestLocal());
+        statistics = _stellar(swiftFinder, swiftPattern, matches, BestLocal());
     else if (options.fastOption == "bandedGlobal")
-        stellar(swiftFinder, swiftPattern, options.epsilon, options.minLength, options.xDrop,
-                options.disableThresh, options.compactThresh, options.numMatches, options.verbose,
-                databaseID, databaseStrand, matches, BandedGlobal());
+        statistics = _stellar(swiftFinder, swiftPattern, matches, BandedGlobal());
     else if (options.fastOption == "bandedGlobalExtend")
-        stellar(swiftFinder, swiftPattern, options.epsilon, options.minLength, options.xDrop,
-                options.disableThresh, options.compactThresh, options.numMatches, options.verbose,
-                databaseID, databaseStrand, matches, BandedGlobalExtend());
+        statistics = _stellar(swiftFinder, swiftPattern, matches, BandedGlobalExtend());
     else
     {
         std::cerr << "\nUnknown verification strategy: " << options.fastOption << std::endl;
         return false;
+    }
+
+    if (options.verbose)
+        _printStellarKernelStatistics(statistics);
+
+    for (QueryMatches<TMatch> & queryMatches : matches) {
+        removeOverlapsAndCompactMatches(queryMatches,
+                                        options.disableThresh,
+                                        /*compactThresh*/ 0,
+                                        options.minLength,
+                                        options.numMatches);
     }
 
     std::cout << std::endl;
