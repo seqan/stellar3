@@ -163,14 +163,15 @@ namespace app
 ///////////////////////////////////////////////////////////////////////////////
 // Initializes a Pattern object with the query sequences,
 //  and calls _stellarOnOne for each database sequence
-template <typename TSequence, typename TId>
+template <typename TAlphabet, typename TId>
 inline bool
-_stellarOnAll(StringSet<TSequence> & databases,
+_stellarOnAll(StringSet<String<TAlphabet>> & databases,
               StringSet<TId> const & databaseIDs,
-              StringSet<TSequence> const & queries,
+              StringSet<String<TAlphabet>> const & queries,
               StringSet<TId> const & queryIDs,
               StellarOptions & options)
 {
+    using TSequence = String<TAlphabet>;
     // pattern
     using TDependentQueries = StringSet<TSequence, Dependent<> > const;
     using TQGramIndex = Index<TDependentQueries, IndexQGram<SimpleShape, OpenAddressing> >;
@@ -239,7 +240,16 @@ _stellarOnAll(StringSet<TSequence> & databases,
     // adjust length for each matches of a single query (only for dna5 and rna5)
     _postproccessLengthAdjustment(matches);
 
-    _outputMatches(matches, queryIDs, databases, options.outputFormat, outputFile);
+    // output matches on positive database strand
+    _writeAllQueryMatchesToFile(matches, queryIDs, true, options.outputFormat, outputFile);
+
+    // output matches on negative database strand
+    if (IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE)
+    {
+        reverseComplement(databases);
+
+        _writeAllQueryMatchesToFile(matches, queryIDs, false, options.outputFormat, outputFile);
+    }
 
     _writeOutputStatistics(matches, options.verbose, writeDisabledQueriesFile);
 

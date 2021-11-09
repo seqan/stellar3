@@ -374,6 +374,19 @@ void _writeQueryMatchesToFile(QueryMatches<StellarMatch<TInfix const, TQueryId> 
         _writeMatchesToTxtFile(queryMatches, id, orientation, outputFile);
 };
 
+///////////////////////////////////////////////////////////////////////////////
+// Calls _writeMatchGff for each match in StringSet of String of matches.
+//   = Writes matches in gff format to a file.
+template <typename TInfix, typename TQueryId, typename TQueryIDs>
+void _writeAllQueryMatchesToFile(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > const & matches, TQueryIDs const & queryIDs, bool const orientation, CharString const & outputFormat, std::ofstream & outputFile)
+{
+    for (size_t i = 0; i < length(matches); i++) {
+        QueryMatches<StellarMatch<TInfix const, TQueryId>> const & queryMatches = value(matches, i);
+
+        _writeQueryMatchesToFile(queryMatches, queryIDs[i], orientation, outputFormat, outputFile);
+    }
+};
+
 template <typename TQuery>
 void _appendDisabledQueryToFastaFile(CharString const & id, TQuery const & query, std::ofstream & disabledQueriesFile)
 {
@@ -409,38 +422,6 @@ void _postproccessLengthAdjustment(StringSet<QueryMatches<StellarMatch<TInfix co
                                                                          length(source(firstMatch.row2)));
                 break;
             }
-        }
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Calls _writeMatchGff for each match in StringSet of String of matches.
-//   = Writes matches in gff format to a file.
-template<typename TInfix, typename TQueryId, typename TIds, typename TDatabases>
-void
-_outputMatches(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > & matches,
-               TIds const & ids,
-               TDatabases & databases,
-               CharString const & outputFormat,
-               std::ofstream & outputFile) {
-    typedef typename Value<TInfix>::Type TAlphabet;
-
-    // output matches on positive database strand
-    for (size_t i = 0; i < length(matches); i++) {
-        QueryMatches<StellarMatch<TInfix const, TQueryId>> const & queryMatches = value(matches, i);
-
-        _writeQueryMatchesToFile(queryMatches, ids[i], true, outputFormat, outputFile);
-    }
-
-    if (IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE)
-    {
-        reverseComplement(databases);
-
-        // output matches on negative database strand
-        for (size_t i = 0; i < length(matches); i++) {
-            QueryMatches<StellarMatch<TInfix const, TQueryId>> const & queryMatches = value(matches, i);
-
-            _writeQueryMatchesToFile(queryMatches, ids[i], false, outputFormat, outputFile);
         }
     }
 }
