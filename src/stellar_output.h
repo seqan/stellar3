@@ -413,35 +413,50 @@ _outputMatches(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > &
         }
     }
 
-    // output matches on positive database strand
+    // compute output statistics
     for (size_t i = 0; i < length(matches); i++) {
-        QueryMatches<StellarMatch<TInfix const, TQueryId>> & queryMatches = value(matches, i);
+        QueryMatches<StellarMatch<TInfix const, TQueryId>> const & queryMatches = value(matches, i);
 
-        size_t const queryMatchesCount = length(queryMatches.matches);
-        numMatches += queryMatchesCount;
+        numMatches += length(queryMatches.matches);
 
-        if (writeDisabledFile && queryMatches.disabled) {
-            daFile << ">" << ids[i] << "\n";
-            daFile << queries[i] << "\n\n";
+        if (queryMatches.disabled)
             ++numDisabled;
-        }
-
-        if (queryMatchesCount == 0u)
-            continue;
-
-        if (IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE) {
-            for (StellarMatch<TInfix const, TQueryId> const & match : queryMatches.matches) {
-                queryMatches.lengthAdjustment = _computeLengthAdjustment(length(source((match).row1)),
-                                                                         length(source((match).row2)));
-                break;
-            }
-        }
 
         for (StellarMatch<TInfix const, TQueryId> const & match : queryMatches.matches) {
             size_t len = std::max<size_t>(length(match.row1), length(match.row2));
             totalLength += len;
             maxLength = std::max<size_t>(maxLength, len);
         }
+    }
+
+    // write disabled query file
+    if (writeDisabledFile)
+    {
+        for (size_t i = 0; i < length(matches); i++) {
+            QueryMatches<StellarMatch<TInfix const, TQueryId>> const & queryMatches = value(matches, i);
+
+            if (!queryMatches.disabled)
+                continue;
+
+            daFile << ">" << ids[i] << "\n";
+            daFile << queries[i] << "\n\n";
+        }
+    }
+
+    // adjust length for each matches of a single query (only for dna5 and rna5)
+    if (IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE) {
+        for (QueryMatches<StellarMatch<TInfix const, TQueryId>> & queryMatches: matches) {
+            for (StellarMatch<TInfix const, TQueryId> const & match : queryMatches.matches) {
+                queryMatches.lengthAdjustment = _computeLengthAdjustment(length(source((match).row1)),
+                                                                         length(source((match).row2)));
+                break;
+            }
+        }
+    }
+
+    // output matches on positive database strand
+    for (size_t i = 0; i < length(matches); i++) {
+        QueryMatches<StellarMatch<TInfix const, TQueryId>> const & queryMatches = value(matches, i);
 
         _writeQueryMatchesToFile(queryMatches, ids[i], true, format, file);
     }
