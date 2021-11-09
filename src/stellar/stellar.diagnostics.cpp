@@ -94,6 +94,16 @@ void _writeOutputStatistics(StellarOutputStatistics const & statistics, bool con
     }
 }
 
+void _printStellarKernelStatistics(StellarComputeStatistics const & statistics)
+{
+    if (statistics.numSwiftHits == 0)
+        return;
+
+    std::cout << std::endl << "    # SWIFT hits      : " << statistics.numSwiftHits;
+    std::cout << std::endl << "    Longest hit       : " << statistics.maxLength;
+    std::cout << std::endl << "    Avg hit length    : " << statistics.totalLength/statistics.numSwiftHits;
+}
+
 } // namespace stellar::app
 
 } // namespace stellar

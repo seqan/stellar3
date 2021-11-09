@@ -121,6 +121,14 @@ struct StellarStatistics
     }
 };
 
+struct StellarComputeStatistics
+{
+    size_t numSwiftHits = 0;
+
+    size_t maxLength = 0;
+    size_t totalLength = 0;
+};
+
 struct StellarOutputStatistics
 {
     size_t maxLength{0u};

@@ -28,6 +28,8 @@ void _writeMoreCalculatedParams(StellarOptions const & options, TStringSet const
 
 void _writeOutputStatistics(StellarOutputStatistics const & statistics, bool const verbose, bool const writeDisabledQueriesFile);
 
+void _printStellarKernelStatistics(StellarComputeStatistics const & statistics);
+
 } // namespace stellar::app
 
 } // namespace stellar
