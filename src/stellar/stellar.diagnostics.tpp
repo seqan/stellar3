@@ -72,39 +72,6 @@ void _writeMoreCalculatedParams(StellarOptions const & options, TStringSet const
     }
 }
 
-template<typename TInfix, typename TQueryId>
-void _writeOutputStatistics(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > const & matches, bool const verbose, bool const writeDisabledQueriesFile)
-{
-    size_t maxLength = 0;
-    size_t totalLength = 0;
-    size_t numMatches = 0;
-    size_t numDisabled = 0;
-
-    // compute output statistics
-    for (QueryMatches<StellarMatch<TInfix const, TQueryId>> const & queryMatches: matches) {
-        numMatches += length(queryMatches.matches);
-
-        if (queryMatches.disabled)
-            ++numDisabled;
-
-        for (StellarMatch<TInfix const, TQueryId> const & match : queryMatches.matches) {
-            size_t len = std::max<size_t>(length(match.row1), length(match.row2));
-            totalLength += len;
-            maxLength = std::max<size_t>(maxLength, len);
-        }
-    }
-
-    std::cout << "# Eps-matches     : " << numMatches << std::endl;
-    if (verbose) {
-        if (numMatches > 0) {
-            std::cout << "Longest eps-match : " << maxLength << std::endl;
-            std::cout << "Avg match length  : " << totalLength / numMatches << std::endl;
-        }
-        if (writeDisabledQueriesFile)
-            std::cout << "# Disabled queries: " << numDisabled << std::endl;
-    }
-}
-
 } // namespace stellar::app
 
 } // namespace stellar

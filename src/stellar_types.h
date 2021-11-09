@@ -121,6 +121,14 @@ struct StellarStatistics
     }
 };
 
+struct StellarOutputStatistics
+{
+    size_t maxLength{0u};
+    size_t totalLength{0u};
+    size_t numMatches{0u};
+    size_t numDisabled{0u};
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 // Container for storing local alignment matches of one query sequence
 template<typename TMatch_>

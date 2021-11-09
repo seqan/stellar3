@@ -81,6 +81,19 @@ void _writeFileNames(StellarOptions const & options)
     std::cout << std::endl;
 }
 
+void _writeOutputStatistics(StellarOutputStatistics const & statistics, bool const verbose, bool const writeDisabledQueriesFile)
+{
+    std::cout << "# Eps-matches     : " << statistics.numMatches << std::endl;
+    if (verbose) {
+        if (statistics.numMatches > 0) {
+            std::cout << "Longest eps-match : " << statistics.maxLength << std::endl;
+            std::cout << "Avg match length  : " << statistics.totalLength / statistics.numMatches << std::endl;
+        }
+        if (writeDisabledQueriesFile)
+            std::cout << "# Disabled queries: " << statistics.numDisabled << std::endl;
+    }
+}
+
 } // namespace stellar::app
 
 } // namespace stellar

@@ -387,6 +387,27 @@ void _writeAllQueryMatchesToFile(StringSet<QueryMatches<StellarMatch<TInfix cons
     }
 };
 
+template <typename TInfix, typename TQueryId>
+StellarOutputStatistics _computeOutputStatistics(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > const & matches)
+{
+    StellarOutputStatistics statistics{};
+
+    for (QueryMatches<StellarMatch<TInfix const, TQueryId>> const & queryMatches : matches) {
+        statistics.numMatches += length(queryMatches.matches);
+
+        if (queryMatches.disabled)
+            ++statistics.numDisabled;
+
+        for (StellarMatch<TInfix const, TQueryId> const & match : queryMatches.matches) {
+            size_t len = std::max<size_t>(length(match.row1), length(match.row2));
+            statistics.totalLength += len;
+            statistics.maxLength = std::max<size_t>(statistics.maxLength, len);
+        }
+    }
+
+    return statistics;
+}
+
 template <typename TQuery>
 void _appendDisabledQueryToFastaFile(CharString const & id, TQuery const & query, std::ofstream & disabledQueriesFile)
 {

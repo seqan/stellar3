@@ -251,7 +251,9 @@ _stellarOnAll(StringSet<String<TAlphabet>> & databases,
         _writeAllQueryMatchesToFile(matches, queryIDs, false, options.outputFormat, outputFile);
     }
 
-    _writeOutputStatistics(matches, options.verbose, writeDisabledQueriesFile);
+    // compute and print output statistics
+    StellarOutputStatistics const outputStatistics = _computeOutputStatistics(matches);
+    _writeOutputStatistics(outputStatistics, options.verbose, writeDisabledQueriesFile);
 
     return 0;
 }
