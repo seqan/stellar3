@@ -61,7 +61,7 @@ inline bool _verifyFast(TTag) {
 template<typename TAlign, typename TPos, typename TScoreValue>
 inline void
 _appendNegativeSegment(TAlign const & align,
-                       TPos & pos, TPos len,
+                       TPos & pos, TPos const len,
                        Score<TScoreValue> const & scoreMatrix,
                        String<Triple<TPos, TPos, TScoreValue> > & queue) {
     typedef Triple<TPos, TPos, TScoreValue> TMerger;
@@ -87,7 +87,7 @@ _appendNegativeSegment(TAlign const & align,
 template<typename TAlign, typename TPos, typename TScoreValue>
 inline void
 _appendPositiveSegment(TAlign const & align,
-                       TPos & pos, TPos len,
+                       TPos & pos, TPos const len,
                        Score<TScoreValue> const & scoreMatrix,
                        String<Triple<TPos, TPos, TScoreValue> > & queue) {
     if (pos == len) return;
@@ -160,10 +160,10 @@ _positiveMerge(String<TMerger> & queue) {
 // Splits an alignment into sub-alignments that contain no x-Drop.
 template<typename TAlign, typename TScoreValue, typename TScoreValue1, typename TScoreValue2>
 void
-_splitAtXDrops(TAlign & align,
-               Score<TScoreValue> & scoreMatrix,
-               TScoreValue1 scoreDropOff,
-               TScoreValue2 minScore,
+_splitAtXDrops(TAlign const & align,
+               Score<TScoreValue> const & scoreMatrix,
+               TScoreValue1 const scoreDropOff,
+               TScoreValue2 const minScore,
                String<TAlign> & alignmentString) {
     typedef typename Position<Row<TAlign> >::Type TPos;
     typedef Triple<TPos, TPos, TScoreValue> TMerger;
@@ -228,7 +228,7 @@ _splitAtXDrops(TAlign & align,
 //  whether the non-overlaping parts are shorter than minLength.
 template<typename TMatch, typename TSize>
 bool
-checkOverlap(TMatch & matchA, TMatch & matchB, TSize minLength) {
+checkOverlap(TMatch const & matchA, TMatch const & matchB, TSize const minLength) {
     // check id and orienation
     if (matchA.id != matchB.id || matchA.orientation != matchB.orientation) return false;
     if (matchA.id == TMatch::INVALID_ID || matchB.id == TMatch::INVALID_ID) return false;
@@ -266,7 +266,7 @@ checkOverlap(TMatch & matchA, TMatch & matchB, TSize minLength) {
 
 template<typename TRow, typename TPosition>
 TPosition
-projectedPosition(TRow & rowA, TRow & rowB, TPosition pos)
+projectedPosition(TRow const & rowA, TRow const & rowB, TPosition pos)
 {
     return toSourcePosition(rowB, toViewPosition(rowA, pos));
 }
@@ -276,7 +276,7 @@ projectedPosition(TRow & rowA, TRow & rowB, TPosition pos)
 // It is assumed that matchA.begin1 < matchB.begin1.
 template<typename TMatch, typename TSize>
 bool
-_checkAlignColOverlap(TMatch & matchA, TMatch & matchB, TSize minLength)
+_checkAlignColOverlap(TMatch const & matchA, TMatch const & matchB, TSize const minLength)
 {
     TSize equalCols = 0;
     TSize diffCols = 0;
@@ -296,7 +296,7 @@ _checkAlignColOverlap(TMatch & matchA, TMatch & matchB, TSize minLength)
 ///////////////////////////////////////////////////////////////////////////////
 // Marks matches that overlap in both sequences with a longer match as invalid.
 template<typename TSequence, typename TId, typename TSize>
-void maskOverlaps(String<StellarMatch<TSequence, TId> > & matches, TSize minLength)
+void maskOverlaps(String<StellarMatch<TSequence, TId> > & matches, TSize const minLength)
 {
     typedef StellarMatch<TSequence, TId>                    TMatch;
     typedef typename TMatch::TPos                           TPos;
@@ -362,7 +362,7 @@ void maskOverlaps(String<StellarMatch<TSequence, TId> > & matches, TSize minLeng
 // Removes matches that are marked as invalid, and then keeps only the numMatches best matches.
 template<typename TSequence, typename TId, typename TSize>
 void
-compactMatches(String<StellarMatch<TSequence, TId> > & matches, TSize numMatches) {
+compactMatches(String<StellarMatch<TSequence, TId> > & matches, TSize const numMatches) {
     typedef StellarMatch<TSequence, TId>                        TMatch;
     typedef typename Iterator<String<TMatch>, Standard>::Type   TIterator;
 
@@ -390,10 +390,10 @@ template<typename TSource, typename TId, typename TSize, typename TSize1>
 inline bool
 _insertMatch(QueryMatches<StellarMatch<TSource, TId> > & queryMatches,
              StellarMatch<TSource, TId> const & match,
-             TSize minLength,
-             TSize1 disableThresh,
+             TSize const minLength,
+             TSize1 const disableThresh,
              TSize1 & compactThresh,
-             TSize1 numMatches) {
+             TSize1 const numMatches) {
 
     appendValue(queryMatches.matches, match);
 
@@ -424,15 +424,15 @@ template<typename TInfix, typename TEpsilon, typename TSize, typename TDelta,
 void
 verifySwiftHit(Segment<TInfix, InfixSegment> const & infH,
                Segment<TInfix, InfixSegment> const & infV,
-               TEpsilon eps,
-               TSize minLength,
+               TEpsilon const eps,
+               TSize const minLength,
                TDrop /*xDrop*/,
-               TDelta delta,
-               TSize1 disableThresh,
+               TDelta const delta,
+               TSize1 const disableThresh,
                TSize1 & compactThresh,
-               TSize1 numMatches,
-               TId & databaseId,
-               bool dbStrand,
+               TSize1 const numMatches,
+               TId const & databaseId,
+               bool const dbStrand,
                QueryMatches<StellarMatch<TSource, TId> > & matches,
                BandedGlobal) {
     typedef Segment<TInfix, InfixSegment> TSegment;
@@ -491,15 +491,15 @@ template<typename TInfix, typename TEpsilon, typename TSize, typename TDelta,
 void
 verifySwiftHit(Segment<TInfix, InfixSegment> const & infH,
                Segment<TInfix, InfixSegment> const & infV,
-               TEpsilon eps,
-               TSize minLength,
-               TDrop xDrop,
-               TDelta delta,
-               TSize1 disableThresh,
+               TEpsilon const eps,
+               TSize const minLength,
+               TDrop const xDrop,
+               TDelta const delta,
+               TSize1 const disableThresh,
                TSize1 & compactThresh,
-               TSize1 numMatches,
-               TId & databaseId,
-               bool dbStrand,
+               TSize1 const numMatches,
+               TId const & databaseId,
+               bool const dbStrand,
                QueryMatches<StellarMatch<TSource, TId> > & matches,
                BandedGlobalExtend) {
     typedef Segment<TInfix, InfixSegment> TSegment;
@@ -549,15 +549,15 @@ template<typename TInfix, typename TEpsilon, typename TSize, typename TDelta, ty
 void
 verifySwiftHit(Segment<TInfix, InfixSegment> const & infH,
                Segment<TInfix, InfixSegment> const & infV,
-               TEpsilon eps,
-               TSize minLength,
-               TDrop xDrop,
-               TDelta delta,
-               TSize1 disableThresh,
+               TEpsilon const eps,
+               TSize const minLength,
+               TDrop const xDrop,
+               TDelta const delta,
+               TSize1 const disableThresh,
                TSize1 & compactThresh,
-               TSize1 numMatches,
-               TId & databaseId,
-               bool dbStrand,
+               TSize1 const numMatches,
+               TId const & databaseId,
+               bool const dbStrand,
                QueryMatches<StellarMatch<TSource, TId> > & matches,
                TTag tag) {
     typedef Segment<TInfix, InfixSegment> TSegment;
@@ -651,15 +651,15 @@ template<typename TText, typename TStringSetSpec, typename TIndexSpec, typename 
          typename TMode, typename TSource, typename TId, typename TTag>
 void stellar(Finder<TText, Swift<SwiftLocal> > & finder,
              Pattern<Index<StringSet<TText, TStringSetSpec>, TIndexSpec>, Swift<SwiftLocal> > & pattern,
-             double epsilon,
-             TSize minLength,
-             TDrop xDrop,
-             TSize1 disableThresh,
+             double const epsilon,
+             TSize const minLength,
+             TDrop const xDrop,
+             TSize1 const disableThresh,
              TSize1 & compactThresh,
-             TSize1 numMatches,
-             TMode verbose,
-             TId & databaseID,
-             bool dbStrand,
+             TSize1 const numMatches,
+             TMode const verbose,
+             TId const & databaseID,
+             bool const dbStrand,
              StringSet<QueryMatches<StellarMatch<TSource, TId> > > & matches,
              TTag tag) {
     typedef StellarMatch<TSource, TId> TMatch;
@@ -731,17 +731,19 @@ template<typename TText, typename TIndex, typename TSize, typename TDrop,
          typename TSource, typename TId, typename TTag>
 void stellar(Finder<TText, Swift<SwiftLocal> > & finder,
              Pattern<TIndex, Swift<SwiftLocal> > & pattern,
-             double epsilon,
-             TSize minLength,
-             TDrop xDrop,
+             double const epsilon,
+             TSize const minLength,
+             TDrop const xDrop,
              StringSet<QueryMatches<StellarMatch<TSource, TId> > > & matches,
              TTag tag) {
-    unsigned maxValue = (unsigned)-1;
+    unsigned const maxValue = (unsigned)-1;
+    unsigned const disableThresh = maxValue;
+    unsigned const numMatches = disableThresh;
     unsigned compactThresh = 1000;
-    TId id = "db";
+    TId const id = "db";
 
     stellar(finder, pattern, epsilon, minLength, xDrop,
-            maxValue, compactThresh, maxValue, 0, id, true,
+            disableThresh, compactThresh, numMatches, /*verbose*/ false, id, /*databaseStrand*/ true,
             matches, tag);
 }
 

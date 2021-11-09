@@ -48,7 +48,7 @@ struct ExtensionEndPosition {
 // returns true if align has a match at pos, otherwise false
 template<typename TSource, typename TSize>
 inline bool
-isMatch(Align<TSource> const & align, TSize pos) {
+isMatch(Align<TSource> const & align, TSize const pos) {
 
     if(isGap(row(align, 0), pos)) {
         return false;
@@ -106,7 +106,7 @@ template<typename TPos, typename TFloat>
 inline bool
 _isEpsMatch(Triple<TPos, TPos, TPos> const & left,
            Triple<TPos, TPos, TPos> const & right,
-           TFloat eps) {
+           TFloat const eps) {
     // compute mismatches/indels and length
     TPos errors = right.i3 - left.i3 - (right.i2 - right.i1);
     TPos len = right.i1 - left.i2;
@@ -122,8 +122,8 @@ _isEpsMatch(Triple<TPos, TPos, TPos> const & left,
 template<typename TSource, typename TSize, typename TFloat>
 bool
 longestEpsMatch(Align<TSource> & align,
-                TSize matchMinLength,
-                TFloat epsilon) {
+                TSize const matchMinLength,
+                TFloat const epsilon) {
     // Preprocessing: compute and store gaps and lengths
     // A gap is a triple of gap begin position, gap end position, and total number of errors in sequence from begin
     //   to end position of this gap.
@@ -362,8 +362,8 @@ template<typename TSequenceA, typename TSequenceB, typename TSeed>
 void
 _reverseLeftExtension(Segment<TSequenceA, InfixSegment> const & infH,
                       Segment<TSequenceB, InfixSegment> const & infV,
-                      TSeed & seed,
-                      TSeed & seedOld) {
+                      TSeed const & seed,
+                      TSeed const & seedOld) {
     Segment<TSequenceA, InfixSegment> infixH(host(infH), beginPositionH(seed), beginPositionH(seedOld));
     Segment<TSequenceB, InfixSegment> infixV(host(infV), beginPositionV(seed), beginPositionV(seedOld));
     reverse(infixH);
@@ -380,8 +380,8 @@ _fillMatrixBestEndsLeft(TMatrix & matrixLeft,
                         String<TPossEnd> & possibleEndsLeft,
                         Segment<TSequence, InfixSegment> const & infH,
                         Segment<TSequence, InfixSegment> const & infV,
-                        TSeed & seed,
-                        TSeed & seedOld,
+                        TSeed const & seed,
+                        TSeed const & seedOld,
                         TScore const & scoreMatrix) {
 
     typedef Segment<TSequence, InfixSegment> TInfix;
@@ -429,8 +429,8 @@ _fillMatrixBestEndsRight(TMatrix & matrixRight,
                          String<TPossEnd> & possibleEndsRight,
                          Segment<TSequence, InfixSegment> const & infH,
                          Segment<TSequence, InfixSegment> const & infV,
-                         TSeed & seed,
-                         TSeed & seedOld,
+                         TSeed const & seed,
+                         TSeed const & seedOld,
                          TScore const & scoreMatrix) {
     typedef Segment<TSequence, InfixSegment> TInfix;
 
@@ -573,8 +573,8 @@ _tracebackLeft(TMatrix const & matrixLeft,
                TCoord const & coordinate,
                Segment<TSequence, InfixSegment> const & infH,
                Segment<TSequence, InfixSegment> const & infV,
-               TSeed & seed,
-               TSeed & seedOld,
+               TSeed const & seed,
+               TSeed const & seedOld,
                TPos const endLeftH,
                TPos const endLeftV,
                TAlign & align) {
@@ -625,8 +625,8 @@ _tracebackRight(TMatrix const & matrixRight,
                TCoord const & coordinate,
                Segment<TSequence, InfixSegment> const & infH,
                Segment<TSequence, InfixSegment> const & infV,
-               TSeed & seed,
-               TSeed & seedOld,
+               TSeed const & seed,
+               TSeed const & seedOld,
                TPos const endRightH,
                TPos const endRightV,
                TAlign & align) {
@@ -674,8 +674,8 @@ template<typename TInfix, typename TSeed, typename TPos, typename TDir, typename
 bool
 _bestExtension(TInfix const & infH,
                TInfix const & infV,
-               TSeed & seed,
-               TSeed & seedOld,
+               TSeed const & seed,
+               TSeed const & seedOld,
                TPos const alignLen,
                TPos const alignErr,
                TScore const & scoreMatrix,
@@ -785,13 +785,13 @@ integrateAlign(Align<TSource, TSpec1> & align,
 template<typename TScoreValue, typename TScore, typename TSequence, typename TSize, typename TEps, typename TAlign>
 bool
 _extendAndExtract(Align<Segment<Segment<TSequence, InfixSegment>, InfixSegment> > const & localAlign,
-                  TScoreValue scoreDropOff,
+                  TScoreValue const scoreDropOff,
                   TScore const & scoreMatrix,
                   Segment<typename Infix<TSequence>::Type, InfixSegment> const & infH,
-                  Segment<typename Infix<TSequence>::Type, InfixSegment>  const & infV,
-                  ExtensionDirection direction,
-                  TSize minLength,
-                  TEps eps,
+                  Segment<typename Infix<TSequence>::Type, InfixSegment> const & infV,
+                  ExtensionDirection const direction,
+                  TSize const minLength,
+                  TEps const eps,
                   TAlign & align) {
     typedef typename Position<TSequence>::Type TPos;
     typedef Seed<Simple> TSeed;

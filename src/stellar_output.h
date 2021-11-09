@@ -34,7 +34,7 @@ using namespace seqan;
 // Based on the NCBI BLAST code by Tom Madden.
 template<typename TSize>
 TSize
-_computeLengthAdjustment(TSize dbLength, TSize queryLength) {
+_computeLengthAdjustment(TSize const dbLength, TSize const queryLength) {
 
     const double K = 0.34;
     const double logK = log(K);
@@ -196,7 +196,7 @@ _computeIdentity(TRow const & row0, TRow const & row1) {
 // Calculates the E-value from two alignment rows and a specified length adjustment
 template<typename TRow, typename TSize>
 double
-_computeEValue(TRow & row0, TRow & row1, TSize lengthAdjustment) {
+_computeEValue(TRow const & row0, TRow const & row1, TSize const lengthAdjustment) {
     TSize m = length(source(row0)) - lengthAdjustment;
     TSize n = length(source(row1)) - lengthAdjustment;
     double minusLambda = -1.19; // -lambda
@@ -216,7 +216,7 @@ _computeEValue(TRow & row0, TRow & row1, TSize lengthAdjustment) {
 //  of matches, and the specified length of query and database sequence
 template<typename TSize>
 double
-_computeEValue(TSize score, TSize len0, TSize len1) {
+_computeEValue(TSize const score, TSize const len0, TSize const len1) {
     double minusLambda = -1.19; // -lambda
     double K = 0.34;
 
@@ -234,7 +234,7 @@ void
 _writeMatchGff(TId const & databaseID,
               TId const & patternID,
               bool const databaseStrand,
-              TSize lengthAdjustment,
+              TSize const lengthAdjustment,
               TRow const & row0,
               TRow const & row1,
               TFile & file) {
@@ -287,7 +287,7 @@ void
 _writeMatch(TId const & databaseID,
             TId const & patternID,
             bool const databaseStrand,
-            TSize lengthAdjustment,
+            TSize const lengthAdjustment,
             TRow const & row0,
             TRow const & row1,
             TFile & file) {
@@ -344,9 +344,9 @@ bool
 _outputMatches(StringSet<QueryMatches<StellarMatch<TInfix, TQueryId> > > & matches,
                TIds const & ids,
                TDatabases & databases,
-               TMode verbose,
-               TFile & fileName,
-               TString & format) {
+               TMode const verbose,
+               TFile const & fileName,
+               TString const & format) {
     typedef StellarMatch<TInfix, TQueryId> TMatch;
     typedef typename Size<typename TMatch::TAlign>::Type TSize;
     typedef typename Iterator<String<TMatch> >::Type TIterator;
@@ -438,13 +438,13 @@ template<typename TInfix, typename TQueryId, typename TQueries, typename TDataba
          typename TMode, typename TFile, typename TString>
 bool
 _outputMatches(StringSet<QueryMatches<StellarMatch<TInfix, TQueryId> > > & matches,
-               TQueries & queries,
+               TQueries const & queries,
                TIds const & ids,
                TDatabases & databases,
-               TMode verbose,
-               TFile & fileName,
-               TString & format,
-               TString & disabledFile) {
+               TMode const verbose,
+               TFile const & fileName,
+               TString const & format,
+               TString const & disabledFile) {
     typedef StellarMatch<TInfix, TQueryId> TMatch;
     typedef typename Size<typename TMatch::TAlign>::Type TSize;
     typedef typename Iterator<String<TMatch> >::Type TIterator;
