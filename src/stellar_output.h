@@ -396,6 +396,23 @@ void _writeDisabledQueriesToFastaFile(StringSet<QueryMatches<StellarMatch<TInfix
     }
 }
 
+template <typename TInfix, typename TQueryId>
+void _postproccessLengthAdjustment(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > & matches)
+{
+    using TAlphabet = typename Value<TInfix>::Type;
+
+    constexpr bool is_dna5_or_rna5 = IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE;
+    if constexpr (is_dna5_or_rna5) {
+        for (QueryMatches<StellarMatch<TInfix const, TQueryId>> & queryMatches : matches) {
+            for (StellarMatch<TInfix const, TQueryId> const & firstMatch : queryMatches.matches) {
+                queryMatches.lengthAdjustment = _computeLengthAdjustment(length(source(firstMatch.row1)),
+                                                                         length(source(firstMatch.row2)));
+                break;
+            }
+        }
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Calls _writeMatchGff for each match in StringSet of String of matches.
 //   = Writes matches in gff format to a file.
@@ -415,17 +432,6 @@ _outputMatches(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > &
     if (!file.is_open()) {
         std::cerr << "Could not open output file." << std::endl;
         return 1;
-    }
-
-    // adjust length for each matches of a single query (only for dna5 and rna5)
-    if (IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE) {
-        for (QueryMatches<StellarMatch<TInfix const, TQueryId>> & queryMatches: matches) {
-            for (StellarMatch<TInfix const, TQueryId> const & match : queryMatches.matches) {
-                queryMatches.lengthAdjustment = _computeLengthAdjustment(length(source((match).row1)),
-                                                                         length(source((match).row2)));
-                break;
-            }
-        }
     }
 
     // output matches on positive database strand

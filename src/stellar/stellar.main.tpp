@@ -230,6 +230,9 @@ _stellarOnAll(StringSet<TSequence> & databases,
         _writeDisabledQueriesToFastaFile(matches, queryIDs, queries, disabledQueriesFile);
     }
 
+    // adjust length for each matches of a single query (only for dna5 and rna5)
+    _postproccessLengthAdjustment(matches);
+
     if (!_outputMatches(matches, queryIDs, databases, options.verbose,
                         options.outputFile, options.outputFormat))
         return 1;
