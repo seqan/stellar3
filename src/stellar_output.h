@@ -354,15 +354,12 @@ _outputMatches(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > &
                TString const & format,
                bool const writeDisabledFile,
                TString const & disabledFile) {
-    typedef StellarMatch<TInfix const, TQueryId> TMatch;
-    typedef typename Size<typename TMatch::TAlign>::Type TSize;
-    typedef typename Iterator<String<TMatch> >::Type TIterator;
     typedef typename Value<TInfix>::Type TAlphabet;
 
-    TSize maxLength = 0;
-    TSize totalLength = 0;
-    TSize numMatches = 0;
-    TSize numDisabled = 0;
+    size_t maxLength = 0;
+    size_t totalLength = 0;
+    size_t numMatches = 0;
+    size_t numDisabled = 0;
 
     std::ofstream daFile, file;
     file.open(toCString(fileName), ::std::ios_base::out | ::std::ios_base::app);
@@ -381,8 +378,11 @@ _outputMatches(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > &
     }
 
     // output matches on positive database strand
-    for (TSize i = 0; i < length(matches); i++) {
-        QueryMatches<TMatch> &queryMatches = value(matches, i);
+    for (size_t i = 0; i < length(matches); i++) {
+        QueryMatches<StellarMatch<TInfix const, TQueryId>> & queryMatches = value(matches, i);
+
+        size_t const queryMatchesCount = length(queryMatches.matches);
+        numMatches += queryMatchesCount;
 
         if (writeDisabledFile && queryMatches.disabled) {
             daFile << ">" << ids[i] << "\n";
@@ -390,30 +390,33 @@ _outputMatches(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > &
             ++numDisabled;
         }
 
-        TIterator it = begin(queryMatches.matches);
-        TIterator itEnd = end(queryMatches.matches);
+        if (queryMatchesCount == 0u)
+            continue;
 
-        if (it != itEnd && (IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE)) {
-            queryMatches.lengthAdjustment = _computeLengthAdjustment(length(source((*it).row1)),
-                                                                     length(source((*it).row2)));
-        }
-
-        while (it < itEnd) {
-            TSize len = _max(length((*it).row1), length((*it).row2));
-            totalLength += len;
-            if(len > maxLength) maxLength = len;
-
-            if ((*it).orientation) {
-                if (format == "gff")
-                    _writeMatchGff((*it).id, ids[i], (*it).orientation, queryMatches.lengthAdjustment,
-                                   (*it).row1, (*it).row2, file);
-                else
-                    _writeMatch((*it).id, ids[i], (*it).orientation, queryMatches.lengthAdjustment,
-                                (*it).row1, (*it).row2, file);
+        if (IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE) {
+            for (StellarMatch<TInfix const, TQueryId> const & match : queryMatches.matches) {
+                queryMatches.lengthAdjustment = _computeLengthAdjustment(length(source((match).row1)),
+                                                                         length(source((match).row2)));
+                break;
             }
-            ++it;
         }
-        numMatches += length(queryMatches.matches);
+
+        for (StellarMatch<TInfix const, TQueryId> const & match : queryMatches.matches) {
+            size_t len = std::max<size_t>(length(match.row1), length(match.row2));
+            totalLength += len;
+            maxLength = std::max<size_t>(maxLength, len);
+        }
+
+        for (StellarMatch<TInfix const, TQueryId> const & match : queryMatches.matches) {
+            if (match.orientation) {
+                if (format == "gff")
+                    _writeMatchGff(match.id, ids[i], match.orientation, queryMatches.lengthAdjustment,
+                                   match.row1, match.row2, file);
+                else
+                    _writeMatch(match.id, ids[i], match.orientation, queryMatches.lengthAdjustment,
+                                match.row1, match.row2, file);
+            }
+        }
     }
 
     if (IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE)
@@ -421,22 +424,18 @@ _outputMatches(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > &
         reverseComplement(databases);
 
         // output matches on negative database strand
-        for (TSize i = 0; i < length(matches); i++) {
-            QueryMatches<TMatch> &queryMatches = value(matches, i);
+        for (size_t i = 0; i < length(matches); i++) {
+            QueryMatches<StellarMatch<TInfix const, TQueryId>> const & queryMatches = value(matches, i);
 
-            TIterator it = begin(queryMatches.matches);
-            TIterator itEnd = end(queryMatches.matches);
-
-            while (it < itEnd) {
-                if (!(*it).orientation) {
+            for (StellarMatch<TInfix const, TQueryId> const & match : queryMatches.matches) {
+                if (!match.orientation) {
                     if (format == "gff")
-                        _writeMatchGff((*it).id, ids[i], (*it).orientation, queryMatches.lengthAdjustment,
-                                       (*it).row1, (*it).row2, file);
+                        _writeMatchGff(match.id, ids[i], match.orientation, queryMatches.lengthAdjustment,
+                                       match.row1, match.row2, file);
                     else
-                        _writeMatch((*it).id, ids[i], (*it).orientation, queryMatches.lengthAdjustment,
-                                    (*it).row1, (*it).row2, file);
+                        _writeMatch(match.id, ids[i], match.orientation, queryMatches.lengthAdjustment,
+                                    match.row1, match.row2, file);
                 }
-                ++it;
             }
         }
     }
