@@ -653,30 +653,51 @@ verifySwiftHit(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> con
     }
 }
 
+template <typename TVerifierTag>
+struct SwiftHitVerifier
+{
+    using TSize = int;
+    using TDrop = double;
+    using TSize1 = unsigned;
+    using TId = CharString;
+
+    double const epsilon;
+    TSize const minLength;
+    TDrop const xDrop;
+    TSize1 const disableThresh;
+    TSize1 & compactThresh; // will be updated in _insertMatch
+    TSize1 const numMatches;
+    TId const & databaseID;
+    bool const databaseStrand;
+
+    template <typename TFinderSegment, typename TPatternSegment, typename TDelta, typename TSource, typename TId>
+    void verify(TFinderSegment & finderSegment,
+                TPatternSegment & patternSegment,
+                TDelta const delta,
+                QueryMatches<StellarMatch<TSource const, TId> > & queryMatches)
+    {
+        verifySwiftHit(finderSegment, patternSegment, epsilon, minLength, xDrop,
+                       delta, disableThresh, compactThresh,
+                       numMatches, databaseID, databaseStrand, queryMatches, TVerifierTag{});
+    }
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 // Calls swift filter and verifies swift hits. = Computes eps-matches.
-template<typename TAlphabet, typename TSize, typename TDrop, typename TSize1,
-         typename TMode, typename TSource, typename TId, typename TTag>
-void stellar(StellarSwiftFinder<TAlphabet> & finder,
-             StellarSwiftPattern<TAlphabet> & pattern,
-             double const epsilon,
-             TSize const minLength,
-             TDrop const xDrop,
-             TSize1 const disableThresh,
-             TSize1 & compactThresh,
-             TSize1 const numMatches,
-             TMode const verbose,
-             TId const & databaseID,
-             bool const dbStrand,
-             StringSet<QueryMatches<StellarMatch<TSource const, TId> > > & matches,
-             TTag tag) {
+// A basic block for stellar
+template<typename TAlphabet, typename TSource, typename TId, typename TTag>
+StellarComputeStatistics
+_stellarKernel(StellarSwiftFinder<TAlphabet> & finder,
+               StellarSwiftPattern<TAlphabet> & pattern,
+               StringSet<QueryMatches<StellarMatch<TSource const, TId> > > & matches,
+               SwiftHitVerifier<TTag> & swiftVerifier) {
     using TText = String<TAlphabet>;
     using TMatch = StellarMatch<TSource const, TId>;
     using TInfix = typename Infix<TText const>::Type;
 
     StellarComputeStatistics statistics{};
 
-    while (find(finder, pattern, epsilon, minLength)) {
+    while (find(finder, pattern, swiftVerifier.epsilon, swiftVerifier.minLength)) {
         TInfix const finderInfix = infix(finder);
         TInfix const finderInfixSeq = infix(haystack(finder), 0, length(haystack(finder)));
         Segment<TInfix, InfixSegment> finderSegment(finderInfixSeq,
@@ -687,7 +708,9 @@ void stellar(StellarSwiftFinder<TAlphabet> & finder,
         statistics.totalLength += length(finderInfix);
         statistics.maxLength = std::max<size_t>(statistics.maxLength, length(finderInfix));
 
-        if (value(matches, pattern.curSeqNo).disabled) continue;
+        QueryMatches<TMatch> & queryMatches = value(matches, pattern.curSeqNo);
+
+        if (queryMatches.disabled) continue;
 
         TText const & patternSeq = getSequenceByNo(pattern.curSeqNo, indexText(needle(pattern)));
         TInfix const patternInfix = infix(pattern, patternSeq);
@@ -703,23 +726,55 @@ void stellar(StellarSwiftFinder<TAlphabet> & finder,
         //std::cout << endPosition(patternSegment) << std::endl;
 
         // verification
-        verifySwiftHit(finderSegment, patternSegment, epsilon, minLength, xDrop,
-                       pattern.bucketParams[0].delta + pattern.bucketParams[0].overlap, disableThresh, compactThresh,
-                       numMatches, databaseID, dbStrand, value(matches, pattern.curSeqNo), tag);
+        swiftVerifier.verify(finderSegment,
+                             patternSegment,
+                             pattern.bucketParams[0].delta + pattern.bucketParams[0].overlap,
+                             queryMatches);
     }
+
+    return statistics;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Calls swift filter and verifies swift hits. = Computes eps-matches.
+template<typename TAlphabet, typename TSize, typename TDrop, typename TSize1,
+         typename TMode, typename TSource, typename TId, typename TTag>
+void stellar(StellarSwiftFinder<TAlphabet> & finder,
+             StellarSwiftPattern<TAlphabet> & pattern,
+             double const epsilon,
+             TSize const minLength,
+             TDrop const xDrop,
+             TSize1 const disableThresh,
+             TSize1 & compactThresh,
+             TSize1 const numMatches,
+             TMode const verbose,
+             TId const & databaseID,
+             bool const databaseStrand,
+             StringSet<QueryMatches<StellarMatch<TSource const, TId> > > & matches,
+             TTag /*tag*/) {
+
+    SwiftHitVerifier<TTag> swiftVerifier
+    {
+        STELLAR_DESIGNATED_INITIALIZER(.epsilon =, epsilon),
+        STELLAR_DESIGNATED_INITIALIZER(.minLength =, minLength),
+        STELLAR_DESIGNATED_INITIALIZER(.xDrop =, xDrop),
+        STELLAR_DESIGNATED_INITIALIZER(.disableThresh =, disableThresh),
+        STELLAR_DESIGNATED_INITIALIZER(.compactThresh =, compactThresh),
+        STELLAR_DESIGNATED_INITIALIZER(.numMatches =, numMatches),
+        STELLAR_DESIGNATED_INITIALIZER(.databaseID =, databaseID),
+        STELLAR_DESIGNATED_INITIALIZER(.databaseStrand =, databaseStrand)
+    };
+
+    StellarComputeStatistics statistics = _stellarKernel(finder, pattern, matches, swiftVerifier);
 
     if (verbose)
         stellar::app::_printStellarKernelStatistics(statistics);
 
-    typedef typename Iterator<StringSet<QueryMatches<TMatch> >, Standard>::Type TIterator;
-    TIterator it = begin(matches, Standard());
-    TIterator itEnd = end(matches, Standard());
-
-    for(; it < itEnd; ++it) {
-        QueryMatches<TMatch> &qm = *it;
-        if (length(qm) > 0 && !qm.disabled) {
-            maskOverlaps(qm.matches, minLength);    // remove overlaps and duplicates
-            compactMatches(qm.matches, numMatches); // keep only the <numMatches> longest matches
+    using TMatch = StellarMatch<TSource const, TId>;
+    for (QueryMatches<TMatch> & queryMatches : matches) {
+        if (length(queryMatches) > 0 && !queryMatches.disabled) {
+            maskOverlaps(queryMatches.matches, minLength);    // remove overlaps and duplicates
+            compactMatches(queryMatches.matches, numMatches); // keep only the <numMatches> longest matches
         }
     }
 }
