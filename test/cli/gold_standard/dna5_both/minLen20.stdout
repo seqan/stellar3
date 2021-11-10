@@ -11,7 +11,7 @@ User specified parameters:
   maximal x-drop                   : 10
   k-mer (q-gram) length            : 7
   search forward strand            : yes
-  search reverse complement        : no
+  search reverse complement        : yes
 
   verification strategy            : exact
   maximal number of matches        : 5000
@@ -37,7 +37,11 @@ Aligning all query sequences to database sequence...
     # SWIFT hits      : 14720
     Longest hit       : 202
     Avg hit length    : 18
+  seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200, complement
+    # SWIFT hits      : 13993
+    Longest hit       : 39
+    Avg hit length    : 14
 
-# Eps-matches     : 604
+# Eps-matches     : 701
 Longest eps-match : 213
-Avg match length  : 109
+Avg match length  : 97
