@@ -83,212 +83,185 @@ def main(source_base, binary_base):
 
     for alphabet in ['dna5']:
         for databaseStrand in ['forward', 'reverse', 'both']:
+            for outputExt in ['gff', 'txt']:
 
-            tmpSubDir = "{alphabet}_{databaseStrand}/".format(alphabet = alphabet, databaseStrand = databaseStrand)
-            expectDataDir = ph.inFile('gold_standard/%s' % tmpSubDir)
+                tmpSubDir = "{alphabet}_{databaseStrand}/".format(alphabet = alphabet, databaseStrand = databaseStrand)
+                expectDataDir = ph.inFile('gold_standard/%s' % tmpSubDir)
 
-            outputExt = "gff"
+                # Error rate 0.1:
+                conf = app_tests.TestConf(
+                    program=path_to_program,
+                    redir_stdout=ph.outFile('e-1.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
+                    args=shortFlags.get(alphabet, []) +
+                         shortFlags.get(databaseStrand, []) +
+                         ['-e', '0.1', # --epsilon
+                          '-l', '50', # --minLength
+                          '-x', '10', # --xDrop
+                          '-k', '7', # --kmer
+                          '-n', '5000', # --numMatches
+                          '-s', '10000', # --sortThresh
+                          '-v', # --verbose
+                          '-t', # --no-rt # for stable output
+                          '--out', ph.outFile('e-1.{ext}'.format(ext = outputExt), tmpSubDir),
+                          ph.inFile('512_simSeq1_e-1.fa'),
+                          ph.inFile('512_simSeq2_e-1.fa')],
+                    to_diff=[(ph.inFile(expectDataDir + 'e-1.{ext}.stdout'.format(ext = outputExt)),
+                              ph.outFile('e-1.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
+                              transforms),
+                             (ph.inFile(expectDataDir + 'e-1.{ext}'.format(ext = outputExt)),
+                              ph.outFile('e-1.{ext}'.format(ext = outputExt), tmpSubDir),
+                              transforms)])
+                conf_list.append(conf)
 
-            # Error rate 0.1:
-            conf = app_tests.TestConf(
-                program=path_to_program,
-                redir_stdout=ph.outFile('e-1.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
-                args=shortFlags.get(alphabet, []) +
-                     shortFlags.get(databaseStrand, []) +
-                     ['-e', '0.1', # --epsilon
-                      '-l', '50', # --minLength
-                      '-x', '10', # --xDrop
-                      '-k', '7', # --kmer
-                      '-n', '5000', # --numMatches
-                      '-s', '10000', # --sortThresh
-                      '-v', # --verbose
-                      '-t', # --no-rt # for stable output
-                      '--out', ph.outFile('e-1.{ext}'.format(ext = outputExt), tmpSubDir),
-                      ph.inFile('512_simSeq1_e-1.fa'),
-                      ph.inFile('512_simSeq2_e-1.fa')],
-                to_diff=[(ph.inFile(expectDataDir + 'e-1.{ext}.stdout'.format(ext = outputExt)),
-                          ph.outFile('e-1.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
-                          transforms),
-                         (ph.inFile(expectDataDir + 'e-1.{ext}'.format(ext = outputExt)),
-                          ph.outFile('e-1.{ext}'.format(ext = outputExt), tmpSubDir),
-                          transforms)])
-            conf_list.append(conf)
+                # Error rate 0.05:
+                conf = app_tests.TestConf(
+                    program=path_to_program,
+                    redir_stdout=ph.outFile('5e-2.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
+                    args=longFlags.get(alphabet, []) +
+                         longFlags.get(databaseStrand, []) +
+                         ['--epsilon', '0.05',
+                          '--minLength', '50',
+                          '--xDrop', '10',
+                          '--kmer', '7',
+                          '--numMatches', '5000',
+                          '--sortThresh', '10000',
+                          '--verbose',
+                          '--no-rt', # for stable output
+                          '--out', ph.outFile('5e-2.{ext}'.format(ext = outputExt), tmpSubDir),
+                          ph.inFile('512_simSeq1_5e-2.fa'),
+                          ph.inFile('512_simSeq2_5e-2.fa')],
+                    to_diff=[(ph.inFile(expectDataDir + '5e-2.{ext}.stdout'.format(ext = outputExt)),
+                              ph.outFile('5e-2.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
+                              transforms),
+                             (ph.inFile(expectDataDir + '5e-2.{ext}'.format(ext = outputExt)),
+                              ph.outFile('5e-2.{ext}'.format(ext = outputExt), tmpSubDir),
+                              transforms)])
+                conf_list.append(conf)
 
-            # Error rate 0.05:
-            conf = app_tests.TestConf(
-                program=path_to_program,
-                redir_stdout=ph.outFile('5e-2.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
-                args=longFlags.get(alphabet, []) +
-                     longFlags.get(databaseStrand, []) +
-                     ['--epsilon', '0.05',
-                      '--minLength', '50',
-                      '--xDrop', '10',
-                      '--kmer', '7',
-                      '--numMatches', '5000',
-                      '--sortThresh', '10000',
-                      '--verbose',
-                      '--no-rt', # for stable output
-                      '--out', ph.outFile('5e-2.{ext}'.format(ext = outputExt), tmpSubDir),
-                      ph.inFile('512_simSeq1_5e-2.fa'),
-                      ph.inFile('512_simSeq2_5e-2.fa')],
-                to_diff=[(ph.inFile(expectDataDir + '5e-2.{ext}.stdout'.format(ext = outputExt)),
-                          ph.outFile('5e-2.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
-                          transforms),
-                         (ph.inFile(expectDataDir + '5e-2.{ext}'.format(ext = outputExt)),
-                          ph.outFile('5e-2.{ext}'.format(ext = outputExt), tmpSubDir),
-                          transforms)])
-            conf_list.append(conf)
+                # Error rate 0.25:
+                conf = app_tests.TestConf(
+                    program=path_to_program,
+                    redir_stdout=ph.outFile('25e-3.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
+                    args=longFlags.get(alphabet, []) +
+                         longFlags.get(databaseStrand, []) +
+                         ['--epsilon', '0.025',
+                          '--minLength', '50',
+                          '--xDrop', '10',
+                          '--kmer', '7',
+                          '--numMatches', '5000',
+                          '--sortThresh', '10000',
+                          '--verbose',
+                          '--no-rt', # for stable output
+                          '--out', ph.outFile('25e-3.{ext}'.format(ext = outputExt), tmpSubDir),
+                          ph.inFile('512_simSeq1_25e-3.fa'),
+                          ph.inFile('512_simSeq2_25e-3.fa')],
+                    to_diff=[(ph.inFile(expectDataDir + '25e-3.{ext}.stdout'.format(ext = outputExt)),
+                              ph.outFile('25e-3.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
+                              transforms),
+                             (ph.inFile(expectDataDir + '25e-3.{ext}'.format(ext = outputExt)),
+                              ph.outFile('25e-3.{ext}'.format(ext = outputExt), tmpSubDir),
+                              transforms)])
+                conf_list.append(conf)
 
-            # Error rate 0.25:
-            conf = app_tests.TestConf(
-                program=path_to_program,
-                redir_stdout=ph.outFile('25e-3.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
-                args=longFlags.get(alphabet, []) +
-                     longFlags.get(databaseStrand, []) +
-                     ['--epsilon', '0.025',
-                      '--minLength', '50',
-                      '--xDrop', '10',
-                      '--kmer', '7',
-                      '--numMatches', '5000',
-                      '--sortThresh', '10000',
-                      '--verbose',
-                      '--no-rt', # for stable output
-                      '--out', ph.outFile('25e-3.{ext}'.format(ext = outputExt), tmpSubDir),
-                      ph.inFile('512_simSeq1_25e-3.fa'),
-                      ph.inFile('512_simSeq2_25e-3.fa')],
-                to_diff=[(ph.inFile(expectDataDir + '25e-3.{ext}.stdout'.format(ext = outputExt)),
-                          ph.outFile('25e-3.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
-                          transforms),
-                         (ph.inFile(expectDataDir + '25e-3.{ext}'.format(ext = outputExt)),
-                          ph.outFile('25e-3.{ext}'.format(ext = outputExt), tmpSubDir),
-                          transforms)])
-            conf_list.append(conf)
+                # Error rate 0.75:
+                conf = app_tests.TestConf(
+                    program=path_to_program,
+                    redir_stdout=ph.outFile('75e-3.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
+                    args=longFlags.get(alphabet, []) +
+                         longFlags.get(databaseStrand, []) +
+                         ['--epsilon', '0.075',
+                          '--minLength', '50',
+                          '--xDrop', '10',
+                          '--kmer', '7',
+                          '--numMatches', '5000',
+                          '--sortThresh', '10000',
+                          '--verbose',
+                          '--no-rt', # for stable output
+                          '--out', ph.outFile('75e-3.{ext}'.format(ext = outputExt), tmpSubDir),
+                          ph.inFile('512_simSeq1_75e-3.fa'),
+                          ph.inFile('512_simSeq2_75e-3.fa')],
+                    to_diff=[(ph.inFile(expectDataDir + '75e-3.{ext}.stdout'.format(ext = outputExt)),
+                              ph.outFile('75e-3.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
+                              transforms),
+                             (ph.inFile(expectDataDir + '75e-3.{ext}'.format(ext = outputExt)),
+                              ph.outFile('75e-3.{ext}'.format(ext = outputExt), tmpSubDir),
+                              transforms)])
+                conf_list.append(conf)
 
-            # Error rate 0.75:
-            conf = app_tests.TestConf(
-                program=path_to_program,
-                redir_stdout=ph.outFile('75e-3.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
-                args=longFlags.get(alphabet, []) +
-                     longFlags.get(databaseStrand, []) +
-                     ['--epsilon', '0.075',
-                      '--minLength', '50',
-                      '--xDrop', '10',
-                      '--kmer', '7',
-                      '--numMatches', '5000',
-                      '--sortThresh', '10000',
-                      '--verbose',
-                      '--no-rt', # for stable output
-                      '--out', ph.outFile('75e-3.{ext}'.format(ext = outputExt), tmpSubDir),
-                      ph.inFile('512_simSeq1_75e-3.fa'),
-                      ph.inFile('512_simSeq2_75e-3.fa')],
-                to_diff=[(ph.inFile(expectDataDir + '75e-3.{ext}.stdout'.format(ext = outputExt)),
-                          ph.outFile('75e-3.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
-                          transforms),
-                         (ph.inFile(expectDataDir + '75e-3.{ext}'.format(ext = outputExt)),
-                          ph.outFile('75e-3.{ext}'.format(ext = outputExt), tmpSubDir),
-                          transforms)])
-            conf_list.append(conf)
+                # Error rate 0.0001:
+                conf = app_tests.TestConf(
+                    program=path_to_program,
+                    redir_stdout=ph.outFile('e-4.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
+                    args=longFlags.get(alphabet, []) +
+                         longFlags.get(databaseStrand, []) +
+                         ['--epsilon', '0.0001',
+                          '--minLength', '50',
+                          '--xDrop', '10',
+                          '--kmer', '7',
+                          '--numMatches', '5000',
+                          '--sortThresh', '10000',
+                          '--verbose',
+                          '--no-rt', # for stable output
+                          '--out', ph.outFile('e-4.{ext}'.format(ext = outputExt), tmpSubDir),
+                          ph.inFile('512_simSeq1_e-4.fa'),
+                          ph.inFile('512_simSeq2_e-4.fa')],
+                    to_diff=[(ph.inFile(expectDataDir + 'e-4.{ext}.stdout'.format(ext = outputExt)),
+                              ph.outFile('e-4.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
+                              transforms),
+                             (ph.inFile(expectDataDir + 'e-4.{ext}'.format(ext = outputExt)),
+                              ph.outFile('e-4.{ext}'.format(ext = outputExt), tmpSubDir),
+                              transforms)])
+                conf_list.append(conf)
 
-            # Error rate 0.0001:
-            conf = app_tests.TestConf(
-                program=path_to_program,
-                redir_stdout=ph.outFile('e-4.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
-                args=longFlags.get(alphabet, []) +
-                     longFlags.get(databaseStrand, []) +
-                     ['--epsilon', '0.0001',
-                      '--minLength', '50',
-                      '--xDrop', '10',
-                      '--kmer', '7',
-                      '--numMatches', '5000',
-                      '--sortThresh', '10000',
-                      '--verbose',
-                      '--no-rt', # for stable output
-                      '--out', ph.outFile('e-4.{ext}'.format(ext = outputExt), tmpSubDir),
-                      ph.inFile('512_simSeq1_e-4.fa'),
-                      ph.inFile('512_simSeq2_e-4.fa')],
-                to_diff=[(ph.inFile(expectDataDir + 'e-4.{ext}.stdout'.format(ext = outputExt)),
-                          ph.outFile('e-4.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
-                          transforms),
-                         (ph.inFile(expectDataDir + 'e-4.{ext}'.format(ext = outputExt)),
-                          ph.outFile('e-4.{ext}'.format(ext = outputExt), tmpSubDir),
-                          transforms)])
-            conf_list.append(conf)
+                # Minimal length: 20, Error rate 0.05:
+                conf = app_tests.TestConf(
+                    program=path_to_program,
+                    redir_stdout=ph.outFile('minLen20.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
+                    args=longFlags.get(alphabet, []) +
+                         longFlags.get(databaseStrand, []) +
+                         ['--epsilon', '0.05',
+                          '--minLength', '20',
+                          '--xDrop', '10',
+                          '--kmer', '7',
+                          '--numMatches', '5000',
+                          '--sortThresh', '10000',
+                          '--verbose',
+                          '--no-rt', # for stable output
+                          '--out', ph.outFile('minLen20.{ext}'.format(ext = outputExt), tmpSubDir),
+                          ph.inFile('512_simSeq1_5e-2.fa'),
+                          ph.inFile('512_simSeq2_5e-2.fa')],
+                    to_diff=[(ph.inFile(expectDataDir + 'minLen20.{ext}.stdout'.format(ext = outputExt)),
+                              ph.outFile('minLen20.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
+                              transforms),
+                             (ph.inFile(expectDataDir + 'minLen20.{ext}'.format(ext = outputExt)),
+                              ph.outFile('minLen20.{ext}'.format(ext = outputExt), tmpSubDir),
+                              transforms)])
+                conf_list.append(conf)
 
-            # Minimal length: 20, Error rate 0.05:
-            conf = app_tests.TestConf(
-                program=path_to_program,
-                redir_stdout=ph.outFile('minLen20.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
-                args=longFlags.get(alphabet, []) +
-                     longFlags.get(databaseStrand, []) +
-                     ['--epsilon', '0.05',
-                      '--minLength', '20',
-                      '--xDrop', '10',
-                      '--kmer', '7',
-                      '--numMatches', '5000',
-                      '--sortThresh', '10000',
-                      '--verbose',
-                      '--no-rt', # for stable output
-                      '--out', ph.outFile('minLen20.{ext}'.format(ext = outputExt), tmpSubDir),
-                      ph.inFile('512_simSeq1_5e-2.fa'),
-                      ph.inFile('512_simSeq2_5e-2.fa')],
-                to_diff=[(ph.inFile(expectDataDir + 'minLen20.{ext}.stdout'.format(ext = outputExt)),
-                          ph.outFile('minLen20.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
-                          transforms),
-                         (ph.inFile(expectDataDir + 'minLen20.{ext}'.format(ext = outputExt)),
-                          ph.outFile('minLen20.{ext}'.format(ext = outputExt), tmpSubDir),
-                          transforms)])
-            conf_list.append(conf)
-
-            # Minimal length: 150, Error rate 0.05:
-            conf = app_tests.TestConf(
-                program=path_to_program,
-                redir_stdout=ph.outFile('minLen150.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
-                args=longFlags.get(alphabet, []) +
-                     longFlags.get(databaseStrand, []) +
-                     ['--epsilon', '0.05',
-                      '--minLength', '150',
-                      '--xDrop', '10',
-                      '--kmer', '7',
-                      '--numMatches', '5000',
-                      '--sortThresh', '10000',
-                      '--verbose',
-                      '--no-rt', # for stable output
-                      '--out', ph.outFile('minLen150.{ext}'.format(ext = outputExt), tmpSubDir),
-                      ph.inFile('512_simSeq1_5e-2.fa'),
-                      ph.inFile('512_simSeq2_5e-2.fa')],
-                to_diff=[(ph.inFile(expectDataDir + 'minLen150.{ext}.stdout'.format(ext = outputExt)),
-                          ph.outFile('minLen150.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
-                          transforms),
-                         (ph.inFile(expectDataDir + 'minLen150.{ext}'.format(ext = outputExt)),
-                          ph.outFile('minLen150.{ext}'.format(ext = outputExt), tmpSubDir),
-                          transforms)])
-            conf_list.append(conf)
-
-            outputExt = 'txt'
-            # Output format text:
-            conf = app_tests.TestConf(
-                program=path_to_program,
-                redir_stdout=ph.outFile('5e-2.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
-                args=longFlags.get(alphabet, []) +
-                     longFlags.get(databaseStrand, []) +
-                     ['--epsilon', '0.05',
-                      '--minLength', '50',
-                      '--xDrop', '10',
-                      '--kmer', '7',
-                      '--numMatches', '5000',
-                      '--sortThresh', '10000',
-                      '--verbose',
-                      '--no-rt', # for stable output
-                      '--out', ph.outFile('5e-2.{ext}'.format(ext = outputExt), tmpSubDir),
-                      ph.inFile('512_simSeq1_5e-2.fa'),
-                      ph.inFile('512_simSeq2_5e-2.fa')],
-                to_diff=[(ph.inFile(expectDataDir + '5e-2.{ext}.stdout'.format(ext = outputExt)),
-                          ph.outFile('5e-2.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
-                          transforms),
-                         (ph.inFile(expectDataDir + '5e-2.{ext}'.format(ext = outputExt)),
-                          ph.outFile('5e-2.{ext}'.format(ext = outputExt), tmpSubDir),
-                          transforms)])
-            conf_list.append(conf)
+                # Minimal length: 150, Error rate 0.05:
+                conf = app_tests.TestConf(
+                    program=path_to_program,
+                    redir_stdout=ph.outFile('minLen150.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
+                    args=longFlags.get(alphabet, []) +
+                         longFlags.get(databaseStrand, []) +
+                         ['--epsilon', '0.05',
+                          '--minLength', '150',
+                          '--xDrop', '10',
+                          '--kmer', '7',
+                          '--numMatches', '5000',
+                          '--sortThresh', '10000',
+                          '--verbose',
+                          '--no-rt', # for stable output
+                          '--out', ph.outFile('minLen150.{ext}'.format(ext = outputExt), tmpSubDir),
+                          ph.inFile('512_simSeq1_5e-2.fa'),
+                          ph.inFile('512_simSeq2_5e-2.fa')],
+                    to_diff=[(ph.inFile(expectDataDir + 'minLen150.{ext}.stdout'.format(ext = outputExt)),
+                              ph.outFile('minLen150.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
+                              transforms),
+                             (ph.inFile(expectDataDir + 'minLen150.{ext}'.format(ext = outputExt)),
+                              ph.outFile('minLen150.{ext}'.format(ext = outputExt), tmpSubDir),
+                              transforms)])
+                conf_list.append(conf)
 
     # ============================================================
     # Execute the tests.
