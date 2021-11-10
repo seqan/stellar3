@@ -10,8 +10,8 @@ User specified parameters:
   maximal error rate (epsilon)     : 0.025
   maximal x-drop                   : 10
   k-mer (q-gram) length            : 7
-  search forward strand            : yes
-  search reverse complement        : no
+  search forward strand            : no
+  search reverse complement        : yes
 
   verification strategy            : exact
   maximal number of matches        : 5000
@@ -33,11 +33,6 @@ All matches matches resulting from your search have an E-value of:
 Constructing index...
 
 Aligning all query sequences to database sequence...
-  seq1 length=1000000 numMatches=500 errorRate=0.025 matchMinLength=50 matchMaxLength=200
-    # SWIFT hits      : 582
-    Longest hit       : 243
-    Avg hit length    : 121
+  seq1 length=1000000 numMatches=500 errorRate=0.025 matchMinLength=50 matchMaxLength=200, complement
 
-# Eps-matches     : 500
-Longest eps-match : 207
-Avg match length  : 125
+# Eps-matches     : 0
