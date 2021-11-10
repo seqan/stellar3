@@ -66,13 +66,19 @@ def main(source_base, binary_base):
     # ============================================================
 
     # Error rate 0.1:
-    # TODO: use long parameters
     conf = app_tests.TestConf(
         program=path_to_program,
         redir_stdout=ph.outFile('e-1.stdout'),
-        args=['-e', '0.1', '-l', '50', '-x', '10', '-k', '7', '-n', '5000',
-              '-s', '10000', '-f', '-v', '-t',
-              '-o', ph.outFile('e-1.gff'),
+        args=['-e', '0.1', # --epsilon
+              '-l', '50', # --minLength
+              '-x', '10', # --xDrop
+              '-k', '7', # --kmer
+              '-n', '5000', # --numMatches
+              '-s', '10000', # --sortThresh
+              '-f', # --forward
+              '-v', # --verbose
+              '-t', # --no-rt # for stable output
+              '--out', ph.outFile('e-1.gff'),
               ph.inFile('512_simSeq1_e-1.fa'),
               ph.inFile('512_simSeq2_e-1.fa')],
         to_diff=[(ph.inFile('gold_standard/dna5_forward/e-1.stdout'),
@@ -87,9 +93,16 @@ def main(source_base, binary_base):
     conf = app_tests.TestConf(
         program=path_to_program,
         redir_stdout=ph.outFile('5e-2.stdout'),
-        args=['-e', '0.05', '-l', '50', '-x', '10', '-k', '7', '-n', '5000',
-              '-s', '10000', '-f', '-v', '-t',
-              '-o', ph.outFile('5e-2.gff'),
+        args=['--epsilon', '0.05',
+              '--minLength', '50',
+              '--xDrop', '10',
+              '--kmer', '7',
+              '--numMatches', '5000',
+              '--sortThresh', '10000',
+              '--forward',
+              '--verbose',
+              '--no-rt', # for stable output
+              '--out', ph.outFile('5e-2.gff'),
               ph.inFile('512_simSeq1_5e-2.fa'),
               ph.inFile('512_simSeq2_5e-2.fa')],
         to_diff=[(ph.inFile('gold_standard/dna5_forward/5e-2.stdout'),
@@ -104,9 +117,16 @@ def main(source_base, binary_base):
     conf = app_tests.TestConf(
         program=path_to_program,
         redir_stdout=ph.outFile('25e-3.stdout'),
-        args=['-e', '0.025', '-l', '50', '-x', '10', '-k', '7', '-n', '5000',
-              '-s', '10000', '-f', '-v', '-t',
-              '-o', ph.outFile('25e-3.gff'),
+        args=['--epsilon', '0.025',
+              '--minLength', '50',
+              '--xDrop', '10',
+              '--kmer', '7',
+              '--numMatches', '5000',
+              '--sortThresh', '10000',
+              '--forward',
+              '--verbose',
+              '--no-rt', # for stable output
+              '--out', ph.outFile('25e-3.gff'),
               ph.inFile('512_simSeq1_25e-3.fa'),
               ph.inFile('512_simSeq2_25e-3.fa')],
         to_diff=[(ph.inFile('gold_standard/dna5_forward/25e-3.stdout'),
@@ -121,9 +141,16 @@ def main(source_base, binary_base):
     conf = app_tests.TestConf(
         program=path_to_program,
         redir_stdout=ph.outFile('75e-3.stdout'),
-        args=['-e', '0.075', '-l', '50', '-x', '10', '-k', '7', '-n', '5000',
-              '-s', '10000', '-f', '-v', '-t',
-              '-o', ph.outFile('75e-3.gff'),
+        args=['--epsilon', '0.075',
+              '--minLength', '50',
+              '--xDrop', '10',
+              '--kmer', '7',
+              '--numMatches', '5000',
+              '--sortThresh', '10000',
+              '--forward',
+              '--verbose',
+              '--no-rt', # for stable output
+              '--out', ph.outFile('75e-3.gff'),
               ph.inFile('512_simSeq1_75e-3.fa'),
               ph.inFile('512_simSeq2_75e-3.fa')],
         to_diff=[(ph.inFile('gold_standard/dna5_forward/75e-3.stdout'),
@@ -138,9 +165,16 @@ def main(source_base, binary_base):
     conf = app_tests.TestConf(
         program=path_to_program,
         redir_stdout=ph.outFile('e-4.stdout'),
-        args=['-e', '0.0001', '-l', '50', '-x', '10', '-k', '7', '-n', '5000',
-              '-s', '10000', '-f', '-v', '-t',
-              '-o', ph.outFile('e-4.gff'),
+        args=['--epsilon', '0.0001',
+              '--minLength', '50',
+              '--xDrop', '10',
+              '--kmer', '7',
+              '--numMatches', '5000',
+              '--sortThresh', '10000',
+              '--forward',
+              '--verbose',
+              '--no-rt', # for stable output
+              '--out', ph.outFile('e-4.gff'),
               ph.inFile('512_simSeq1_e-4.fa'),
               ph.inFile('512_simSeq2_e-4.fa')],
         to_diff=[(ph.inFile('gold_standard/dna5_forward/e-4.stdout'),
@@ -155,10 +189,16 @@ def main(source_base, binary_base):
     conf = app_tests.TestConf(
         program=path_to_program,
         redir_stdout=ph.outFile('minLen20.stdout'),
-        args=['-e', '0.05', '-l', '20',
-              '-x', '10', '-k', '7', '-n', '5000', '-s', '10000', '-f', '-v',
-              '-t',
-              '-o', ph.outFile('minLen20.gff'),
+        args=['--epsilon', '0.05',
+              '--minLength', '20',
+              '--xDrop', '10',
+              '--kmer', '7',
+              '--numMatches', '5000',
+              '--sortThresh', '10000',
+              '--forward',
+              '--verbose',
+              '--no-rt', # for stable output
+              '--out', ph.outFile('minLen20.gff'),
               ph.inFile('512_simSeq1_5e-2.fa'),
               ph.inFile('512_simSeq2_5e-2.fa')],
         to_diff=[(ph.inFile('gold_standard/dna5_forward/minLen20.stdout'),
@@ -173,9 +213,16 @@ def main(source_base, binary_base):
     conf = app_tests.TestConf(
         program=path_to_program,
         redir_stdout=ph.outFile('minLen150.stdout'),
-        args=['-e', '0.05', '-l', '150', '-x', '10', '-k', '7', '-n', '5000',
-              '-s', '10000', '-f', '-v', '-t',
-              '-o', ph.outFile('minLen150.gff'),
+        args=['--epsilon', '0.05',
+              '--minLength', '150',
+              '--xDrop', '10',
+              '--kmer', '7',
+              '--numMatches', '5000',
+              '--sortThresh', '10000',
+              '--forward',
+              '--verbose',
+              '--no-rt', # for stable output
+              '--out', ph.outFile('minLen150.gff'),
               ph.inFile('512_simSeq1_5e-2.fa'),
               ph.inFile('512_simSeq2_5e-2.fa')],
         to_diff=[(ph.inFile('gold_standard/dna5_forward/minLen150.stdout'),
@@ -190,9 +237,16 @@ def main(source_base, binary_base):
     conf = app_tests.TestConf(
         program=path_to_program,
         redir_stdout=ph.outFile('5e-2txt.stdout'),
-        args=['-e', '0.05', '-l', '50', '-x', '10', '-k', '7', '-n', '5000',
-              '-s', '10000', '-f', '-v', '-t',
-              '-o', ph.outFile('5e-2.txt'),
+        args=['--epsilon', '0.05',
+              '--minLength', '50',
+              '--xDrop', '10',
+              '--kmer', '7',
+              '--numMatches', '5000',
+              '--sortThresh', '10000',
+              '--forward',
+              '--verbose',
+              '--no-rt', # for stable output
+              '--out', ph.outFile('5e-2.txt'),
               ph.inFile('512_simSeq1_5e-2.fa'),
               ph.inFile('512_simSeq2_5e-2.fa')],
         to_diff=[(ph.inFile('gold_standard/dna5_forward/5e-2txt.stdout'),
