@@ -66,6 +66,7 @@ def main(source_base, binary_base):
     # ============================================================
 
     # Error rate 0.1:
+    # TODO: use long parameters
     conf = app_tests.TestConf(
         program=path_to_program,
         redir_stdout=ph.outFile('e-1.stdout'),
@@ -74,10 +75,10 @@ def main(source_base, binary_base):
               '-o', ph.outFile('e-1.gff'),
               ph.inFile('512_simSeq1_e-1.fa'),
               ph.inFile('512_simSeq2_e-1.fa')],
-        to_diff=[(ph.inFile('e-1.stdout'),
+        to_diff=[(ph.inFile('gold_standard/dna5_forward/e-1.stdout'),
                   ph.outFile('e-1.stdout'),
                   transforms),
-                 (ph.inFile('e-1.gff'),
+                 (ph.inFile('gold_standard/dna5_forward/e-1.gff'),
                   ph.outFile('e-1.gff'),
                   transforms)])
     conf_list.append(conf)
@@ -91,10 +92,10 @@ def main(source_base, binary_base):
               '-o', ph.outFile('5e-2.gff'),
               ph.inFile('512_simSeq1_5e-2.fa'),
               ph.inFile('512_simSeq2_5e-2.fa')],
-        to_diff=[(ph.inFile('5e-2.stdout'),
+        to_diff=[(ph.inFile('gold_standard/dna5_forward/5e-2.stdout'),
                   ph.outFile('5e-2.stdout'),
                   transforms),
-                 (ph.inFile('5e-2.gff'),
+                 (ph.inFile('gold_standard/dna5_forward/5e-2.gff'),
                   ph.outFile('5e-2.gff'),
                   transforms)])
     conf_list.append(conf)
@@ -108,10 +109,10 @@ def main(source_base, binary_base):
               '-o', ph.outFile('25e-3.gff'),
               ph.inFile('512_simSeq1_25e-3.fa'),
               ph.inFile('512_simSeq2_25e-3.fa')],
-        to_diff=[(ph.inFile('25e-3.stdout'),
+        to_diff=[(ph.inFile('gold_standard/dna5_forward/25e-3.stdout'),
                   ph.outFile('25e-3.stdout'),
                   transforms),
-                 (ph.inFile('25e-3.gff'),
+                 (ph.inFile('gold_standard/dna5_forward/25e-3.gff'),
                   ph.outFile('25e-3.gff'),
                   transforms)])
     conf_list.append(conf)
@@ -125,10 +126,10 @@ def main(source_base, binary_base):
               '-o', ph.outFile('75e-3.gff'),
               ph.inFile('512_simSeq1_75e-3.fa'),
               ph.inFile('512_simSeq2_75e-3.fa')],
-        to_diff=[(ph.inFile('75e-3.stdout'),
+        to_diff=[(ph.inFile('gold_standard/dna5_forward/75e-3.stdout'),
                   ph.outFile('75e-3.stdout'),
                   transforms),
-                 (ph.inFile('75e-3.gff'),
+                 (ph.inFile('gold_standard/dna5_forward/75e-3.gff'),
                   ph.outFile('75e-3.gff'),
                   transforms)])
     conf_list.append(conf)
@@ -142,10 +143,10 @@ def main(source_base, binary_base):
               '-o', ph.outFile('e-4.gff'),
               ph.inFile('512_simSeq1_e-4.fa'),
               ph.inFile('512_simSeq2_e-4.fa')],
-        to_diff=[(ph.inFile('e-4.stdout'),
+        to_diff=[(ph.inFile('gold_standard/dna5_forward/e-4.stdout'),
                   ph.outFile('e-4.stdout'),
                   transforms),
-                 (ph.inFile('e-4.gff'),
+                 (ph.inFile('gold_standard/dna5_forward/e-4.gff'),
                   ph.outFile('e-4.gff'),
                   transforms)])
     conf_list.append(conf)
@@ -160,10 +161,10 @@ def main(source_base, binary_base):
               '-o', ph.outFile('minLen20.gff'),
               ph.inFile('512_simSeq1_5e-2.fa'),
               ph.inFile('512_simSeq2_5e-2.fa')],
-        to_diff=[(ph.inFile('minLen20.stdout'),
+        to_diff=[(ph.inFile('gold_standard/dna5_forward/minLen20.stdout'),
                   ph.outFile('minLen20.stdout'),
                   transforms),
-                 (ph.inFile('minLen20.gff'),
+                 (ph.inFile('gold_standard/dna5_forward/minLen20.gff'),
                   ph.outFile('minLen20.gff'),
                   transforms)])
     conf_list.append(conf)
@@ -177,10 +178,10 @@ def main(source_base, binary_base):
               '-o', ph.outFile('minLen150.gff'),
               ph.inFile('512_simSeq1_5e-2.fa'),
               ph.inFile('512_simSeq2_5e-2.fa')],
-        to_diff=[(ph.inFile('minLen150.stdout'),
+        to_diff=[(ph.inFile('gold_standard/dna5_forward/minLen150.stdout'),
                   ph.outFile('minLen150.stdout'),
                   transforms),
-                 (ph.inFile('minLen150.gff'),
+                 (ph.inFile('gold_standard/dna5_forward/minLen150.gff'),
                   ph.outFile('minLen150.gff'),
                   transforms)])
     conf_list.append(conf)
@@ -194,10 +195,10 @@ def main(source_base, binary_base):
               '-o', ph.outFile('5e-2.txt'),
               ph.inFile('512_simSeq1_5e-2.fa'),
               ph.inFile('512_simSeq2_5e-2.fa')],
-        to_diff=[(ph.inFile('5e-2txt.stdout'),
+        to_diff=[(ph.inFile('gold_standard/dna5_forward/5e-2txt.stdout'),
                   ph.outFile('5e-2txt.stdout'),
                   transforms),
-                 (ph.inFile('5e-2.txt'),
+                 (ph.inFile('gold_standard/dna5_forward/5e-2.txt'),
                   ph.outFile('5e-2.txt'),
                   transforms)])
     conf_list.append(conf)
