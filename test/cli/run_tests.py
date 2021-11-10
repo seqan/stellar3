@@ -103,7 +103,8 @@ class StellarTestSuite():
             'both': [],
             'dna': ['-a', 'dna'],
             'dna5': [], # in short flags we let dna5 be empty, since it the default value
-            'protein': ['-a', 'protein']
+            'protein': ['-a', 'protein'],
+            'char': ['-a', 'char']
         }
 
         self.longFlags = {
@@ -112,7 +113,8 @@ class StellarTestSuite():
             'both': [],
             'dna': ['--alphabet', 'dna'],
             'dna5': ['--alphabet', 'dna5'],
-            'protein': ['--alphabet', 'protein']
+            'protein': ['--alphabet', 'protein'],
+            'char': ['--alphabet', 'char']
         }
 
         # stellar/tests directory
@@ -213,8 +215,7 @@ class StellarTestSuite():
             raise e # This exception is saved, then finally is executed, and then the exception is raised.
         finally:
             # Cleanup.
-            pass
-            # self.pathHelper.deleteTempDir()
+            self.pathHelper.deleteTempDir()
 
         print('==============================')
         print('     total tests: %d' % len(self.tests))
@@ -233,7 +234,7 @@ def main(source_base, binary_base):
     # Run STELLAR.
     # ============================================================
 
-    for alphabet in ['dna', 'dna5', 'protein']:
+    for alphabet in ['dna', 'dna5', 'protein', 'char']:
         for databaseStrand in ['forward', 'reverse', 'both']:
             for outputExt in ['gff', 'txt']:
 

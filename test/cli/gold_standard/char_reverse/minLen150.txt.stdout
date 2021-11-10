@@ -1,8 +1,8 @@
 I/O options:
   database file   : 512_simSeq1_5e-2.fa
   query file      : 512_simSeq2_5e-2.fa
-  alphabet        : protein
-  output file     : protein_reverse/minLen150.txt
+  alphabet        : char
+  output file     : char_reverse/minLen150.txt
   output format   : txt
 
 User specified parameters:
