@@ -1,8 +1,8 @@
 I/O options:
   database file   : 512_simSeq1_e-4.fa
   query file      : 512_simSeq2_e-4.fa
-  alphabet        : dna
-  output file     : dna_forward/e-4.txt
+  alphabet        : protein
+  output file     : protein_forward/e-4.txt
   output format   : txt
 
 User specified parameters:

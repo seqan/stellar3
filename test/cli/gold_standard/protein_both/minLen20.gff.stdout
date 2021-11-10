@@ -1,8 +1,8 @@
 I/O options:
   database file   : 512_simSeq1_5e-2.fa
   query file      : 512_simSeq2_5e-2.fa
-  alphabet        : dna
-  output file     : dna_both/minLen20.gff
+  alphabet        : protein
+  output file     : protein_both/minLen20.gff
   output format   : gff
 
 User specified parameters:
@@ -34,11 +34,7 @@ Aligning all query sequences to database sequence...
     # SWIFT hits      : 14720
     Longest hit       : 202
     Avg hit length    : 18
-  seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200, complement
-    # SWIFT hits      : 13993
-    Longest hit       : 39
-    Avg hit length    : 14
 
-# Eps-matches     : 701
+# Eps-matches     : 604
 Longest eps-match : 213
-Avg match length  : 97
+Avg match length  : 109

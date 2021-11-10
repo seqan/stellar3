@@ -1,8 +1,8 @@
 I/O options:
   database file   : 512_simSeq1_25e-3.fa
   query file      : 512_simSeq2_25e-3.fa
-  alphabet        : dna
-  output file     : dna_both/25e-3.txt
+  alphabet        : protein
+  output file     : protein_both/25e-3.txt
   output format   : txt
 
 User specified parameters:
@@ -34,7 +34,6 @@ Aligning all query sequences to database sequence...
     # SWIFT hits      : 582
     Longest hit       : 243
     Avg hit length    : 121
-  seq1 length=1000000 numMatches=500 errorRate=0.025 matchMinLength=50 matchMaxLength=200, complement
 
 # Eps-matches     : 500
 Longest eps-match : 207

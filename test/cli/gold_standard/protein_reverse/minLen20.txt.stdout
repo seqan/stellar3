@@ -1,8 +1,8 @@
 I/O options:
   database file   : 512_simSeq1_5e-2.fa
   query file      : 512_simSeq2_5e-2.fa
-  alphabet        : dna
-  output file     : dna_reverse/minLen20.txt
+  alphabet        : protein
+  output file     : protein_reverse/minLen20.txt
   output format   : txt
 
 User specified parameters:
@@ -30,11 +30,5 @@ Loaded 1 database sequence.
 Constructing index...
 
 Aligning all query sequences to database sequence...
-  seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200, complement
-    # SWIFT hits      : 13993
-    Longest hit       : 39
-    Avg hit length    : 14
 
-# Eps-matches     : 97
-Longest eps-match : 23
-Avg match length  : 20
+# Eps-matches     : 0
