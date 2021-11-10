@@ -72,16 +72,18 @@ def main(source_base, binary_base):
         'forward': ['-f'],
         'reverse': ['-r'],
         'both': [],
+        'dna': ['-a', 'dna'],
         'dna5': [] # in short flags we let dna5 be empty, since it the default value
     }
     longFlags = {
         'forward': ['--forward'],
         'reverse': ['--reverse'],
         'both': [],
+        'dna': ['--alphabet', 'dna'],
         'dna5': ['--alphabet', 'dna5']
     }
 
-    for alphabet in ['dna5']:
+    for alphabet in ['dna', 'dna5']:
         for databaseStrand in ['forward', 'reverse', 'both']:
             for outputExt in ['gff', 'txt']:
 
