@@ -21,6 +21,9 @@ sys.path.insert(0, path)
 
 import seqan.app_tests as app_tests
 
+def add_tests():
+    pass
+
 def main(source_base, binary_base):
     """Main entry point of the script."""
 
@@ -84,11 +87,12 @@ def main(source_base, binary_base):
             tmpSubDir = "{alphabet}_{databaseStrand}/".format(alphabet = alphabet, databaseStrand = databaseStrand)
             expectDataDir = ph.inFile('gold_standard/%s' % tmpSubDir)
 
+            outputExt = "gff"
 
             # Error rate 0.1:
             conf = app_tests.TestConf(
                 program=path_to_program,
-                redir_stdout=ph.outFile('e-1.stdout', tmpSubDir),
+                redir_stdout=ph.outFile('e-1.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
                 args=shortFlags.get(alphabet, []) +
                      shortFlags.get(databaseStrand, []) +
                      ['-e', '0.1', # --epsilon
@@ -99,21 +103,21 @@ def main(source_base, binary_base):
                       '-s', '10000', # --sortThresh
                       '-v', # --verbose
                       '-t', # --no-rt # for stable output
-                      '--out', ph.outFile('e-1.gff', tmpSubDir),
+                      '--out', ph.outFile('e-1.{ext}'.format(ext = outputExt), tmpSubDir),
                       ph.inFile('512_simSeq1_e-1.fa'),
                       ph.inFile('512_simSeq2_e-1.fa')],
-                to_diff=[(ph.inFile(expectDataDir + 'e-1.stdout'),
-                          ph.outFile('e-1.stdout', tmpSubDir),
+                to_diff=[(ph.inFile(expectDataDir + 'e-1.{ext}.stdout'.format(ext = outputExt)),
+                          ph.outFile('e-1.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
                           transforms),
-                         (ph.inFile(expectDataDir + 'e-1.gff'),
-                          ph.outFile('e-1.gff', tmpSubDir),
+                         (ph.inFile(expectDataDir + 'e-1.{ext}'.format(ext = outputExt)),
+                          ph.outFile('e-1.{ext}'.format(ext = outputExt), tmpSubDir),
                           transforms)])
             conf_list.append(conf)
 
             # Error rate 0.05:
             conf = app_tests.TestConf(
                 program=path_to_program,
-                redir_stdout=ph.outFile('5e-2.stdout', tmpSubDir),
+                redir_stdout=ph.outFile('5e-2.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
                 args=longFlags.get(alphabet, []) +
                      longFlags.get(databaseStrand, []) +
                      ['--epsilon', '0.05',
@@ -124,21 +128,21 @@ def main(source_base, binary_base):
                       '--sortThresh', '10000',
                       '--verbose',
                       '--no-rt', # for stable output
-                      '--out', ph.outFile('5e-2.gff', tmpSubDir),
+                      '--out', ph.outFile('5e-2.{ext}'.format(ext = outputExt), tmpSubDir),
                       ph.inFile('512_simSeq1_5e-2.fa'),
                       ph.inFile('512_simSeq2_5e-2.fa')],
-                to_diff=[(ph.inFile(expectDataDir + '5e-2.stdout'),
-                          ph.outFile('5e-2.stdout', tmpSubDir),
+                to_diff=[(ph.inFile(expectDataDir + '5e-2.{ext}.stdout'.format(ext = outputExt)),
+                          ph.outFile('5e-2.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
                           transforms),
-                         (ph.inFile(expectDataDir + '5e-2.gff'),
-                          ph.outFile('5e-2.gff', tmpSubDir),
+                         (ph.inFile(expectDataDir + '5e-2.{ext}'.format(ext = outputExt)),
+                          ph.outFile('5e-2.{ext}'.format(ext = outputExt), tmpSubDir),
                           transforms)])
             conf_list.append(conf)
 
             # Error rate 0.25:
             conf = app_tests.TestConf(
                 program=path_to_program,
-                redir_stdout=ph.outFile('25e-3.stdout', tmpSubDir),
+                redir_stdout=ph.outFile('25e-3.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
                 args=longFlags.get(alphabet, []) +
                      longFlags.get(databaseStrand, []) +
                      ['--epsilon', '0.025',
@@ -149,21 +153,21 @@ def main(source_base, binary_base):
                       '--sortThresh', '10000',
                       '--verbose',
                       '--no-rt', # for stable output
-                      '--out', ph.outFile('25e-3.gff', tmpSubDir),
+                      '--out', ph.outFile('25e-3.{ext}'.format(ext = outputExt), tmpSubDir),
                       ph.inFile('512_simSeq1_25e-3.fa'),
                       ph.inFile('512_simSeq2_25e-3.fa')],
-                to_diff=[(ph.inFile(expectDataDir + '25e-3.stdout'),
-                          ph.outFile('25e-3.stdout', tmpSubDir),
+                to_diff=[(ph.inFile(expectDataDir + '25e-3.{ext}.stdout'.format(ext = outputExt)),
+                          ph.outFile('25e-3.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
                           transforms),
-                         (ph.inFile(expectDataDir + '25e-3.gff'),
-                          ph.outFile('25e-3.gff', tmpSubDir),
+                         (ph.inFile(expectDataDir + '25e-3.{ext}'.format(ext = outputExt)),
+                          ph.outFile('25e-3.{ext}'.format(ext = outputExt), tmpSubDir),
                           transforms)])
             conf_list.append(conf)
 
             # Error rate 0.75:
             conf = app_tests.TestConf(
                 program=path_to_program,
-                redir_stdout=ph.outFile('75e-3.stdout', tmpSubDir),
+                redir_stdout=ph.outFile('75e-3.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
                 args=longFlags.get(alphabet, []) +
                      longFlags.get(databaseStrand, []) +
                      ['--epsilon', '0.075',
@@ -174,21 +178,21 @@ def main(source_base, binary_base):
                       '--sortThresh', '10000',
                       '--verbose',
                       '--no-rt', # for stable output
-                      '--out', ph.outFile('75e-3.gff', tmpSubDir),
+                      '--out', ph.outFile('75e-3.{ext}'.format(ext = outputExt), tmpSubDir),
                       ph.inFile('512_simSeq1_75e-3.fa'),
                       ph.inFile('512_simSeq2_75e-3.fa')],
-                to_diff=[(ph.inFile(expectDataDir + '75e-3.stdout'),
-                          ph.outFile('75e-3.stdout', tmpSubDir),
+                to_diff=[(ph.inFile(expectDataDir + '75e-3.{ext}.stdout'.format(ext = outputExt)),
+                          ph.outFile('75e-3.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
                           transforms),
-                         (ph.inFile(expectDataDir + '75e-3.gff'),
-                          ph.outFile('75e-3.gff', tmpSubDir),
+                         (ph.inFile(expectDataDir + '75e-3.{ext}'.format(ext = outputExt)),
+                          ph.outFile('75e-3.{ext}'.format(ext = outputExt), tmpSubDir),
                           transforms)])
             conf_list.append(conf)
 
             # Error rate 0.0001:
             conf = app_tests.TestConf(
                 program=path_to_program,
-                redir_stdout=ph.outFile('e-4.stdout', tmpSubDir),
+                redir_stdout=ph.outFile('e-4.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
                 args=longFlags.get(alphabet, []) +
                      longFlags.get(databaseStrand, []) +
                      ['--epsilon', '0.0001',
@@ -199,21 +203,21 @@ def main(source_base, binary_base):
                       '--sortThresh', '10000',
                       '--verbose',
                       '--no-rt', # for stable output
-                      '--out', ph.outFile('e-4.gff', tmpSubDir),
+                      '--out', ph.outFile('e-4.{ext}'.format(ext = outputExt), tmpSubDir),
                       ph.inFile('512_simSeq1_e-4.fa'),
                       ph.inFile('512_simSeq2_e-4.fa')],
-                to_diff=[(ph.inFile(expectDataDir + 'e-4.stdout'),
-                          ph.outFile('e-4.stdout', tmpSubDir),
+                to_diff=[(ph.inFile(expectDataDir + 'e-4.{ext}.stdout'.format(ext = outputExt)),
+                          ph.outFile('e-4.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
                           transforms),
-                         (ph.inFile(expectDataDir + 'e-4.gff'),
-                          ph.outFile('e-4.gff', tmpSubDir),
+                         (ph.inFile(expectDataDir + 'e-4.{ext}'.format(ext = outputExt)),
+                          ph.outFile('e-4.{ext}'.format(ext = outputExt), tmpSubDir),
                           transforms)])
             conf_list.append(conf)
 
             # Minimal length: 20, Error rate 0.05:
             conf = app_tests.TestConf(
                 program=path_to_program,
-                redir_stdout=ph.outFile('minLen20.stdout', tmpSubDir),
+                redir_stdout=ph.outFile('minLen20.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
                 args=longFlags.get(alphabet, []) +
                      longFlags.get(databaseStrand, []) +
                      ['--epsilon', '0.05',
@@ -224,21 +228,21 @@ def main(source_base, binary_base):
                       '--sortThresh', '10000',
                       '--verbose',
                       '--no-rt', # for stable output
-                      '--out', ph.outFile('minLen20.gff', tmpSubDir),
+                      '--out', ph.outFile('minLen20.{ext}'.format(ext = outputExt), tmpSubDir),
                       ph.inFile('512_simSeq1_5e-2.fa'),
                       ph.inFile('512_simSeq2_5e-2.fa')],
-                to_diff=[(ph.inFile(expectDataDir + 'minLen20.stdout'),
-                          ph.outFile('minLen20.stdout', tmpSubDir),
+                to_diff=[(ph.inFile(expectDataDir + 'minLen20.{ext}.stdout'.format(ext = outputExt)),
+                          ph.outFile('minLen20.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
                           transforms),
-                         (ph.inFile(expectDataDir + 'minLen20.gff'),
-                          ph.outFile('minLen20.gff', tmpSubDir),
+                         (ph.inFile(expectDataDir + 'minLen20.{ext}'.format(ext = outputExt)),
+                          ph.outFile('minLen20.{ext}'.format(ext = outputExt), tmpSubDir),
                           transforms)])
             conf_list.append(conf)
 
             # Minimal length: 150, Error rate 0.05:
             conf = app_tests.TestConf(
                 program=path_to_program,
-                redir_stdout=ph.outFile('minLen150.stdout', tmpSubDir),
+                redir_stdout=ph.outFile('minLen150.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
                 args=longFlags.get(alphabet, []) +
                      longFlags.get(databaseStrand, []) +
                      ['--epsilon', '0.05',
@@ -249,21 +253,22 @@ def main(source_base, binary_base):
                       '--sortThresh', '10000',
                       '--verbose',
                       '--no-rt', # for stable output
-                      '--out', ph.outFile('minLen150.gff', tmpSubDir),
+                      '--out', ph.outFile('minLen150.{ext}'.format(ext = outputExt), tmpSubDir),
                       ph.inFile('512_simSeq1_5e-2.fa'),
                       ph.inFile('512_simSeq2_5e-2.fa')],
-                to_diff=[(ph.inFile(expectDataDir + 'minLen150.stdout'),
-                          ph.outFile('minLen150.stdout', tmpSubDir),
+                to_diff=[(ph.inFile(expectDataDir + 'minLen150.{ext}.stdout'.format(ext = outputExt)),
+                          ph.outFile('minLen150.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
                           transforms),
-                         (ph.inFile(expectDataDir + 'minLen150.gff'),
-                          ph.outFile('minLen150.gff', tmpSubDir),
+                         (ph.inFile(expectDataDir + 'minLen150.{ext}'.format(ext = outputExt)),
+                          ph.outFile('minLen150.{ext}'.format(ext = outputExt), tmpSubDir),
                           transforms)])
             conf_list.append(conf)
 
+            outputExt = 'txt'
             # Output format text:
             conf = app_tests.TestConf(
                 program=path_to_program,
-                redir_stdout=ph.outFile('5e-2txt.stdout', tmpSubDir),
+                redir_stdout=ph.outFile('5e-2.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
                 args=longFlags.get(alphabet, []) +
                      longFlags.get(databaseStrand, []) +
                      ['--epsilon', '0.05',
@@ -274,14 +279,14 @@ def main(source_base, binary_base):
                       '--sortThresh', '10000',
                       '--verbose',
                       '--no-rt', # for stable output
-                      '--out', ph.outFile('5e-2.txt', tmpSubDir),
+                      '--out', ph.outFile('5e-2.{ext}'.format(ext = outputExt), tmpSubDir),
                       ph.inFile('512_simSeq1_5e-2.fa'),
                       ph.inFile('512_simSeq2_5e-2.fa')],
-                to_diff=[(ph.inFile(expectDataDir + '5e-2txt.stdout'),
-                          ph.outFile('5e-2txt.stdout', tmpSubDir),
+                to_diff=[(ph.inFile(expectDataDir + '5e-2.{ext}.stdout'.format(ext = outputExt)),
+                          ph.outFile('5e-2.{ext}.stdout'.format(ext = outputExt), tmpSubDir),
                           transforms),
-                         (ph.inFile(expectDataDir + '5e-2.txt'),
-                          ph.outFile('5e-2.txt', tmpSubDir),
+                         (ph.inFile(expectDataDir + '5e-2.{ext}'.format(ext = outputExt)),
+                          ph.outFile('5e-2.{ext}'.format(ext = outputExt), tmpSubDir),
                           transforms)])
             conf_list.append(conf)
 
