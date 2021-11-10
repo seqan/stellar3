@@ -2,7 +2,7 @@ I/O options:
   database file   : 512_simSeq1_5e-2.fa
   query file      : 512_simSeq2_5e-2.fa
   alphabet        : dna5
-  output file     : minLen20.gff
+  output file     : dna5_forward/minLen20.gff
   output format   : gff
 
 User specified parameters:

@@ -2,7 +2,7 @@ I/O options:
   database file   : 512_simSeq1_e-4.fa
   query file      : 512_simSeq2_e-4.fa
   alphabet        : dna5
-  output file     : e-4.gff
+  output file     : dna5_forward/e-4.gff
   output format   : gff
 
 User specified parameters:
