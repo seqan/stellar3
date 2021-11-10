@@ -1,8 +1,8 @@
 I/O options:
   database file   : 512_simSeq1_25e-3.fa
   query file      : 512_simSeq2_25e-3.fa
-  alphabet        : dna5
-  output file     : dna5_reverse/25e-3.gff
+  alphabet        : dna
+  output file     : dna_reverse/25e-3.gff
   output format   : gff
 
 User specified parameters:
@@ -26,9 +26,6 @@ Calculated parameters:
 
 Loaded 1 query sequence.
 Loaded 1 database sequence.
-
-All matches matches resulting from your search have an E-value of: 
-        1.74324e-13 or smaller  (match score = 1, error penalty = -2)
 
 Constructing index...
 
