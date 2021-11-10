@@ -94,261 +94,169 @@ testsConfig = {
     ]
 }
 
+class StellarTestSuite():
+
+    def __init__(self, source_base, binary_base):
+        self.shortFlags = {
+            'forward': ['-f'],
+            'reverse': ['-r'],
+            'both': [],
+            'dna': ['-a', 'dna'],
+            'dna5': [] # in short flags we let dna5 be empty, since it the default value
+        }
+
+        self.longFlags = {
+            'forward': ['--forward'],
+            'reverse': ['--reverse'],
+            'both': [],
+            'dna': ['--alphabet', 'dna'],
+            'dna5': ['--alphabet', 'dna5']
+        }
+
+        # stellar/tests directory
+        self.source_base = source_base
+        self.binary_base = binary_base
+        self.app_test_dir = os.path.join(source_base, 'test/cli') # original: 'apps/stellar/tests'
+        self.relative_binary_path = "." # original: 'apps/stellar'
+
+        self.pathHelper = app_tests.TestPathHelper(self.source_base, self.binary_base, self.app_test_dir)  # tests dir
+
+        self.pathHelper.outFile('-')  # To ensure that the out path is set.
+
+        # ============================================================
+        # Built TestConf list.
+        # ============================================================
+
+        # Build list with TestConf objects, analoguely to how the output
+        # was generated in generate_outputs.sh.
+        self.tests = []
+
+    def addTest(self, executable, errorRate, testName, alphabet, databaseStrand, outputExt, flags = None):
+        flags = self.longFlags if flags is None else flags
+
+        executable_file = app_tests.autolocateBinary(self.binary_base, self.relative_binary_path, executable)
+
+        tmpSubDir = "{alphabet}_{databaseStrand}/".format(alphabet = alphabet, databaseStrand = databaseStrand)
+        expectDataDir = self.pathHelper.inFile('gold_standard/%s' % tmpSubDir)
+
+        testFormat = {
+            'errorRate': errorRate,
+            'testName': testName,
+            'ext': outputExt,
+            'expectDataDir': expectDataDir,
+            'tmpSubDir': tmpSubDir
+        }
+
+        # We prepare a list of transforms to apply to the output files.  This is
+        # used to strip the input/output paths from the programs' output to
+        # make it more canonical and host independent.
+        transforms = self.outputTransforms()
+
+        test = app_tests.TestConf(
+            program = executable_file,
+            redir_stdout = self.pathHelper.outFile('{testName}.{ext}.stdout'.format(**testFormat), tmpSubDir),
+            args =
+                flags.get(alphabet, []) +
+                flags.get(databaseStrand, []) +
+                testsConfig[testName] +
+                [
+                    '--out', self.pathHelper.outFile('{testName}.{ext}'.format(**testFormat), tmpSubDir),
+                    self.pathHelper.inFile('512_simSeq1_{errorRate}.fa'.format(**testFormat)),
+                    self.pathHelper.inFile('512_simSeq2_{errorRate}.fa'.format(**testFormat))
+                ],
+            to_diff =
+            [
+                (
+                    self.pathHelper.inFile('{expectDataDir}/{testName}.{ext}.stdout'.format(**testFormat)),
+                    self.pathHelper.outFile('{testName}.{ext}.stdout'.format(**testFormat), tmpSubDir),
+                    transforms
+                ),
+                (
+                    self.pathHelper.inFile('{expectDataDir}/{testName}.{ext}'.format(**testFormat)),
+                    self.pathHelper.outFile('{testName}.{ext}'.format(**testFormat), tmpSubDir),
+                    transforms
+                )
+            ]
+        )
+
+        self.tests.append(test)
+
+    def outputTransforms(self):
+        return [
+            app_tests.ReplaceTransform(os.path.join(self.pathHelper.source_base_path, self.app_test_dir) + os.sep, '', right=True),
+            app_tests.ReplaceTransform(self.pathHelper.temp_dir + os.sep, '', right=True),
+            app_tests.NormalizeScientificExponentsTransform(),
+        ]
+
+    def runTests(self):
+        print('Executing test for stellar')
+        print('=========================')
+        print()
+
+        # ============================================================
+        # Execute the tests.
+        # ============================================================
+        failures = 0
+        try:
+            for test in self.tests:
+                print(' '.join([test.program] + test.args))
+                res = app_tests.runTest(test)
+                # Output to the user.
+                if res:
+                     print('OK')
+                else:
+                    failures += 1
+                    print('FAILED')
+        except Exception as e:
+            raise e # This exception is saved, then finally is executed, and then the exception is raised.
+        finally:
+            # Cleanup.
+            self.pathHelper.deleteTempDir()
+
+        print('==============================')
+        print('     total tests: %d' % len(self.tests))
+        print('    failed tests: %d' % failures)
+        print('successful tests: %d' % (len(self.tests) - failures))
+        print('==============================')
+
+        return failures != 0
+
 def main(source_base, binary_base):
     """Main entry point of the script."""
 
-    print('Executing test for stellar')
-    print('=========================')
-    print()
-
-    # stellar/tests directory
-    app_test_dir=os.path.join(source_base, 'test/cli') # original: 'apps/stellar/tests'
-    relative_binary_path="." # original: 'apps/stellar'
-
-    ph = app_tests.TestPathHelper(
-        source_base, binary_base,
-        app_test_dir)  # tests dir
-
-    # ============================================================
-    # Auto-detect the binary path.
-    # ============================================================
-
-    path_to_program = app_tests.autolocateBinary(
-      binary_base, relative_binary_path, 'stellar')
-
-    # ============================================================
-    # Built TestConf list.
-    # ============================================================
-
-    # Build list with TestConf objects, analoguely to how the output
-    # was generated in generate_outputs.sh.
-    conf_list = []
-
-    # We prepare a list of transforms to apply to the output files.  This is
-    # used to strip the input/output paths from the programs' output to
-    # make it more canonical and host independent.
-    ph.outFile('-')  # To ensure that the out path is set.
-    transforms = [
-        app_tests.ReplaceTransform(os.path.join(ph.source_base_path, app_test_dir) + os.sep, '', right=True),
-        app_tests.ReplaceTransform(ph.temp_dir + os.sep, '', right=True),
-        app_tests.NormalizeScientificExponentsTransform(),
-        ]
+    testSuite = StellarTestSuite(source_base, binary_base)
 
     # ============================================================
     # Run STELLAR.
     # ============================================================
 
-    shortFlags = {
-        'forward': ['-f'],
-        'reverse': ['-r'],
-        'both': [],
-        'dna': ['-a', 'dna'],
-        'dna5': [] # in short flags we let dna5 be empty, since it the default value
-    }
-    longFlags = {
-        'forward': ['--forward'],
-        'reverse': ['--reverse'],
-        'both': [],
-        'dna': ['--alphabet', 'dna'],
-        'dna5': ['--alphabet', 'dna5']
-    }
-
     for alphabet in ['dna', 'dna5']:
         for databaseStrand in ['forward', 'reverse', 'both']:
             for outputExt in ['gff', 'txt']:
 
-                tmpSubDir = "{alphabet}_{databaseStrand}/".format(alphabet = alphabet, databaseStrand = databaseStrand)
-                expectDataDir = ph.inFile('gold_standard/%s' % tmpSubDir)
-
                 # Error rate 0.1:
-                errorRate = 'e-1'
-                testName = 'e-1'
-                testFormat = {'errorRate': errorRate, 'testName': testName, 'ext': outputExt, 'expectDataDir': expectDataDir, 'tmpSubDir': tmpSubDir}
-                flags = shortFlags
-
-                conf = app_tests.TestConf(
-                    program=path_to_program,
-                    redir_stdout=ph.outFile('{testName}.{ext}.stdout'.format(**testFormat), tmpSubDir),
-                    args=flags.get(alphabet, []) +
-                         flags.get(databaseStrand, []) +
-                         testsConfig[testName] +
-                         ['--out', ph.outFile('{testName}.{ext}'.format(**testFormat), tmpSubDir),
-                          ph.inFile('512_simSeq1_{errorRate}.fa'.format(**testFormat)),
-                          ph.inFile('512_simSeq2_{errorRate}.fa'.format(**testFormat))],
-                    to_diff=[(ph.inFile('{expectDataDir}/{testName}.{ext}.stdout'.format(**testFormat)),
-                              ph.outFile('{testName}.{ext}.stdout'.format(**testFormat), tmpSubDir),
-                              transforms),
-                             (ph.inFile('{expectDataDir}/{testName}.{ext}'.format(**testFormat)),
-                              ph.outFile('{testName}.{ext}'.format(**testFormat), tmpSubDir),
-                              transforms)])
-                conf_list.append(conf)
+                testSuite.addTest('stellar', errorRate = 'e-1', testName = 'e-1', alphabet = alphabet, databaseStrand = databaseStrand, outputExt = outputExt, flags = testSuite.shortFlags)
 
                 # Error rate 0.05:
-                errorRate = '5e-2'
-                testName = '5e-2'
-                testFormat = {'errorRate': errorRate, 'testName': testName, 'ext': outputExt, 'expectDataDir': expectDataDir, 'tmpSubDir': tmpSubDir}
-                flags = longFlags
-
-                conf = app_tests.TestConf(
-                    program=path_to_program,
-                    redir_stdout=ph.outFile('{testName}.{ext}.stdout'.format(**testFormat), tmpSubDir),
-                    args=flags.get(alphabet, []) +
-                         flags.get(databaseStrand, []) +
-                         testsConfig[testName] +
-                         ['--out', ph.outFile('{testName}.{ext}'.format(**testFormat), tmpSubDir),
-                          ph.inFile('512_simSeq1_{errorRate}.fa'.format(**testFormat)),
-                          ph.inFile('512_simSeq2_{errorRate}.fa'.format(**testFormat))],
-                    to_diff=[(ph.inFile('{expectDataDir}/{testName}.{ext}.stdout'.format(**testFormat)),
-                              ph.outFile('{testName}.{ext}.stdout'.format(**testFormat), tmpSubDir),
-                              transforms),
-                             (ph.inFile('{expectDataDir}/{testName}.{ext}'.format(**testFormat)),
-                              ph.outFile('{testName}.{ext}'.format(**testFormat), tmpSubDir),
-                              transforms)])
-                conf_list.append(conf)
+                testSuite.addTest('stellar', errorRate = '5e-2', testName = '5e-2', alphabet = alphabet, databaseStrand = databaseStrand, outputExt = outputExt)
 
                 # Error rate 0.25:
-                errorRate = '25e-3'
-                testName = '25e-3'
-                testFormat = {'errorRate': errorRate, 'testName': testName, 'ext': outputExt, 'expectDataDir': expectDataDir, 'tmpSubDir': tmpSubDir}
-                flags = longFlags
-
-                conf = app_tests.TestConf(
-                    program=path_to_program,
-                    redir_stdout=ph.outFile('{testName}.{ext}.stdout'.format(**testFormat), tmpSubDir),
-                    args=flags.get(alphabet, []) +
-                         flags.get(databaseStrand, []) +
-                         testsConfig[testName] +
-                         ['--out', ph.outFile('{testName}.{ext}'.format(**testFormat), tmpSubDir),
-                          ph.inFile('512_simSeq1_{errorRate}.fa'.format(**testFormat)),
-                          ph.inFile('512_simSeq2_{errorRate}.fa'.format(**testFormat))],
-                    to_diff=[(ph.inFile('{expectDataDir}/{testName}.{ext}.stdout'.format(**testFormat)),
-                              ph.outFile('{testName}.{ext}.stdout'.format(**testFormat), tmpSubDir),
-                              transforms),
-                             (ph.inFile('{expectDataDir}/{testName}.{ext}'.format(**testFormat)),
-                              ph.outFile('{testName}.{ext}'.format(**testFormat), tmpSubDir),
-                              transforms)])
-                conf_list.append(conf)
+                testSuite.addTest('stellar', errorRate = '25e-3', testName = '25e-3', alphabet = alphabet, databaseStrand = databaseStrand, outputExt = outputExt)
 
                 # Error rate 0.75:
-                errorRate = '75e-3'
-                testName = '75e-3'
-                testFormat = {'errorRate': errorRate, 'testName': testName, 'ext': outputExt, 'expectDataDir': expectDataDir, 'tmpSubDir': tmpSubDir}
-                flags = longFlags
-
-                conf = app_tests.TestConf(
-                    program=path_to_program,
-                    redir_stdout=ph.outFile('{testName}.{ext}.stdout'.format(**testFormat), tmpSubDir),
-                    args=flags.get(alphabet, []) +
-                         flags.get(databaseStrand, []) +
-                         testsConfig[testName] +
-                         ['--out', ph.outFile('{testName}.{ext}'.format(**testFormat), tmpSubDir),
-                          ph.inFile('512_simSeq1_{errorRate}.fa'.format(**testFormat)),
-                          ph.inFile('512_simSeq2_{errorRate}.fa'.format(**testFormat))],
-                    to_diff=[(ph.inFile('{expectDataDir}/{testName}.{ext}.stdout'.format(**testFormat)),
-                              ph.outFile('{testName}.{ext}.stdout'.format(**testFormat), tmpSubDir),
-                              transforms),
-                             (ph.inFile('{expectDataDir}/{testName}.{ext}'.format(**testFormat)),
-                              ph.outFile('{testName}.{ext}'.format(**testFormat), tmpSubDir),
-                              transforms)])
-                conf_list.append(conf)
+                testSuite.addTest('stellar', errorRate = '75e-3', testName = '75e-3', alphabet = alphabet, databaseStrand = databaseStrand, outputExt = outputExt)
 
                 # Error rate 0.0001:
-                errorRate = 'e-4'
-                testName = 'e-4'
-                testFormat = {'errorRate': errorRate, 'testName': testName, 'ext': outputExt, 'expectDataDir': expectDataDir, 'tmpSubDir': tmpSubDir}
-                flags = longFlags
-
-                conf = app_tests.TestConf(
-                    program=path_to_program,
-                    redir_stdout=ph.outFile('{testName}.{ext}.stdout'.format(**testFormat), tmpSubDir),
-                    args=flags.get(alphabet, []) +
-                         flags.get(databaseStrand, []) +
-                         testsConfig[testName] +
-                         ['--out', ph.outFile('{testName}.{ext}'.format(**testFormat), tmpSubDir),
-                          ph.inFile('512_simSeq1_{errorRate}.fa'.format(**testFormat)),
-                          ph.inFile('512_simSeq2_{errorRate}.fa'.format(**testFormat))],
-                    to_diff=[(ph.inFile('{expectDataDir}/{testName}.{ext}.stdout'.format(**testFormat)),
-                              ph.outFile('{testName}.{ext}.stdout'.format(**testFormat), tmpSubDir),
-                              transforms),
-                             (ph.inFile('{expectDataDir}/{testName}.{ext}'.format(**testFormat)),
-                              ph.outFile('{testName}.{ext}'.format(**testFormat), tmpSubDir),
-                              transforms)])
-                conf_list.append(conf)
+                testSuite.addTest('stellar', errorRate = 'e-4', testName = 'e-4', alphabet = alphabet, databaseStrand = databaseStrand, outputExt = outputExt)
 
                 # Minimal length: 20, Error rate 0.05:
-                errorRate = '5e-2'
-                testName = 'minLen20'
-                testFormat = {'errorRate': errorRate, 'testName': testName, 'ext': outputExt, 'expectDataDir': expectDataDir, 'tmpSubDir': tmpSubDir}
-                flags = longFlags
-
-                conf = app_tests.TestConf(
-                    program=path_to_program,
-                    redir_stdout=ph.outFile('{testName}.{ext}.stdout'.format(**testFormat), tmpSubDir),
-                    args=flags.get(alphabet, []) +
-                         flags.get(databaseStrand, []) +
-                         testsConfig[testName] +
-                         ['--out', ph.outFile('{testName}.{ext}'.format(**testFormat), tmpSubDir),
-                          ph.inFile('512_simSeq1_{errorRate}.fa'.format(**testFormat)),
-                          ph.inFile('512_simSeq2_{errorRate}.fa'.format(**testFormat))],
-                    to_diff=[(ph.inFile('{expectDataDir}/{testName}.{ext}.stdout'.format(**testFormat)),
-                              ph.outFile('{testName}.{ext}.stdout'.format(**testFormat), tmpSubDir),
-                              transforms),
-                             (ph.inFile('{expectDataDir}/{testName}.{ext}'.format(**testFormat)),
-                              ph.outFile('{testName}.{ext}'.format(**testFormat), tmpSubDir),
-                              transforms)])
-                conf_list.append(conf)
+                testSuite.addTest('stellar', errorRate = '5e-2', testName = 'minLen20', alphabet = alphabet, databaseStrand = databaseStrand, outputExt = outputExt)
 
                 # Minimal length: 150, Error rate 0.05:
-                errorRate = '5e-2'
-                testName = 'minLen150'
-                testFormat = {'errorRate': errorRate, 'testName': testName, 'ext': outputExt, 'expectDataDir': expectDataDir, 'tmpSubDir': tmpSubDir}
-                flags = longFlags
+                testSuite.addTest('stellar', errorRate = '5e-2', testName = 'minLen150', alphabet = alphabet, databaseStrand = databaseStrand, outputExt = outputExt)
 
-                conf = app_tests.TestConf(
-                    program=path_to_program,
-                    redir_stdout=ph.outFile('{testName}.{ext}.stdout'.format(**testFormat), tmpSubDir),
-                    args=flags.get(alphabet, []) +
-                         flags.get(databaseStrand, []) +
-                         testsConfig[testName] +
-                         ['--out', ph.outFile('{testName}.{ext}'.format(**testFormat), tmpSubDir),
-                          ph.inFile('512_simSeq1_{errorRate}.fa'.format(**testFormat)),
-                          ph.inFile('512_simSeq2_{errorRate}.fa'.format(**testFormat))],
-                    to_diff=[(ph.inFile('{expectDataDir}/{testName}.{ext}.stdout'.format(**testFormat)),
-                              ph.outFile('{testName}.{ext}.stdout'.format(**testFormat), tmpSubDir),
-                              transforms),
-                             (ph.inFile('{expectDataDir}/{testName}.{ext}'.format(**testFormat)),
-                              ph.outFile('{testName}.{ext}'.format(**testFormat), tmpSubDir),
-                              transforms)])
-                conf_list.append(conf)
-
-    # ============================================================
-    # Execute the tests.
-    # ============================================================
-    failures = 0
-    try:
-        for conf in conf_list:
-            print(' '.join([conf.program] + conf.args))
-            res = app_tests.runTest(conf)
-            # Output to the user.
-            if res:
-                 print('OK')
-            else:
-                failures += 1
-                print('FAILED')
-    except Exception as e:
-        raise e # This exception is saved, then finally is executed, and then the exception is raised.
-    finally:
-        # Cleanup.
-        ph.deleteTempDir()
-
-    print('==============================')
-    print('     total tests: %d' % len(conf_list))
-    print('    failed tests: %d' % failures)
-    print('successful tests: %d' % (len(conf_list) - failures))
-    print('==============================')
     # Compute and return return code.
-    return failures != 0
-
+    return testSuite.runTests()
 
 if __name__ == '__main__':
     sys.exit(app_tests.main(main))
