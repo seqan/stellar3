@@ -415,19 +415,13 @@ void _appendDisabledQueryToFastaFile(CharString const & id, TQuery const & query
     disabledQueriesFile << query << "\n\n";
 }
 
-template <typename TInfix, typename TQueryId, typename TIds, typename TQueries>
-void _writeDisabledQueriesToFastaFile(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > const & matches, TIds const & ids, TQueries const & queries, std::ofstream & disabledQueriesFile)
+template <typename TIds, typename TQueries>
+void _writeDisabledQueriesToFastaFile(std::vector<size_t> const & disabledQueryIDs, TIds const & ids, TQueries const & queries, std::ofstream & disabledQueriesFile)
 {
     assert(disabledQueriesFile.is_open());
 
-    for (size_t i = 0u; i < length(matches); i++) {
-        QueryMatches<StellarMatch<TInfix const, TQueryId>> const & queryMatches = value(matches, i);
-
-        if (!queryMatches.disabled)
-            continue;
-
-        _appendDisabledQueryToFastaFile(ids[i], queries[i], disabledQueriesFile);
-    }
+    for (size_t queryID : disabledQueryIDs)
+        _appendDisabledQueryToFastaFile(ids[queryID], queries[queryID], disabledQueriesFile);
 }
 
 template <typename TInfix, typename TQueryId>

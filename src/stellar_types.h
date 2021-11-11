@@ -141,6 +141,14 @@ struct StellarOutputStatistics
     size_t totalLength{0u};
     size_t numMatches{0u};
     size_t numDisabled{0u};
+
+    void mergeIn(StellarOutputStatistics const & statistics)
+    {
+        maxLength = std::max(maxLength, statistics.maxLength);
+        totalLength = totalLength + statistics.totalLength;
+        numMatches = numMatches + statistics.numMatches;
+        numDisabled = numDisabled + statistics.numDisabled;
+    }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
