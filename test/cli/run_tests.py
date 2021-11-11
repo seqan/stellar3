@@ -225,18 +225,24 @@ class StellarTestSuite():
 
         return failures != 0
 
-def main(source_base, binary_base):
+
+def main(source_base, binary_base, alphabets, database_strands, output_extensions):
     """Main entry point of the script."""
 
     testSuite = StellarTestSuite(source_base, binary_base)
+
+    print ("alphabets:", alphabets)
+    print ("database_strands:", database_strands)
+    print ("output_extensions:", output_extensions)
+    print ()
 
     # ============================================================
     # Run STELLAR.
     # ============================================================
 
-    for alphabet in ['dna', 'dna5', 'protein', 'char']:
-        for databaseStrand in ['forward', 'reverse', 'both']:
-            for outputExt in ['gff', 'txt']:
+    for alphabet in alphabets:
+        for databaseStrand in database_strands:
+            for outputExt in output_extensions:
 
                 # Error rate 0.1:
                 testSuite.addTest('stellar', errorRate = 'e-1', testName = 'e-1', alphabet = alphabet, databaseStrand = databaseStrand, outputExt = outputExt, flags = testSuite.shortFlags)
@@ -263,4 +269,27 @@ def main(source_base, binary_base):
     return testSuite.runTests()
 
 if __name__ == '__main__':
-    sys.exit(app_tests.main(main))
+    import argparse
+    parser = argparse.ArgumentParser(add_help=False)
+
+    # --alphabets dna protein
+    alphabets = ['dna', 'dna5', 'protein', 'char']
+    parser.add_argument('--alphabets', nargs='*', default = alphabets, choices = alphabets)
+
+    # --database-strands forward both
+    database_strands = ['forward', 'reverse', 'both']
+    parser.add_argument('--database-strands', nargs='*', default = database_strands, choices = database_strands)
+
+    # --output-extensions txt gff
+    output_extensions = ['gff', 'txt']
+    parser.add_argument('--output-extensions', nargs='*', default = output_extensions, choices = output_extensions)
+
+    (options, remaining_args) = parser.parse_known_args()
+
+    # propagate remaining_args s.t. app_tests.main can use it
+    sys.argv = [sys.argv[0]] + remaining_args
+
+    sys.exit(app_tests.main(main,
+                            alphabets = options.alphabets,
+                            database_strands = options.database_strands,
+                            output_extensions = options.output_extensions))
