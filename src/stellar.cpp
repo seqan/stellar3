@@ -191,7 +191,9 @@ void _setParser(ArgumentParser & parser)
                     "12(Suppl 9):S15, 2011.");
 }
 
+#ifndef STELLAR_PARALLEL_BUILD
 #include "stellar/stellar.main.tpp"
+#endif // STELLAR_PARALLEL_BUILD
 
 // TODO(holtgrew): Move this into a SeqAn misc module.
 

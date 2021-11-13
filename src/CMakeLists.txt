@@ -11,6 +11,34 @@ message (STATUS "Configuring apps/stellar")
 
 set (SEQAN_APP_VERSION "${PROJECT_VERSION}")
 
+# Compile times with `make -j 6`:
+#
+# -DSTELLAR_PARALLEL_BUILD=ON will increase runtime by around 4-5% on RELEASE mode, but will be faster on parallel
+# re-builds.
+#
+# #### Cold build ####
+#
+# i.e. everything must be build:
+#
+# | CMAKE_BUILD_TYPE | -DSTELLAR_*         | wall time | usr time | system | cpu% |
+# | ---------------- | ------------------- | --------- | -------- | ------ | ---- |
+# | DEBUG            | *PARALLEL_BUILD=OFF | 28.22s    | 27.10s   | 1.02s  |  99% |
+# | DEBUG            | *PARALLEL_BUILD=ON  | 30.97s    | 115.83s  | 4.08s  | 387% |
+# | RELEASE          | *PARALLEL_BUILD=OFF | 51.68s    | 50.72s   | 0.82s  |  99% |
+# | RELEASE          | *PARALLEL_BUILD=ON  | 40.69s    | 152.75s  | 3.24s  | 383% |
+#
+# #### Partial rebuild ####
+#
+# i.e. only stellar.main.tpp is updated, everything is left untouched.
+#
+# | CMAKE_BUILD_TYPE | -DSTELLAR_*         | wall time | usr time | system | cpu% |
+# | ---------------- | ------------------- | --------- | -------- | ------ | ---- |
+# | DEBUG            | *PARALLEL_BUILD=OFF | 28.22s    | 27.10s   | 1.02s  |  99% |
+# | DEBUG            | *PARALLEL_BUILD=ON  | 20.51s    | 100.46s  | 3.43s  | 506% |
+# | RELEASE          | *PARALLEL_BUILD=OFF | 51.68s    | 50.72s   | 0.82s  |  99% |
+# | RELEASE          | *PARALLEL_BUILD=ON  | 27.41s    | 146.22s  | 3.05s  | 544% |
+option (STELLAR_PARALLEL_BUILD "Compile stellar on multiple translation units. (Enables faster build when building in parallel `make -j 6`)" OFF)
+
 # ----------------------------------------------------------------------------
 # Setup SeqAn 2
 # ----------------------------------------------------------------------------
@@ -72,12 +100,29 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SEQAN_CXX_FLAGS}")
 # Require at least C++-14
 target_compile_features ("${PROJECT_NAME}_interface" INTERFACE cxx_relaxed_constexpr)
 
+if (STELLAR_PARALLEL_BUILD)
+    add_library (stellar_main OBJECT
+                 stellar/stellar.main.dna.cpp
+                 stellar/stellar.main.dna5.cpp
+                 stellar/stellar.main.rna.cpp
+                 stellar/stellar.main.rna5.cpp
+                 stellar/stellar.main.aminoacid.cpp
+                 stellar/stellar.main.char.cpp)
+
+    target_link_libraries (stellar_main PUBLIC "${PROJECT_NAME}_interface")
+endif ()
+
 # Update the list of file names below if you add source files to your application.
 add_executable (stellar stellar.cpp
                        stellar.h
                        stellar_extension.h
                        stellar_output.h
                        stellar_types.h)
+
+if (STELLAR_PARALLEL_BUILD)
+    target_compile_definitions ("${PROJECT_NAME}_interface" INTERFACE -DSTELLAR_PARALLEL_BUILD)
+    target_link_libraries (stellar PRIVATE stellar_main)
+endif ()
 
 # Add dependencies found by find_package (SeqAn).
 target_link_libraries (stellar PUBLIC "${PROJECT_NAME}_interface" ${SEQAN_LIBRARIES})
