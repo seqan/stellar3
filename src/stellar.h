@@ -25,10 +25,10 @@
 #define SEQAN_HEADER_STELLAR_H
 
 #include <iostream>
-#include <seqan/index.h>
 #include <seqan/seeds.h>
 #include "stellar_types.h"
 #include "stellar_extension.h"
+#include "stellar_index.hpp"
 
 #include "stellar/stellar.diagnostics.hpp"
 
@@ -655,10 +655,10 @@ verifySwiftHit(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> con
 
 ///////////////////////////////////////////////////////////////////////////////
 // Calls swift filter and verifies swift hits. = Computes eps-matches.
-template<typename TText, typename TStringSetSpec, typename TIndexSpec, typename TSize, typename TDrop, typename TSize1,
+template<typename TAlphabet, typename TSize, typename TDrop, typename TSize1,
          typename TMode, typename TSource, typename TId, typename TTag>
-void stellar(Finder<TText const, Swift<SwiftLocal> > & finder,
-             Pattern<Index<StringSet<TText, TStringSetSpec> const, TIndexSpec>, Swift<SwiftLocal> > & pattern,
+void stellar(StellarSwiftFinder<TAlphabet> & finder,
+             StellarSwiftPattern<TAlphabet> & pattern,
              double const epsilon,
              TSize const minLength,
              TDrop const xDrop,
@@ -670,6 +670,7 @@ void stellar(Finder<TText const, Swift<SwiftLocal> > & finder,
              bool const dbStrand,
              StringSet<QueryMatches<StellarMatch<TSource const, TId> > > & matches,
              TTag tag) {
+    using TText = String<TAlphabet>;
     using TMatch = StellarMatch<TSource const, TId>;
     using TInfix = typename Infix<TText const>::Type;
 
@@ -724,10 +725,10 @@ void stellar(Finder<TText const, Swift<SwiftLocal> > & finder,
 }
 
 // Wrapper for stellar
-template<typename TText, typename TIndex, typename TSize, typename TDrop,
+template<typename TAlphabet, typename TSize, typename TDrop,
          typename TSource, typename TId, typename TTag>
-void stellar(Finder<TText const, Swift<SwiftLocal> > & finder,
-             Pattern<TIndex, Swift<SwiftLocal> > & pattern,
+void stellar(StellarSwiftFinder<TAlphabet> & finder,
+             StellarSwiftPattern<TAlphabet> & pattern,
              double const epsilon,
              TSize const minLength,
              TDrop const xDrop,
