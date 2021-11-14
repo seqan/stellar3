@@ -163,6 +163,18 @@ struct QueryMatches {
 
     QueryMatches() : disabled(false), lengthAdjustment(0)
     {}
+
+    void mergeIn(QueryMatches const & otherMatches)
+    {
+        this->disabled = this->disabled || otherMatches.disabled;
+        if (this->disabled)
+        {
+            clear(this->matches);
+        } else
+        {
+            append(this->matches, otherMatches.matches);
+        }
+    }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
