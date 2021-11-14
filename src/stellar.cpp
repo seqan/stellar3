@@ -600,8 +600,8 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 // Parses and outputs parameters, calls _stellarOnAll().
-template <typename TOptions, typename TAlphabet>
-int mainWithOptions(TOptions & options, String<TAlphabet>)
+template <typename TAlphabet>
+int mainWithOptions(StellarOptions & options, String<TAlphabet>)
 {
     typedef String<TAlphabet> TSequence;
 
