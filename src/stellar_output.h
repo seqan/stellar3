@@ -27,6 +27,9 @@
 #include <iostream>
 #include <seqan/align.h>
 
+namespace stellar
+{
+
 using namespace seqan;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -540,5 +543,7 @@ _outputMatches(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > &
 
     return 0;
 }
+
+} // namespace stellar
 
 #endif

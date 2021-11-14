@@ -32,6 +32,11 @@
 
 using namespace seqan;
 
+namespace stellar
+{
+namespace app
+{
+
 ///////////////////////////////////////////////////////////////////////////////
 // Parses options from command line parser and writes them into options object
 template <typename TOptions>
@@ -191,6 +196,9 @@ void _setParser(ArgumentParser & parser)
                     "12(Suppl 9):S15, 2011.");
 }
 
+} // namespace stellar::app
+} // namespace stellar
+
 #ifndef STELLAR_PARALLEL_BUILD
 #include "stellar/stellar.main.tpp"
 #endif // STELLAR_PARALLEL_BUILD
@@ -224,26 +232,26 @@ int main(int argc, const char * argv[])
     // command line parsing
     ArgumentParser parser("stellar");
 
-    StellarOptions options = StellarOptions();
-    _setParser(parser);
-    ArgumentParser::ParseResult res = parse(parser, argc, argv);
+    stellar::StellarOptions options{};
+    stellar::app::_setParser(parser);
+    ArgumentParser::ParseResult res = seqan::parse(parser, argc, argv);
 
     if (res == ArgumentParser::PARSE_OK)
-        res = _parseOptions(parser, options);
+        res = stellar::app::_parseOptions(parser, options);
 
     if (res != ArgumentParser::PARSE_OK)
         return res == ArgumentParser::PARSE_ERROR;
 
     if (options.alphabet == "dna")
-        mainWithOptions(options, String<Dna>());
+        stellar::app::mainWithOptions(options, String<Dna>());
     else if (options.alphabet == "dna5")
-        mainWithOptions(options, String<Dna5>());
+        stellar::app::mainWithOptions(options, String<Dna5>());
     else if (options.alphabet == "rna")
-        mainWithOptions(options, String<Rna>());
+        stellar::app::mainWithOptions(options, String<Rna>());
     else if (options.alphabet == "rna5")
-        mainWithOptions(options, String<Rna5>());
+        stellar::app::mainWithOptions(options, String<Rna5>());
     else if (options.alphabet == "protein")
-        mainWithOptions(options, String<AminoAcid>());
+        stellar::app::mainWithOptions(options, String<AminoAcid>());
     else if (options.alphabet == "char")
-        mainWithOptions(options, String<char>());
+        stellar::app::mainWithOptions(options, String<char>());
 }

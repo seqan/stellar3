@@ -26,6 +26,8 @@
 
 #include <seqan/seeds.h>
 
+namespace stellar
+{
 
 ///////////////////////////////////////////////////////////////////////////////
 // Container for storing possible end positions in extension of eps-core
@@ -885,5 +887,7 @@ _extendAndExtract(Align<Segment<Segment<TSequence const, InfixSegment>, InfixSeg
     //std::cerr << "extracted alignment\n-------------\n" << align << "----------------\n";
     return true;
 }
+
+} // namespace stellar
 
 #endif
