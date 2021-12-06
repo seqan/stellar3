@@ -717,16 +717,16 @@ _bestExtension(TInfix const & infH,
     if((*endPair.i1).length != 0) { // ... extension to the left
         endLeftV = (*endPair.i1).coord.i1;
         // correction for banded coordinates to unbanded:
-        if (upperDiagonal(seed) - lowerDiagonal(seedOld)  <= 0)
-            endLeftV -= (TPos)(upperDiagonal(seed) - lowerDiagonal(seedOld));
-        endLeftH = (TPos)((*endPair.i1).coord.i2 + endLeftV + lowerDiagonal(seed) - lowerDiagonal(seedOld));
+        if (diagLowerLeft >= 0)
+            endLeftV += (TPos)(diagLowerLeft);
+        endLeftH = endLeftV + (TPos)((*endPair.i1).coord.i2 - diagUpperLeft);
     }
     if((*endPair.i2).length != 0) { // ... extension to the right
         endRightV = (*endPair.i2).coord.i1;
         // correction for banded coordinates to unbanded:
-        if (upperDiagonal(seed) - upperDiagonal(seedOld) <= 0)
-            endRightV -= (TPos)(upperDiagonal(seed) - upperDiagonal(seedOld));
-        endRightH = (TPos)((*endPair.i2).coord.i2 + endRightV + lowerDiagonal(seed) - upperDiagonal(seedOld));
+        if (diagLowerRight >= 0)
+            endRightV += (TPos)(diagLowerRight);
+        endRightH = endRightV + (TPos)((*endPair.i2).coord.i2 - diagUpperRight);
     }
 
     // set begin and end positions of align
