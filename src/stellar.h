@@ -690,9 +690,9 @@ struct SwiftHitVerifier
     TId const & databaseID;
     bool const databaseStrand;
 
-    template <typename TFinderSegment, typename TPatternSegment, typename TDelta, typename TSource, typename TId>
-    void verify(TFinderSegment & finderSegment,
-                TPatternSegment & patternSegment,
+    template <typename TSequence, typename TDelta, typename TSource, typename TId>
+    void verify(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> const & finderSegment,
+                Segment<Segment<TSequence const, InfixSegment>, InfixSegment> const & patternSegment,
                 TDelta const delta,
                 QueryMatches<StellarMatch<TSource const, TId> > & queryMatches)
     {
