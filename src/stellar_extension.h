@@ -377,7 +377,7 @@ template<typename TMatrix, typename TPossEnd, typename TAlphabet, typename TDiag
 void
 _fillMatrixBestEndsLeft(TMatrix & matrixLeft,
                         String<TPossEnd> & possibleEndsLeft,
-                        StringSet<Segment<String<TAlphabet>, InfixSegment>> const & sequencesLeft,
+                        StringSet<Segment<String<TAlphabet> const, InfixSegment>> const & sequencesLeft,
                         TDiagonal const diagLower,
                         TDiagonal const diagUpper,
                         TScore const & scoreMatrix) {
@@ -407,7 +407,7 @@ template<typename TMatrix, typename TPossEnd, typename TAlphabet, typename TDiag
 void
 _fillMatrixBestEndsRight(TMatrix & matrixRight,
                          String<TPossEnd> & possibleEndsRight,
-                         StringSet<Segment<String<TAlphabet>, InfixSegment>> const & sequencesRight,
+                         StringSet<Segment<String<TAlphabet> const, InfixSegment>> const & sequencesRight,
                          TDiagonal const diagLower,
                          TDiagonal const diagUpper,
                          TScore const & scoreMatrix) {
@@ -536,7 +536,7 @@ template<typename TMatrix, typename TCoord, typename TAlphabet, typename TDiagon
 void
 _tracebackLeft(TMatrix const & matrixLeft,
                TCoord const & coordinate,
-               StringSet<Segment<String<TAlphabet>, InfixSegment>> const & sequencesLeft,
+               StringSet<Segment<String<TAlphabet> const, InfixSegment>> const & sequencesLeft,
                TDiagonal const diagLower,
                TDiagonal const diagUpper,
                TPos const endLeftH,
@@ -575,7 +575,7 @@ template<typename TMatrix, typename TCoord, typename TAlphabet, typename TDiagon
 void
 _tracebackRight(TMatrix const & matrixRight,
                TCoord const & coordinate,
-               StringSet<Segment<String<TAlphabet>, InfixSegment>> const & sequencesRight,
+               StringSet<Segment<String<TAlphabet> const, InfixSegment>> const & sequencesRight,
                TDiagonal const diagLower,
                TDiagonal const diagUpper,
                TPos const endRightH,
@@ -607,11 +607,11 @@ _tracebackRight(TMatrix const & matrixRight,
 // Computes the banded alignment matrix and fills a string with possible start
 //   and end positions of an eps-match. Determines the optimal start and end
 //   position for the longest eps-match and writes the trace into align.
-template<typename TInfix, typename TSeed, typename TPos, typename TDir, typename TScore,
+template<typename TSequence, typename TSeed, typename TPos, typename TDir, typename TScore,
          typename TSize, typename TEps, typename TAlign>
 bool
-_bestExtension(TInfix const & infH,
-               TInfix const & infV,
+_bestExtension(Segment<TSequence, InfixSegment> const & infH,
+               Segment<TSequence, InfixSegment> const & infV,
                TSeed const & seed,
                TSeed const & seedOld,
                TPos const alignLen,
@@ -643,8 +643,8 @@ _bestExtension(TInfix const & infH,
     assert(endPositionH(seedOld) <= endPositionH(seed)); // infixRightH
     assert(endPositionV(seedOld) <= endPositionV(seed)); // infixRightV
 
-    StringSet<TInfix> sequencesLeft;
-    StringSet<TInfix> sequencesRight;
+    StringSet<Segment<TSequence const, InfixSegment>> sequencesLeft;
+    StringSet<Segment<TSequence const, InfixSegment>> sequencesRight;
 
     // Compute diagonals for updated seeds module with infixH/first alignment row being in the horizontal direction.
     TDiagonal const diagLowerLeft = lowerDiagonal(seedOld) - upperDiagonal(seed);
@@ -658,8 +658,8 @@ _bestExtension(TInfix const & infH,
     if (direction == EXTEND_BOTH || direction == EXTEND_LEFT) { // ... extension to the left
         // Caution: left extension infix is now reversed in host(infH and infV) !!!
         // infix segment and reverse it
-        TInfix sequenceLeftH = infix(host(infH), beginPositionH(seed), beginPositionH(seedOld));
-        TInfix sequenceLeftV = infix(host(infV), beginPositionV(seed), beginPositionV(seedOld));
+        Segment<TSequence, InfixSegment> sequenceLeftH = infix(host(infH), beginPositionH(seed), beginPositionH(seedOld));
+        Segment<TSequence, InfixSegment> sequenceLeftV = infix(host(infV), beginPositionV(seed), beginPositionV(seedOld));
         reverse(sequenceLeftH);
         reverse(sequenceLeftV);
 
