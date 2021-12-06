@@ -810,8 +810,8 @@ bool
 _extendAndExtract(Align<Segment<Segment<TSequence, InfixSegment>, InfixSegment> > const & localAlign,
                   TScoreValue const scoreDropOff,
                   TScore const & scoreMatrix,
-                  Segment<typename Infix<TSequence>::Type, InfixSegment> const & infH,
-                  Segment<typename Infix<TSequence>::Type, InfixSegment> const & infV,
+                  Segment<Segment<TSequence, InfixSegment>, InfixSegment> const & infH,
+                  Segment<Segment<TSequence, InfixSegment>, InfixSegment> const & infV,
                   ExtensionDirection const direction,
                   TSize const minLength,
                   TEps const eps,
@@ -847,7 +847,12 @@ _extendAndExtract(Align<Segment<Segment<TSequence, InfixSegment>, InfixSegment> 
         // gapped X-drop extension of local alignment (seed)
         TSeed seed(seedBeginH, seedBeginV, seedEndH, seedEndV);
         TSeed seedOld(seed);
-        extendSeed(seed, host(infH), host(infV), direction, scoreMatrix, scoreDropOff, GappedXDrop());
+
+        static_assert(std::is_same<decltype(host(infH)), Segment<TSequence, InfixSegment>>::value,
+                      "infH is a nested InfixSegment: Segment<Segment<TSequence, InfixSegment>, InfixSegment>");
+        Segment<TSequence const, InfixSegment> infixSequenceH = host(infH); // inner nested Segment
+        Segment<TSequence const, InfixSegment> infixSequenceV = host(infV); // inner nested Segment
+        extendSeed(seed, infixSequenceH, infixSequenceV, direction, scoreMatrix, scoreDropOff, GappedXDrop());
 
         if (static_cast<int64_t>(seedSize(seed)) < minLength - (int)floor(minLength*eps))
             return false;
@@ -870,8 +875,8 @@ _extendAndExtract(Align<Segment<Segment<TSequence, InfixSegment>, InfixSegment> 
         setEndPositionV(seed, endPositionV(seed) + beginPosition(host(infV)));
 
         // determine best extension lengths and write the trace into align
-        typename Infix<TSequence const>::Type infixH = infix(host(infH), beginPosition(infH), endPosition(infH));
-        typename Infix<TSequence const>::Type infixV = infix(host(infV), beginPosition(infV), endPosition(infV));
+        Segment<TSequence const, InfixSegment> infixH = infix(infixSequenceH, beginPosition(infH), endPosition(infH));
+        Segment<TSequence const, InfixSegment> infixV = infix(infixSequenceV, beginPosition(infV), endPosition(infV));
         if (!_bestExtension(infixH, infixV, seed, seedOld, alignLen, alignErr, scoreMatrix, direction, minLength, eps, align))
             return false;
         SEQAN_ASSERT_EQ(length(row(align, 0)), length(row(align, 1)));
