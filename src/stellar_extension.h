@@ -629,8 +629,8 @@ _tracebackRight(TMatrix const & matrixRight,
 template<typename TSequence, typename TSeed, typename TPos, typename TDir, typename TScore,
          typename TSize, typename TEps, typename TAlign>
 bool
-_bestExtension(Segment<TSequence, InfixSegment> const & infH,
-               Segment<TSequence, InfixSegment> const & infV,
+_bestExtension(Segment<TSequence const, InfixSegment> const & infH,
+               Segment<TSequence const, InfixSegment> const & infV,
                TSeed const & seed,
                TSeed const & seedOld,
                TPos const alignLen,
@@ -870,8 +870,8 @@ _extendAndExtract(Align<Segment<Segment<TSequence, InfixSegment>, InfixSegment> 
         setEndPositionV(seed, endPositionV(seed) + beginPosition(host(infV)));
 
         // determine best extension lengths and write the trace into align
-        typename Infix<TSequence>::Type infixH = infix(host(infH), beginPosition(infH), endPosition(infH));
-        typename Infix<TSequence>::Type infixV = infix(host(infV), beginPosition(infV), endPosition(infV));
+        typename Infix<TSequence const>::Type infixH = infix(host(infH), beginPosition(infH), endPosition(infH));
+        typename Infix<TSequence const>::Type infixV = infix(host(infV), beginPosition(infV), endPosition(infV));
         if (!_bestExtension(infixH, infixV, seed, seedOld, alignLen, alignErr, scoreMatrix, direction, minLength, eps, align))
             return false;
         SEQAN_ASSERT_EQ(length(row(align, 0)), length(row(align, 1)));
