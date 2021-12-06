@@ -341,13 +341,13 @@ _writeMatch(TId const & databaseID,
 template<typename TInfix, typename TQueryId, typename TIds, typename TDatabases, typename TMode, typename TFile,
          typename TString>
 bool
-_outputMatches(StringSet<QueryMatches<StellarMatch<TInfix, TQueryId> > > & matches,
+_outputMatches(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > & matches,
                TIds const & ids,
                TDatabases & databases,
                TMode const verbose,
                TFile const & fileName,
                TString const & format) {
-    typedef StellarMatch<TInfix, TQueryId> TMatch;
+    typedef StellarMatch<TInfix const, TQueryId> TMatch;
     typedef typename Size<typename TMatch::TAlign>::Type TSize;
     typedef typename Iterator<String<TMatch> >::Type TIterator;
     typedef typename Value<TInfix>::Type TAlphabet;
@@ -437,7 +437,7 @@ _outputMatches(StringSet<QueryMatches<StellarMatch<TInfix, TQueryId> > > & match
 template<typename TInfix, typename TQueryId, typename TQueries, typename TDatabases, typename TIds,
          typename TMode, typename TFile, typename TString>
 bool
-_outputMatches(StringSet<QueryMatches<StellarMatch<TInfix, TQueryId> > > & matches,
+_outputMatches(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > & matches,
                TQueries const & queries,
                TIds const & ids,
                TDatabases & databases,
@@ -445,7 +445,7 @@ _outputMatches(StringSet<QueryMatches<StellarMatch<TInfix, TQueryId> > > & match
                TFile const & fileName,
                TString const & format,
                TString const & disabledFile) {
-    typedef StellarMatch<TInfix, TQueryId> TMatch;
+    typedef StellarMatch<TInfix const, TQueryId> TMatch;
     typedef typename Size<typename TMatch::TAlign>::Type TSize;
     typedef typename Iterator<String<TMatch> >::Type TIterator;
     typedef typename Value<TInfix>::Type TAlphabet;

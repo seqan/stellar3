@@ -296,9 +296,9 @@ _checkAlignColOverlap(TMatch const & matchA, TMatch const & matchB, TSize const 
 ///////////////////////////////////////////////////////////////////////////////
 // Marks matches that overlap in both sequences with a longer match as invalid.
 template<typename TSequence, typename TId, typename TSize>
-void maskOverlaps(String<StellarMatch<TSequence, TId> > & matches, TSize const minLength)
+void maskOverlaps(String<StellarMatch<TSequence const, TId> > & matches, TSize const minLength)
 {
-    typedef StellarMatch<TSequence, TId>                    TMatch;
+    typedef StellarMatch<TSequence const, TId>              TMatch;
     typedef typename TMatch::TPos                           TPos;
     typedef typename Iterator<String<TMatch>, Rooted>::Type TIter;
     typedef typename Iterator<String<TSize>, Rooted>::Type  TOverlapIter;
@@ -362,8 +362,8 @@ void maskOverlaps(String<StellarMatch<TSequence, TId> > & matches, TSize const m
 // Removes matches that are marked as invalid, and then keeps only the numMatches best matches.
 template<typename TSequence, typename TId, typename TSize>
 void
-compactMatches(String<StellarMatch<TSequence, TId> > & matches, TSize const numMatches) {
-    typedef StellarMatch<TSequence, TId>                        TMatch;
+compactMatches(String<StellarMatch<TSequence const, TId> > & matches, TSize const numMatches) {
+    typedef StellarMatch<TSequence const, TId>                  TMatch;
     typedef typename Iterator<String<TMatch>, Standard>::Type   TIterator;
 
     // sort matches by length (and validity)
@@ -388,8 +388,8 @@ compactMatches(String<StellarMatch<TSequence, TId> > & matches, TSize const numM
 // Appends a match to matches container and removes overlapping matches if threshold is reached.
 template<typename TSource, typename TId, typename TSize, typename TSize1>
 inline bool
-_insertMatch(QueryMatches<StellarMatch<TSource, TId> > & queryMatches,
-             StellarMatch<TSource, TId> const & match,
+_insertMatch(QueryMatches<StellarMatch<TSource const, TId> > & queryMatches,
+             StellarMatch<TSource const, TId> const & match,
              TSize const minLength,
              TSize1 const disableThresh,
              TSize1 & compactThresh,
@@ -433,10 +433,10 @@ verifySwiftHit(Segment<TInfix, InfixSegment> const & infH,
                TSize1 const numMatches,
                TId const & databaseId,
                bool const dbStrand,
-               QueryMatches<StellarMatch<TSource, TId> > & matches,
+               QueryMatches<StellarMatch<TSource const, TId> > & matches,
                BandedGlobal) {
     typedef Segment<TInfix, InfixSegment> TSegment;
-    typedef typename StellarMatch<TSource, TId>::TAlign TAlign;
+    typedef typename StellarMatch<TSource const, TId>::TAlign TAlign;
 
     // define a scoring scheme
     typedef int TScore;
@@ -480,7 +480,7 @@ verifySwiftHit(Segment<TInfix, InfixSegment> const & infH,
         return;
 
     // insert eps-match in matches string
-    StellarMatch<TSource, TId> m(align, databaseId, dbStrand);
+    StellarMatch<TSource const, TId> m(align, databaseId, dbStrand);
     _insertMatch(matches, m, minLength, disableThresh, compactThresh, numMatches);
 }
 
@@ -500,10 +500,10 @@ verifySwiftHit(Segment<TInfix, InfixSegment> const & infH,
                TSize1 const numMatches,
                TId const & databaseId,
                bool const dbStrand,
-               QueryMatches<StellarMatch<TSource, TId> > & matches,
+               QueryMatches<StellarMatch<TSource const, TId> > & matches,
                BandedGlobalExtend) {
     typedef Segment<TInfix, InfixSegment> TSegment;
-    typedef typename StellarMatch<TSource, TId>::TAlign TAlign;
+    typedef typename StellarMatch<TSource const, TId>::TAlign TAlign;
 
     // define a scoring scheme
     typedef int TScore;
@@ -537,7 +537,7 @@ verifySwiftHit(Segment<TInfix, InfixSegment> const & infH,
         return;
 
     // insert eps-match in matches string
-    StellarMatch<TSource, TId> m(align, databaseId, dbStrand);
+    StellarMatch<TSource const, TId> m(align, databaseId, dbStrand);
     _insertMatch(matches, m, minLength, disableThresh, compactThresh, numMatches);
 }
 
@@ -558,10 +558,10 @@ verifySwiftHit(Segment<TInfix, InfixSegment> const & infH,
                TSize1 const numMatches,
                TId const & databaseId,
                bool const dbStrand,
-               QueryMatches<StellarMatch<TSource, TId> > & matches,
+               QueryMatches<StellarMatch<TSource const, TId> > & matches,
                TTag tag) {
     typedef Segment<TInfix, InfixSegment> TSegment;
-    typedef typename StellarMatch<TSource, TId>::TAlign TAlign;
+    typedef typename StellarMatch<TSource const, TId>::TAlign TAlign;
 
     TSize maxLength = 1000000000;
     if ((TSize)length(infH) > maxLength) {
@@ -636,7 +636,7 @@ verifySwiftHit(Segment<TInfix, InfixSegment> const & infH,
             }
 
             // insert eps-match in matches string
-            StellarMatch<TSource, TId> m(align, databaseId, dbStrand);
+            StellarMatch<TSource const, TId> m(align, databaseId, dbStrand);
             length(m);  // DEBUG: Contains assertion on clipping.
             if(!_insertMatch(matches, m, minLength, disableThresh, compactThresh, numMatches)) return;
             ++aliIt;
@@ -660,9 +660,9 @@ void stellar(Finder<TText, Swift<SwiftLocal> > & finder,
              TMode const verbose,
              TId const & databaseID,
              bool const dbStrand,
-             StringSet<QueryMatches<StellarMatch<TSource, TId> > > & matches,
+             StringSet<QueryMatches<StellarMatch<TSource const, TId> > > & matches,
              TTag tag) {
-    typedef StellarMatch<TSource, TId> TMatch;
+    typedef StellarMatch<TSource const, TId> TMatch;
     typedef typename GetSequenceByNo<StringSet<TText, TStringSetSpec> >::Type TPatternSeq;
     typedef typename Infix<TText>::Type TInfix;
 
@@ -734,7 +734,7 @@ void stellar(Finder<TText, Swift<SwiftLocal> > & finder,
              double const epsilon,
              TSize const minLength,
              TDrop const xDrop,
-             StringSet<QueryMatches<StellarMatch<TSource, TId> > > & matches,
+             StringSet<QueryMatches<StellarMatch<TSource const, TId> > > & matches,
              TTag tag) {
     unsigned const maxValue = (unsigned)-1;
     unsigned const disableThresh = maxValue;
