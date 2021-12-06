@@ -419,11 +419,11 @@ _insertMatch(QueryMatches<StellarMatch<TSource const, TId> > & queryMatches,
 
 ///////////////////////////////////////////////////////////////////////////////
 // Conducts banded alignment on swift hit and extracts longest contained eps-match.
-template<typename TInfix, typename TEpsilon, typename TSize, typename TDelta,
+template<typename TSequence, typename TEpsilon, typename TSize, typename TDelta,
          typename TDrop, typename TSize1, typename TSource, typename TId>
 void
-verifySwiftHit(Segment<TInfix, InfixSegment> const & infH,
-               Segment<TInfix, InfixSegment> const & infV,
+verifySwiftHit(Segment<Segment<TSequence, InfixSegment>, InfixSegment> const & infH,
+               Segment<Segment<TSequence, InfixSegment>, InfixSegment> const & infV,
                TEpsilon const eps,
                TSize const minLength,
                TDrop /*xDrop*/,
@@ -435,6 +435,7 @@ verifySwiftHit(Segment<TInfix, InfixSegment> const & infH,
                bool const dbStrand,
                QueryMatches<StellarMatch<TSource const, TId> > & matches,
                BandedGlobal) {
+    using TInfix = Segment<TSequence, InfixSegment>;
     typedef Segment<TInfix, InfixSegment> TSegment;
     typedef typename StellarMatch<TSource const, TId>::TAlign TAlign;
 
@@ -486,11 +487,11 @@ verifySwiftHit(Segment<TInfix, InfixSegment> const & infH,
 
 ///////////////////////////////////////////////////////////////////////////////
 // Conducts banded alignment on swift hit, extends alignment, and extracts longest contained eps-match.
-template<typename TInfix, typename TEpsilon, typename TSize, typename TDelta,
+template<typename TSequence, typename TEpsilon, typename TSize, typename TDelta,
          typename TDrop, typename TSize1, typename TSource, typename TId>
 void
-verifySwiftHit(Segment<TInfix, InfixSegment> const & infH,
-               Segment<TInfix, InfixSegment> const & infV,
+verifySwiftHit(Segment<Segment<TSequence, InfixSegment>, InfixSegment> const & infH,
+               Segment<Segment<TSequence, InfixSegment>, InfixSegment> const & infV,
                TEpsilon const eps,
                TSize const minLength,
                TDrop const xDrop,
@@ -502,6 +503,7 @@ verifySwiftHit(Segment<TInfix, InfixSegment> const & infH,
                bool const dbStrand,
                QueryMatches<StellarMatch<TSource const, TId> > & matches,
                BandedGlobalExtend) {
+    using TInfix = Segment<TSequence, InfixSegment>;
     typedef Segment<TInfix, InfixSegment> TSegment;
     typedef typename StellarMatch<TSource const, TId>::TAlign TAlign;
 
@@ -544,11 +546,11 @@ verifySwiftHit(Segment<TInfix, InfixSegment> const & infH,
 ///////////////////////////////////////////////////////////////////////////////
 // Conducts banded local alignment on swift hit (= computes eps-cores),
 //  splits eps-cores at X-drops, and calls _extendAndExtract for extension of eps-cores
-template<typename TInfix, typename TEpsilon, typename TSize, typename TDelta, typename TDrop,
+template<typename TSequence, typename TEpsilon, typename TSize, typename TDelta, typename TDrop,
          typename TSize1, typename TId, typename TSource, typename TTag>
 void
-verifySwiftHit(Segment<TInfix, InfixSegment> const & infH,
-               Segment<TInfix, InfixSegment> const & infV,
+verifySwiftHit(Segment<Segment<TSequence, InfixSegment>, InfixSegment> const & infH,
+               Segment<Segment<TSequence, InfixSegment>, InfixSegment> const & infV,
                TEpsilon const eps,
                TSize const minLength,
                TDrop const xDrop,
@@ -560,6 +562,7 @@ verifySwiftHit(Segment<TInfix, InfixSegment> const & infH,
                bool const dbStrand,
                QueryMatches<StellarMatch<TSource const, TId> > & matches,
                TTag tag) {
+    using TInfix = Segment<TSequence, InfixSegment>;
     typedef Segment<TInfix, InfixSegment> TSegment;
     typedef typename StellarMatch<TSource const, TId>::TAlign TAlign;
 
