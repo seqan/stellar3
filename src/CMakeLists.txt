@@ -76,6 +76,8 @@ add_executable (stellar stellar.cpp
 # Add dependencies found by find_package (SeqAn).
 target_link_libraries (stellar ${SEQAN_LIBRARIES})
 
+target_compile_features (stellar PUBLIC cxx_relaxed_constexpr) # require C++-14
+
 # Add CXX flags found by find_package (SeqAn).
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SEQAN_CXX_FLAGS}")
 

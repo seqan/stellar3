@@ -103,6 +103,7 @@ struct QueryMatches {
 // Container for storing a local alignment match
 template<typename TSequence_, typename TId_>
 struct StellarMatch {
+    static_assert(std::is_const<TSequence_>::value, "Sequence must be const qualified! I.e. StellarMatch<... const, ...>");
     typedef TSequence_                          TSequence;
     typedef TId_                                TId;
     typedef typename Position<TSequence>::Type  TPos;
@@ -230,8 +231,8 @@ struct LessLength : public ::std::function<bool(TMatch, TMatch)> {
 //  If matches overlap, the non-overlapping parts have to be longer than minLenght.
 template<typename TSequence, typename TId, typename TRowNo, typename TSize>
 inline bool
-_isUpstream(StellarMatch<TSequence, TId> & match1, StellarMatch<TSequence, TId> & match2, TRowNo row, TSize minLength) {
-    typedef typename StellarMatch<TSequence, TId>::TPos TPos;
+_isUpstream(StellarMatch<TSequence const, TId> & match1, StellarMatch<TSequence const, TId> & match2, TRowNo row, TSize minLength) {
+    typedef typename StellarMatch<TSequence const, TId>::TPos TPos;
 
     TPos e1, b2;
     if (row == 0) {
@@ -262,9 +263,9 @@ _isUpstream(StellarMatch<TSequence, TId> & match1, StellarMatch<TSequence, TId> 
 
 ///////////////////////////////////////////////////////////////////////////////
 // sorts StellarMatchees by specified functor
-template <typename TMatches, typename TFunctorLess>
+template <typename TSequence, typename TId, typename TFunctorLess>
 inline void
-sortMatches(TMatches & stellarMatches, TFunctorLess const & less) {
+sortMatches(String<StellarMatch<TSequence const, TId> > & stellarMatches, TFunctorLess const & less) {
     std::stable_sort(
         begin(stellarMatches, Standard()),
         end(stellarMatches, Standard()),
@@ -274,8 +275,8 @@ sortMatches(TMatches & stellarMatches, TFunctorLess const & less) {
 ///////////////////////////////////////////////////////////////////////////////
 // returns the length of the longer row from StellarMatch
 template <typename TSequence, typename TId>
-inline typename Size<TSequence>::Type
-length(StellarMatch<TSequence, TId> & match) {
+inline typename Size<TSequence const>::Type
+length(StellarMatch<TSequence const, TId> & match) {
     return _max(length(match.row1), length(match.row2));
 }
 

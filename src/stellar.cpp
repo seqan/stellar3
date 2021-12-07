@@ -33,13 +33,13 @@ using namespace seqan;
 ///////////////////////////////////////////////////////////////////////////////
 // Initializes a Finder object for a database sequence,
 //  calls stellar, and writes matches to file
-template <typename TSequence, typename TId, typename TPattern, typename TMatches>
+template <typename TAlphabet, typename TId, typename TPattern>
 inline bool
-_stellarOnOne(TSequence & database,
+_stellarOnOne(String<TAlphabet> & database,
               TId & databaseID,
               TPattern & swiftPattern,
               bool databaseStrand,
-              TMatches & matches,
+              StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > & matches,
               StellarOptions & options)
 {
     std::cout << "  " << databaseID;
@@ -48,6 +48,7 @@ _stellarOnOne(TSequence & database,
     std::cout << std::flush;
 
     // finder
+    using TSequence = String<TAlphabet>;
     typedef Finder<TSequence, Swift<SwiftLocal> > TFinder;
     TFinder swiftFinder(database, options.minRepeatLength, options.maxRepeatPeriod);
 
@@ -162,7 +163,7 @@ _stellarOnAll(StringSet<TSequence> & databases,
     std::cout << std::endl;
 
     // container for eps-matches
-    StringSet<QueryMatches<StellarMatch<TSequence, TId> > > matches;
+    StringSet<QueryMatches<StellarMatch<TSequence const, TId> > > matches;
     resize(matches, length(queries));
 
     std::cout << "Aligning all query sequences to database sequence..." << std::endl;
@@ -600,8 +601,8 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 // Parses and outputs parameters, calls _stellarOnAll().
-template <typename TOptions, typename TAlphabet>
-int mainWithOptions(TOptions & options, String<TAlphabet>)
+template <typename TAlphabet>
+int mainWithOptions(StellarOptions & options, String<TAlphabet>)
 {
     typedef String<TAlphabet> TSequence;
 
