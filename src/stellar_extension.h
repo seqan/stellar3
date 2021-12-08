@@ -373,31 +373,14 @@ _reverseLeftExtension(Segment<TSequenceA, InfixSegment> const & infH,
 ///////////////////////////////////////////////////////////////////////////////
 // Computes the banded alignment matrix for the left extension and
 //   returns a string with possible start positions of an eps-match.
-// Caution: The infixes of the left extension is reversed in place in hosts of infH and infV!
-template<typename TMatrix, typename TPossEnd, typename TSequence, typename TSeed, typename TDiagonal, typename TScore>
+template<typename TMatrix, typename TPossEnd, typename TAlphabet, typename TDiagonal, typename TScore>
 void
 _fillMatrixBestEndsLeft(TMatrix & matrixLeft,
                         String<TPossEnd> & possibleEndsLeft,
-                        Segment<TSequence, InfixSegment> const & infH,
-                        Segment<TSequence, InfixSegment> const & infV,
-                        TSeed const & seed,
-                        TSeed const & seedOld,
+                        StringSet<Segment<String<TAlphabet>, InfixSegment>> const & sequencesLeft,
                         TDiagonal const diagLower,
                         TDiagonal const diagUpper,
                         TScore const & scoreMatrix) {
-
-    typedef Segment<TSequence, InfixSegment> TInfix;
-
-    TInfix infixH(host(infH), beginPositionH(seed), beginPositionH(seedOld));
-    TInfix infixV(host(infV), beginPositionV(seed), beginPositionV(seedOld));
-
-    reverse(infixH);
-    reverse(infixV);
-
-    StringSet<TInfix> str;
-    appendValue(str, infixH);
-    appendValue(str, infixV);
-
     // _align_banded_nw_best_ends(matrixLeft, possibleEndsLeft, str, scoreMatrix,
     //                            upperDiagonal(seedOld) - upperDiagonal(seed),
     //                            upperDiagonal(seedOld) - lowerDiagonal(seed));
@@ -414,32 +397,20 @@ _fillMatrixBestEndsLeft(TMatrix & matrixLeft,
 
     // Use legacy adapted NW computation with infixH/first alignment row being in the vertical direction.
     // // TODO(holtgrew): When switching to DP from new alignment module, make sure to mirror diagonals.
-    _align_banded_nw_best_ends(matrixLeft, possibleEndsLeft, str, scoreMatrix, -diagUpper, -diagLower);
+    _align_banded_nw_best_ends(matrixLeft, possibleEndsLeft, sequencesLeft, scoreMatrix, -diagUpper, -diagLower);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Computes the banded alignment matrix for the right extension and
 //   returns a string with possible end positions of an eps-match.
-template<typename TMatrix, typename TPossEnd, typename TSequence, typename TSeed, typename TDiagonal, typename TScore>
+template<typename TMatrix, typename TPossEnd, typename TAlphabet, typename TDiagonal, typename TScore>
 void
 _fillMatrixBestEndsRight(TMatrix & matrixRight,
                          String<TPossEnd> & possibleEndsRight,
-                         Segment<TSequence, InfixSegment> const & infH,
-                         Segment<TSequence, InfixSegment> const & infV,
-                         TSeed const & seed,
-                         TSeed const & seedOld,
+                         StringSet<Segment<String<TAlphabet>, InfixSegment>> const & sequencesRight,
                          TDiagonal const diagLower,
                          TDiagonal const diagUpper,
                          TScore const & scoreMatrix) {
-    typedef Segment<TSequence, InfixSegment> TInfix;
-
-    TInfix infixH(host(infH), endPositionH(seedOld), endPositionH(seed));
-    TInfix infixV(host(infV), endPositionV(seedOld), endPositionV(seed));
-
-    StringSet<TInfix> str;
-    appendValue(str, infixH);
-    appendValue(str, infixV);
-
     // std::cerr << "FILL MATRIX RIGHT SEQS\n"
     //           << "0: " << infixH << "\n"
     //           << "1: " << infixV << "\n";
@@ -456,7 +427,7 @@ _fillMatrixBestEndsRight(TMatrix & matrixRight,
 
     // Use legacy adapted NW computation with infixH/first alignment row being in the vertical direction.
     // TODO(holtgrew): When switching to DP from new alignment module, make sure to mirror diagonals.
-    _align_banded_nw_best_ends(matrixRight, possibleEndsRight, str, scoreMatrix, -diagUpper, -diagLower);
+    _align_banded_nw_best_ends(matrixRight, possibleEndsRight, sequencesRight, scoreMatrix, -diagUpper, -diagLower);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -561,29 +532,18 @@ _alignBandedNeedlemanWunschTrace(TAlign & align,
 ///////////////////////////////////////////////////////////////////////////////
 // Conducts the traceback on the extension to the left from best start position
 //   and writes the result into align.
-template<typename TMatrix, typename TCoord, typename TSequence, typename TSeed, typename TDiagonal, typename TPos, typename TAlign>
+template<typename TMatrix, typename TCoord, typename TAlphabet, typename TDiagonal, typename TPos, typename TAlign>
 void
 _tracebackLeft(TMatrix const & matrixLeft,
                TCoord const & coordinate,
-               Segment<TSequence, InfixSegment> const & infH,
-               Segment<TSequence, InfixSegment> const & infV,
-               TSeed const & seed,
-               TSeed const & seedOld,
+               StringSet<Segment<String<TAlphabet>, InfixSegment>> const & sequencesLeft,
                TDiagonal const diagLower,
                TDiagonal const diagUpper,
                TPos const endLeftH,
                TPos const endLeftV,
                TAlign & align) {
-    typedef Segment<TSequence, InfixSegment>            TInfix;
-
-    StringSet<TInfix> str;
-    TInfix infixH(host(infH), beginPositionH(seed), beginPositionH(seedOld));
-    TInfix infixV(host(infV), beginPositionV(seed), beginPositionV(seedOld));
-    appendValue(str, infixH);
-    appendValue(str, infixV);
-
     AlignTraceback<TPos> traceBack;
-    _alignBandedNeedlemanWunschTrace(traceBack, str, matrixLeft, coordinate,
+    _alignBandedNeedlemanWunschTrace(traceBack, sequencesLeft, matrixLeft, coordinate,
                                      -diagUpper, -diagLower);
                                      // upperDiagonal(seedOld) - upperDiagonal(seed), upperDiagonal(seedOld) - lowerDiagonal(seed));
   //std::cerr << "TRACEBACK\n";
@@ -594,10 +554,10 @@ _tracebackLeft(TMatrix const & matrixLeft,
     reverse(traceBack.sizes);
     reverse(traceBack.tvs);
 
-    Align<TInfix> infixAlign;
+    Align<Segment<String<TAlphabet> const, InfixSegment>> infixAlign;
     resize(rows(infixAlign), 2);
-    assignSource(row(infixAlign, 0), infix(str[0], length(str[0]) - endLeftH, length(str[0])));
-    assignSource(row(infixAlign, 1), infix(str[1], length(str[1]) - endLeftV, length(str[1])));
+    assignSource(row(infixAlign, 0), infix(sequencesLeft[0], length(sequencesLeft[0]) - endLeftH, length(sequencesLeft[0])));
+    assignSource(row(infixAlign, 1), infix(sequencesLeft[1], length(sequencesLeft[1]) - endLeftV, length(sequencesLeft[1])));
 
     // std::cerr << "\nLEFT SEQS\n" << row(infixAlign, 0) << "\n" << row(infixAlign, 1) << "\n";
     _pumpTraceToGaps(row(infixAlign, 0), row(infixAlign, 1), traceBack);
@@ -611,30 +571,18 @@ _tracebackLeft(TMatrix const & matrixLeft,
 ///////////////////////////////////////////////////////////////////////////////
 // Conducts the traceback on the extension to the right from best end position
 //   and writes the result into align.
-template<typename TMatrix, typename TCoord, typename TSequence, typename TSeed, typename TDiagonal, typename TPos, typename TAlign>
+template<typename TMatrix, typename TCoord, typename TAlphabet, typename TDiagonal, typename TPos, typename TAlign>
 void
 _tracebackRight(TMatrix const & matrixRight,
                TCoord const & coordinate,
-               Segment<TSequence, InfixSegment> const & infH,
-               Segment<TSequence, InfixSegment> const & infV,
-               TSeed const & seed,
-               TSeed const & seedOld,
+               StringSet<Segment<String<TAlphabet>, InfixSegment>> const & sequencesRight,
                TDiagonal const diagLower,
                TDiagonal const diagUpper,
                TPos const endRightH,
                TPos const endRightV,
                TAlign & align) {
-    typedef Segment<TSequence, InfixSegment>            TInfix;
-
-    TInfix infixH(host(infH), endPositionH(seedOld), endPositionH(seed));
-    TInfix infixV(host(infV), endPositionV(seedOld), endPositionV(seed));
-
-    StringSet<TInfix> str;
-    appendValue(str, infixH);
-    appendValue(str, infixV);
-
     AlignTraceback<TPos> traceBack;
-    _alignBandedNeedlemanWunschTrace(traceBack, str, matrixRight, coordinate,
+    _alignBandedNeedlemanWunschTrace(traceBack, sequencesRight, matrixRight, coordinate,
                                      -diagUpper, -diagLower);
                 // lowerDiagonal(seedOld) - upperDiagonal(seed), lowerDiagonal(seedOld) - lowerDiagonal(seed));
   //std::cerr << "TRACEBACK\n";
@@ -642,10 +590,10 @@ _tracebackRight(TMatrix const & matrixRight,
   //  std::cerr << (int)traceBack.tvs[i] << "\t" << traceBack.sizes[i] << "\n";
   //std::cerr << "---------\n";
 
-    Align<TInfix> infixAlign;
+    Align<Segment<String<TAlphabet> const, InfixSegment>> infixAlign;
     resize(rows(infixAlign), 2);
-    assignSource(row(infixAlign, 0), infix(str[0], 0, endRightH));
-    assignSource(row(infixAlign, 1), infix(str[1], 0, endRightV));
+    assignSource(row(infixAlign, 0), infix(sequencesRight[0], 0, endRightH));
+    assignSource(row(infixAlign, 1), infix(sequencesRight[1], 0, endRightV));
 
     // std::cerr << "\nRIGHT SEQS\n" << row(infixAlign, 0) << "\n" << row(infixAlign, 1) << "\n";
     _pumpTraceToGaps(row(infixAlign, 0), row(infixAlign, 1), traceBack);
@@ -683,6 +631,21 @@ _bestExtension(TInfix const & infH,
     TAlignmentMatrix matrixRight, matrixLeft;
     String<TEndInfo> possibleEndsLeft, possibleEndsRight;
 
+    // new extension to the left of the old seed
+    assert(beginPositionH(seed) <= beginPositionH(seedOld)); // infixLeftH
+    assert(beginPositionV(seed) <= beginPositionV(seedOld)); // infixLeftV
+
+    // old seed covers at least one character
+    assert(beginPositionH(seedOld) < endPositionH(seedOld));
+    assert(beginPositionV(seedOld) < endPositionV(seedOld));
+
+    // new extension to the right of the old seed
+    assert(endPositionH(seedOld) <= endPositionH(seed)); // infixRightH
+    assert(endPositionV(seedOld) <= endPositionV(seed)); // infixRightV
+
+    StringSet<TInfix> sequencesLeft;
+    StringSet<TInfix> sequencesRight;
+
     // Compute diagonals for updated seeds module with infixH/first alignment row being in the horizontal direction.
     TDiagonal const diagLowerLeft = lowerDiagonal(seedOld) - upperDiagonal(seed);
     TDiagonal const diagUpperLeft = lowerDiagonal(seedOld) - lowerDiagonal(seed);
@@ -693,12 +656,25 @@ _bestExtension(TInfix const & infH,
 
     // fill banded matrix and gaps string for ...
     if (direction == EXTEND_BOTH || direction == EXTEND_LEFT) { // ... extension to the left
-        _fillMatrixBestEndsLeft(matrixLeft, possibleEndsLeft, infH, infV, seed, seedOld, diagLowerLeft, diagUpperLeft, scoreMatrix);
         // Caution: left extension infix is now reversed in host(infH and infV) !!!
+        // infix segment and reverse it
+        TInfix sequenceLeftH = infix(host(infH), beginPositionH(seed), beginPositionH(seedOld));
+        TInfix sequenceLeftV = infix(host(infV), beginPositionV(seed), beginPositionV(seedOld));
+        reverse(sequenceLeftH);
+        reverse(sequenceLeftV);
+
+        // put infix segments
+        appendValue(sequencesLeft, infix(sequenceLeftH, 0, length(sequenceLeftH)));
+        appendValue(sequencesLeft, infix(sequenceLeftV, 0, length(sequenceLeftV)));
+
+        _fillMatrixBestEndsLeft(matrixLeft, possibleEndsLeft, sequencesLeft, diagLowerLeft, diagUpperLeft, scoreMatrix);
         SEQAN_ASSERT_NOT(empty(possibleEndsLeft));
     } else appendValue(possibleEndsLeft, TEndInfo());
     if (direction == EXTEND_BOTH || direction == EXTEND_RIGHT) { // ... extension to the right
-        _fillMatrixBestEndsRight(matrixRight, possibleEndsRight, infH, infV, seed, seedOld, diagLowerRight, diagUpperRight, scoreMatrix);
+        appendValue(sequencesRight, infix(host(infH), endPositionH(seedOld), endPositionH(seed)));
+        appendValue(sequencesRight, infix(host(infV), endPositionV(seedOld), endPositionV(seed)));
+
+        _fillMatrixBestEndsRight(matrixRight, possibleEndsRight, sequencesRight, diagLowerRight, diagUpperRight, scoreMatrix);
         SEQAN_ASSERT_NOT(empty(possibleEndsRight));
     } else appendValue(possibleEndsRight, TEndInfo());
 
@@ -743,10 +719,10 @@ _bestExtension(TInfix const & infH,
 
     // traceback through matrix from begin/end pos on ...
     if((*endPair.i1).length != 0) { // ... extension to the left
-        _tracebackLeft(matrixLeft, (*endPair.i1).coord, infH, infV, seed, seedOld, diagLowerLeft, diagUpperLeft, endLeftH, endLeftV, align);
+        _tracebackLeft(matrixLeft, (*endPair.i1).coord, sequencesLeft, diagLowerLeft, diagUpperLeft, endLeftH, endLeftV, align);
     }
     if((*endPair.i2).length != 0) { // ... extension to the right
-        _tracebackRight(matrixRight, (*endPair.i2).coord, infH, infV, seed, seedOld, diagLowerRight, diagUpperRight, endRightH, endRightV, align);
+        _tracebackRight(matrixRight, (*endPair.i2).coord, sequencesRight, diagLowerRight, diagUpperRight, endRightH, endRightV, align);
     }
     SEQAN_ASSERT_EQ(length(row(align, 0)), length(row(align, 1)));
 
