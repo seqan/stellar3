@@ -96,9 +96,10 @@ struct Cargo<Index<TStringSet, IndexQGram<TShape, TSpec> > >
 template <typename TStringSet, typename TShape, typename TSpec>
 inline bool _qgramDisableBuckets(Index<TStringSet, IndexQGram<TShape, TSpec> > & index)
 {
-    typedef typename Fibre<TStringSet, QGramDir>::Type      TDir;
-    typedef typename Iterator<TDir, Standard>::Type         TDirIterator;
-    typedef typename Value<TDir>::Type                      TSize;
+    using TIndex = Index<TStringSet, IndexQGram<TShape, TSpec> >;
+    using TDir = typename Fibre<TIndex, QGramDir>::Type;
+    using TDirIterator = typename Iterator<TDir, Standard>::Type;
+    using TSize = typename Value<TDir>::Type;
 
     TDir & dir    = indexDir(index);
     bool result  = false;
@@ -148,8 +149,10 @@ _stellarOnAll(StringSet<TSequence> & databases,
               StellarOptions & options)
 {
     // pattern
-    typedef Index<StringSet<TSequence, Dependent<> >, IndexQGram<SimpleShape, OpenAddressing> > TQGramIndex;
-    TQGramIndex qgramIndex(queries);
+    using TDependentQueries = StringSet<TSequence, Dependent<> > const;
+    using TQGramIndex = Index<TDependentQueries, IndexQGram<SimpleShape, OpenAddressing> >;
+    TDependentQueries dependentQueries{queries};
+    TQGramIndex qgramIndex(dependentQueries);
     resize(indexShape(qgramIndex), options.qGram);
     cargo(qgramIndex).abundanceCut = options.qgramAbundanceCut;
     Pattern<TQGramIndex, Swift<SwiftLocal> > swiftPattern(qgramIndex);

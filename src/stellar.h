@@ -653,7 +653,7 @@ verifySwiftHit(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> con
 template<typename TText, typename TStringSetSpec, typename TIndexSpec, typename TSize, typename TDrop, typename TSize1,
          typename TMode, typename TSource, typename TId, typename TTag>
 void stellar(Finder<TText const, Swift<SwiftLocal> > & finder,
-             Pattern<Index<StringSet<TText, TStringSetSpec>, TIndexSpec>, Swift<SwiftLocal> > & pattern,
+             Pattern<Index<StringSet<TText, TStringSetSpec> const, TIndexSpec>, Swift<SwiftLocal> > & pattern,
              double const epsilon,
              TSize const minLength,
              TDrop const xDrop,
