@@ -785,9 +785,9 @@ _bestExtension(Segment<TSequence const, InfixSegment> const & infH,
 template <typename TSource, typename TSpec1, typename TSpec2>
 void
 integrateAlign(Align<TSource, TSpec1> & align,
-               Align<Segment<Segment<TSource, InfixSegment>, InfixSegment>, TSpec2> const & infixAlign) {
-    typedef typename Size<TSource>::Type TSize;
-    typedef typename Position<typename Row<Align<TSource, TSpec1> >::Type>::Type TPos;
+               Align<Segment<Segment<TSource const, InfixSegment>, InfixSegment>, TSpec2> const & infixAlign) {
+    typedef typename Size<TSource const>::Type TSize;
+    typedef typename Position<typename Row<Align<TSource const, TSpec1> >::Type>::Type TPos;
 
     String<TPos> viewPos;
     TPos pos;
@@ -807,11 +807,11 @@ integrateAlign(Align<TSource, TSpec1> & align,
 //  After the call align contains the longest eps-Match that spans the eps-core (localAlign).
 template<typename TScoreValue, typename TScore, typename TSequence, typename TSize, typename TEps, typename TAlign>
 bool
-_extendAndExtract(Align<Segment<Segment<TSequence, InfixSegment>, InfixSegment> > const & localAlign,
+_extendAndExtract(Align<Segment<Segment<TSequence const, InfixSegment>, InfixSegment> > const & localAlign,
                   TScoreValue const scoreDropOff,
                   TScore const & scoreMatrix,
-                  Segment<Segment<TSequence, InfixSegment>, InfixSegment> const & infH,
-                  Segment<Segment<TSequence, InfixSegment>, InfixSegment> const & infV,
+                  Segment<Segment<TSequence const, InfixSegment>, InfixSegment> const & infH,
+                  Segment<Segment<TSequence const, InfixSegment>, InfixSegment> const & infV,
                   ExtensionDirection const direction,
                   TSize const minLength,
                   TEps const eps,
@@ -848,8 +848,8 @@ _extendAndExtract(Align<Segment<Segment<TSequence, InfixSegment>, InfixSegment> 
         TSeed seed(seedBeginH, seedBeginV, seedEndH, seedEndV);
         TSeed seedOld(seed);
 
-        static_assert(std::is_same<decltype(host(infH)), Segment<TSequence, InfixSegment>>::value,
-                      "infH is a nested InfixSegment: Segment<Segment<TSequence, InfixSegment>, InfixSegment>");
+        static_assert(std::is_same<decltype(host(infH)), Segment<TSequence const, InfixSegment>>::value,
+                      "infH is a nested InfixSegment: Segment<Segment<TSequence const, InfixSegment>, InfixSegment>");
         Segment<TSequence const, InfixSegment> infixSequenceH = host(infH); // inner nested Segment
         Segment<TSequence const, InfixSegment> infixSequenceV = host(infV); // inner nested Segment
         extendSeed(seed, infixSequenceH, infixSequenceV, direction, scoreMatrix, scoreDropOff, GappedXDrop());
