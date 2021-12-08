@@ -374,7 +374,7 @@ _reverseLeftExtension(Segment<TSequenceA, InfixSegment> const & infH,
 // Computes the banded alignment matrix for the left extension and
 //   returns a string with possible start positions of an eps-match.
 // Caution: The infixes of the left extension is reversed in place in hosts of infH and infV!
-template<typename TMatrix, typename TPossEnd, typename TSequence, typename TSeed, typename TScore>
+template<typename TMatrix, typename TPossEnd, typename TSequence, typename TSeed, typename TDiagonal, typename TScore>
 void
 _fillMatrixBestEndsLeft(TMatrix & matrixLeft,
                         String<TPossEnd> & possibleEndsLeft,
@@ -382,6 +382,8 @@ _fillMatrixBestEndsLeft(TMatrix & matrixLeft,
                         Segment<TSequence, InfixSegment> const & infV,
                         TSeed const & seed,
                         TSeed const & seedOld,
+                        TDiagonal const diagLower,
+                        TDiagonal const diagUpper,
                         TScore const & scoreMatrix) {
 
     typedef Segment<TSequence, InfixSegment> TInfix;
@@ -399,11 +401,6 @@ _fillMatrixBestEndsLeft(TMatrix & matrixLeft,
     // _align_banded_nw_best_ends(matrixLeft, possibleEndsLeft, str, scoreMatrix,
     //                            upperDiagonal(seedOld) - upperDiagonal(seed),
     //                            upperDiagonal(seedOld) - lowerDiagonal(seed));
-
-    // Compute diagonals for updated seeds module with infixH/first alignment row being in the horizontal direction.
-    typedef typename Diagonal<TSeed>::Type TDiagonal;
-    TDiagonal diagLower = lowerDiagonal(seedOld) - upperDiagonal(seed);
-    TDiagonal diagUpper = lowerDiagonal(seedOld) - lowerDiagonal(seed);
 
     // std::cerr << "FILL MATRIX LEFT SEQS\n"
     //           << "0: " << infixH << "\n"
@@ -423,7 +420,7 @@ _fillMatrixBestEndsLeft(TMatrix & matrixLeft,
 ///////////////////////////////////////////////////////////////////////////////
 // Computes the banded alignment matrix for the right extension and
 //   returns a string with possible end positions of an eps-match.
-template<typename TMatrix, typename TPossEnd, typename TSequence, typename TSeed, typename TScore>
+template<typename TMatrix, typename TPossEnd, typename TSequence, typename TSeed, typename TDiagonal, typename TScore>
 void
 _fillMatrixBestEndsRight(TMatrix & matrixRight,
                          String<TPossEnd> & possibleEndsRight,
@@ -431,6 +428,8 @@ _fillMatrixBestEndsRight(TMatrix & matrixRight,
                          Segment<TSequence, InfixSegment> const & infV,
                          TSeed const & seed,
                          TSeed const & seedOld,
+                         TDiagonal const diagLower,
+                         TDiagonal const diagUpper,
                          TScore const & scoreMatrix) {
     typedef Segment<TSequence, InfixSegment> TInfix;
 
@@ -448,11 +447,6 @@ _fillMatrixBestEndsRight(TMatrix & matrixRight,
     // _align_banded_nw_best_ends(matrixRight, possibleEndsRight, str, scoreMatrix,
     //                            lowerDiagonal(seedOld) - upperDiagonal(seed),
     //                            lowerDiagonal(seedOld) - lowerDiagonal(seed));
-
-    // Compute diagonals for updated seeds module with infixH/first alignment row being in the horizontal direction.
-    typedef typename Diagonal<TSeed>::Type TDiagonal;
-    TDiagonal diagLower = upperDiagonal(seedOld) - upperDiagonal(seed);
-    TDiagonal diagUpper = upperDiagonal(seedOld) - lowerDiagonal(seed);
 
     // _align_banded_nw_best_ends(matrixRight, possibleEndsRight, str, scoreMatrix,
     //                            diagEnd - upperDiagonal(seed),
@@ -567,7 +561,7 @@ _alignBandedNeedlemanWunschTrace(TAlign & align,
 ///////////////////////////////////////////////////////////////////////////////
 // Conducts the traceback on the extension to the left from best start position
 //   and writes the result into align.
-template<typename TMatrix, typename TCoord, typename TSequence, typename TSeed, typename TPos, typename TAlign>
+template<typename TMatrix, typename TCoord, typename TSequence, typename TSeed, typename TDiagonal, typename TPos, typename TAlign>
 void
 _tracebackLeft(TMatrix const & matrixLeft,
                TCoord const & coordinate,
@@ -575,6 +569,8 @@ _tracebackLeft(TMatrix const & matrixLeft,
                Segment<TSequence, InfixSegment> const & infV,
                TSeed const & seed,
                TSeed const & seedOld,
+               TDiagonal const diagLower,
+               TDiagonal const diagUpper,
                TPos const endLeftH,
                TPos const endLeftV,
                TAlign & align) {
@@ -585,10 +581,6 @@ _tracebackLeft(TMatrix const & matrixLeft,
     TInfix infixV(host(infV), beginPositionV(seed), beginPositionV(seedOld));
     appendValue(str, infixH);
     appendValue(str, infixV);
-
-    typedef typename Diagonal<TSeed>::Type TDiagonal;
-    TDiagonal diagLower = lowerDiagonal(seedOld) - upperDiagonal(seed);
-    TDiagonal diagUpper = lowerDiagonal(seedOld) - lowerDiagonal(seed);
 
     AlignTraceback<TPos> traceBack;
     _alignBandedNeedlemanWunschTrace(traceBack, str, matrixLeft, coordinate,
@@ -619,7 +611,7 @@ _tracebackLeft(TMatrix const & matrixLeft,
 ///////////////////////////////////////////////////////////////////////////////
 // Conducts the traceback on the extension to the right from best end position
 //   and writes the result into align.
-template<typename TMatrix, typename TCoord, typename TSequence, typename TSeed, typename TPos, typename TAlign>
+template<typename TMatrix, typename TCoord, typename TSequence, typename TSeed, typename TDiagonal, typename TPos, typename TAlign>
 void
 _tracebackRight(TMatrix const & matrixRight,
                TCoord const & coordinate,
@@ -627,6 +619,8 @@ _tracebackRight(TMatrix const & matrixRight,
                Segment<TSequence, InfixSegment> const & infV,
                TSeed const & seed,
                TSeed const & seedOld,
+               TDiagonal const diagLower,
+               TDiagonal const diagUpper,
                TPos const endRightH,
                TPos const endRightV,
                TAlign & align) {
@@ -638,10 +632,6 @@ _tracebackRight(TMatrix const & matrixRight,
     StringSet<TInfix> str;
     appendValue(str, infixH);
     appendValue(str, infixV);
-
-    typedef typename Diagonal<TSeed>::Type TDiagonal;
-    TDiagonal diagLower = upperDiagonal(seedOld) - upperDiagonal(seed);
-    TDiagonal diagUpper = upperDiagonal(seedOld) - lowerDiagonal(seed);
 
     AlignTraceback<TPos> traceBack;
     _alignBandedNeedlemanWunschTrace(traceBack, str, matrixRight, coordinate,
@@ -687,19 +677,28 @@ _bestExtension(TInfix const & infH,
     typedef String<TraceBack>                               TAlignmentMatrix;
     typedef ExtensionEndPosition<TPos>                      TEndInfo;
     typedef typename Iterator<String<TEndInfo> const>::Type TEndIterator;
+    typedef typename Diagonal<TSeed>::Type                  TDiagonal;
 
     // variables for banded alignment and possible ends of match
     TAlignmentMatrix matrixRight, matrixLeft;
     String<TEndInfo> possibleEndsLeft, possibleEndsRight;
 
+    // Compute diagonals for updated seeds module with infixH/first alignment row being in the horizontal direction.
+    TDiagonal const diagLowerLeft = lowerDiagonal(seedOld) - upperDiagonal(seed);
+    TDiagonal const diagUpperLeft = lowerDiagonal(seedOld) - lowerDiagonal(seed);
+
+    // Compute diagonals for updated seeds module with infixH/first alignment row being in the horizontal direction.
+    TDiagonal const diagLowerRight = upperDiagonal(seedOld) - upperDiagonal(seed);
+    TDiagonal const diagUpperRight = upperDiagonal(seedOld) - lowerDiagonal(seed);
+
     // fill banded matrix and gaps string for ...
     if (direction == EXTEND_BOTH || direction == EXTEND_LEFT) { // ... extension to the left
-        _fillMatrixBestEndsLeft(matrixLeft, possibleEndsLeft, infH, infV, seed, seedOld, scoreMatrix);
+        _fillMatrixBestEndsLeft(matrixLeft, possibleEndsLeft, infH, infV, seed, seedOld, diagLowerLeft, diagUpperLeft, scoreMatrix);
         // Caution: left extension infix is now reversed in host(infH and infV) !!!
         SEQAN_ASSERT_NOT(empty(possibleEndsLeft));
     } else appendValue(possibleEndsLeft, TEndInfo());
     if (direction == EXTEND_BOTH || direction == EXTEND_RIGHT) { // ... extension to the right
-        _fillMatrixBestEndsRight(matrixRight, possibleEndsRight, infH, infV, seed, seedOld, scoreMatrix);
+        _fillMatrixBestEndsRight(matrixRight, possibleEndsRight, infH, infV, seed, seedOld, diagLowerRight, diagUpperRight, scoreMatrix);
         SEQAN_ASSERT_NOT(empty(possibleEndsRight));
     } else appendValue(possibleEndsRight, TEndInfo());
 
@@ -718,16 +717,16 @@ _bestExtension(TInfix const & infH,
     if((*endPair.i1).length != 0) { // ... extension to the left
         endLeftV = (*endPair.i1).coord.i1;
         // correction for banded coordinates to unbanded:
-        if (upperDiagonal(seed) - lowerDiagonal(seedOld)  <= 0)
-            endLeftV -= (TPos)(upperDiagonal(seed) - lowerDiagonal(seedOld));
-        endLeftH = (TPos)((*endPair.i1).coord.i2 + endLeftV + lowerDiagonal(seed) - lowerDiagonal(seedOld));
+        if (diagLowerLeft >= 0)
+            endLeftV += (TPos)(diagLowerLeft);
+        endLeftH = endLeftV + (TPos)((*endPair.i1).coord.i2 - diagUpperLeft);
     }
     if((*endPair.i2).length != 0) { // ... extension to the right
         endRightV = (*endPair.i2).coord.i1;
         // correction for banded coordinates to unbanded:
-        if (upperDiagonal(seed) - upperDiagonal(seedOld) <= 0)
-            endRightV -= (TPos)(upperDiagonal(seed) - upperDiagonal(seedOld));
-        endRightH = (TPos)((*endPair.i2).coord.i2 + endRightV + lowerDiagonal(seed) - upperDiagonal(seedOld));
+        if (diagLowerRight >= 0)
+            endRightV += (TPos)(diagLowerRight);
+        endRightH = endRightV + (TPos)((*endPair.i2).coord.i2 - diagUpperRight);
     }
 
     // set begin and end positions of align
@@ -744,10 +743,10 @@ _bestExtension(TInfix const & infH,
 
     // traceback through matrix from begin/end pos on ...
     if((*endPair.i1).length != 0) { // ... extension to the left
-        _tracebackLeft(matrixLeft, (*endPair.i1).coord, infH, infV, seed, seedOld, endLeftH, endLeftV, align);
+        _tracebackLeft(matrixLeft, (*endPair.i1).coord, infH, infV, seed, seedOld, diagLowerLeft, diagUpperLeft, endLeftH, endLeftV, align);
     }
     if((*endPair.i2).length != 0) { // ... extension to the right
-        _tracebackRight(matrixRight, (*endPair.i2).coord, infH, infV, seed, seedOld, endRightH, endRightV, align);
+        _tracebackRight(matrixRight, (*endPair.i2).coord, infH, infV, seed, seedOld, diagLowerRight, diagUpperRight, endRightH, endRightV, align);
     }
     SEQAN_ASSERT_EQ(length(row(align, 0)), length(row(align, 1)));
 
