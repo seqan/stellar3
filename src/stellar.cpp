@@ -49,7 +49,7 @@ _stellarOnOne(String<TAlphabet> & database,
 
     // finder
     using TSequence = String<TAlphabet>;
-    typedef Finder<TSequence, Swift<SwiftLocal> > TFinder;
+    typedef Finder<TSequence const, Swift<SwiftLocal> > TFinder;
     TFinder swiftFinder(database, options.minRepeatLength, options.maxRepeatPeriod);
 
     // stellar
