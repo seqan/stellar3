@@ -532,29 +532,18 @@ _alignBandedNeedlemanWunschTrace(TAlign & align,
 ///////////////////////////////////////////////////////////////////////////////
 // Conducts the traceback on the extension to the left from best start position
 //   and writes the result into align.
-template<typename TMatrix, typename TCoord, typename TSequence, typename TSeed, typename TDiagonal, typename TPos, typename TAlign>
+template<typename TMatrix, typename TCoord, typename TAlphabet, typename TDiagonal, typename TPos, typename TAlign>
 void
 _tracebackLeft(TMatrix const & matrixLeft,
                TCoord const & coordinate,
-               Segment<TSequence, InfixSegment> const & infH,
-               Segment<TSequence, InfixSegment> const & infV,
-               TSeed const & seed,
-               TSeed const & seedOld,
+               StringSet<Segment<String<TAlphabet>, InfixSegment>> const & sequencesLeft,
                TDiagonal const diagLower,
                TDiagonal const diagUpper,
                TPos const endLeftH,
                TPos const endLeftV,
                TAlign & align) {
-    typedef Segment<TSequence, InfixSegment>            TInfix;
-
-    StringSet<TInfix> str;
-    TInfix infixH(host(infH), beginPositionH(seed), beginPositionH(seedOld));
-    TInfix infixV(host(infV), beginPositionV(seed), beginPositionV(seedOld));
-    appendValue(str, infixH);
-    appendValue(str, infixV);
-
     AlignTraceback<TPos> traceBack;
-    _alignBandedNeedlemanWunschTrace(traceBack, str, matrixLeft, coordinate,
+    _alignBandedNeedlemanWunschTrace(traceBack, sequencesLeft, matrixLeft, coordinate,
                                      -diagUpper, -diagLower);
                                      // upperDiagonal(seedOld) - upperDiagonal(seed), upperDiagonal(seedOld) - lowerDiagonal(seed));
   //std::cerr << "TRACEBACK\n";
@@ -565,10 +554,10 @@ _tracebackLeft(TMatrix const & matrixLeft,
     reverse(traceBack.sizes);
     reverse(traceBack.tvs);
 
-    Align<TInfix> infixAlign;
+    Align<Segment<String<TAlphabet> const, InfixSegment>> infixAlign;
     resize(rows(infixAlign), 2);
-    assignSource(row(infixAlign, 0), infix(str[0], length(str[0]) - endLeftH, length(str[0])));
-    assignSource(row(infixAlign, 1), infix(str[1], length(str[1]) - endLeftV, length(str[1])));
+    assignSource(row(infixAlign, 0), infix(sequencesLeft[0], length(sequencesLeft[0]) - endLeftH, length(sequencesLeft[0])));
+    assignSource(row(infixAlign, 1), infix(sequencesLeft[1], length(sequencesLeft[1]) - endLeftV, length(sequencesLeft[1])));
 
     // std::cerr << "\nLEFT SEQS\n" << row(infixAlign, 0) << "\n" << row(infixAlign, 1) << "\n";
     _pumpTraceToGaps(row(infixAlign, 0), row(infixAlign, 1), traceBack);
@@ -742,7 +731,7 @@ _bestExtension(TInfix const & infH,
 
     // traceback through matrix from begin/end pos on ...
     if((*endPair.i1).length != 0) { // ... extension to the left
-        _tracebackLeft(matrixLeft, (*endPair.i1).coord, infH, infV, seed, seedOld, diagLowerLeft, diagUpperLeft, endLeftH, endLeftV, align);
+        _tracebackLeft(matrixLeft, (*endPair.i1).coord, sequencesLeft, diagLowerLeft, diagUpperLeft, endLeftH, endLeftV, align);
     }
     if((*endPair.i2).length != 0) { // ... extension to the right
         _tracebackRight(matrixRight, (*endPair.i2).coord, infH, infV, seed, seedOld, diagLowerRight, diagUpperRight, endRightH, endRightV, align);
