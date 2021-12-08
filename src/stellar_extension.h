@@ -357,20 +357,6 @@ _align_banded_nw_best_ends(TTrace& trace,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Reverses the infixes of the left extension in place in hosts of infH and infV.
-template<typename TSequenceA, typename TSequenceB, typename TSeed>
-void
-_reverseLeftExtension(Segment<TSequenceA, InfixSegment> const & infH,
-                      Segment<TSequenceB, InfixSegment> const & infV,
-                      TSeed const & seed,
-                      TSeed const & seedOld) {
-    Segment<TSequenceA, InfixSegment> infixH(host(infH), beginPositionH(seed), beginPositionH(seedOld));
-    Segment<TSequenceB, InfixSegment> infixV(host(infV), beginPositionV(seed), beginPositionV(seedOld));
-    reverse(infixH);
-    reverse(infixV);
-}
-
-///////////////////////////////////////////////////////////////////////////////
 // Computes the banded alignment matrix for the left extension and
 //   returns a string with possible start positions of an eps-match.
 template<typename TMatrix, typename TPossEnd, typename TAlphabet, typename TDiagonal, typename TScore>
@@ -676,6 +662,8 @@ _bestExtension(Segment<TSequence, InfixSegment> const & infH,
     assert(endPositionH(seedOld) <= endPositionH(seed)); // infixRightH
     assert(endPositionV(seedOld) <= endPositionV(seed)); // infixRightV
 
+    TSequence sequenceCopyLeftH;
+    TSequence sequenceCopyLeftV;
     StringSet<Segment<TSequence const, InfixSegment>> sequencesLeft;
     StringSet<Segment<TSequence const, InfixSegment>> sequencesRight;
 
@@ -689,16 +677,26 @@ _bestExtension(Segment<TSequence, InfixSegment> const & infH,
 
     // fill banded matrix and gaps string for ...
     if (direction == EXTEND_BOTH || direction == EXTEND_LEFT) { // ... extension to the left
-        // Caution: left extension infix is now reversed in host(infH and infV) !!!
-        // infix segment and reverse it
-        Segment<TSequence, InfixSegment> sequenceLeftH = infix(host(infH), beginPositionH(seed), beginPositionH(seedOld));
-        Segment<TSequence, InfixSegment> sequenceLeftV = infix(host(infV), beginPositionV(seed), beginPositionV(seedOld));
-        reverse(sequenceLeftH);
-        reverse(sequenceLeftV);
+        // Note: We copy one character more before the sequence, because _align_banded_nw_best_ends for whatever reason
+        // access the sequence at position -1 (WTF?!).
+
+        // TODO: This is critical! Can this case happen? If so we have a guaranteed segfault. The original algorithm
+        // assumes `-1` being an accessible character, so let's hope it really is.
+        assert(!(beginPositionH(seed) <= 0 || beginPositionV(seed) <= 0));
+
+        // copy segment...
+        sequenceCopyLeftH = TSequence{infix(host(infH), beginPositionH(seed) - 1, beginPositionH(seedOld))};
+        sequenceCopyLeftV = TSequence{infix(host(infV), beginPositionV(seed) - 1, beginPositionV(seedOld))};
+
+        // ...and reverse it locally
+        Segment<TSequence, InfixSegment> sequenceInfixLeftH = infix(sequenceCopyLeftH, 1 /*See above (WTF?!)*/, length(sequenceCopyLeftH));
+        Segment<TSequence, InfixSegment> sequenceInfixLeftV = infix(sequenceCopyLeftV, 1 /*See above (WTF?!)*/, length(sequenceCopyLeftV));
+        reverse(sequenceInfixLeftH);
+        reverse(sequenceInfixLeftV);
 
         // put infix segments
-        appendValue(sequencesLeft, infix(sequenceLeftH, 0, length(sequenceLeftH)));
-        appendValue(sequencesLeft, infix(sequenceLeftV, 0, length(sequenceLeftV)));
+        appendValue(sequencesLeft, sequenceInfixLeftH);
+        appendValue(sequencesLeft, sequenceInfixLeftV);
 
         _fillMatrixBestEndsLeft(matrixLeft, possibleEndsLeft, sequencesLeft, diagLowerLeft, diagUpperLeft, scoreMatrix);
         SEQAN_ASSERT_NOT(empty(possibleEndsLeft));
@@ -715,8 +713,6 @@ _bestExtension(Segment<TSequence, InfixSegment> const & infH,
     Pair<TEndIterator> endPair = longestEpsMatch(possibleEndsLeft, possibleEndsRight, alignLen, alignErr, minLength, eps);
 
     if (endPair == Pair<TEndIterator>(0, 0)) { // no eps-match found
-        if (direction != 1)
-            _reverseLeftExtension(infH, infV, seed, seedOld); // back to original orientation
         return false;
     }
 
@@ -780,9 +776,6 @@ _bestExtension(Segment<TSequence, InfixSegment> const & infH,
                         align);
     }
     SEQAN_ASSERT_EQ(length(row(align, 0)), length(row(align, 1)));
-
-    if (direction == EXTEND_BOTH || direction == EXTEND_LEFT)
-        _reverseLeftExtension(infH, infV, seed, seedOld); // back to original orientation
 
     return true;
 }
