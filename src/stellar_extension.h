@@ -529,14 +529,45 @@ _alignBandedNeedlemanWunschTrace(TAlign & align,
 
 }
 
+template <typename TAlign, typename TInfixAlign, typename TPos>
+void _copyInfixAlignmentIntoAlignment(TAlign & align,
+                                      TInfixAlign const & infixAlign,
+                                      TPos const infixAlignHBeginPosition,
+                                      TPos const infixAlignVBeginPosition)
+{
+    using TAlignPos = typename Position<typename Row<TAlign>::Type>::Type;
+    String<TAlignPos> viewPos;
+
+    // NOTE: we can't use `integrateAlign(align, infixAlign);` directly
+    // as `infixAlign` is a sequence alignment on a local copy of a segment from
+    // `align`. That means we need to calculate the positions where to copy
+    // the alignment `infixAlign` into `align`.
+
+    TAlignPos pos0 = infixAlignHBeginPosition // beginPosition(infixAlignH) // correct for infixes
+                     - beginPosition(source(row(align, 0))) // ...
+                     + beginPosition(row(infixAlign, 0)); // respect source clipping
+
+    appendValue(viewPos, toViewPosition(row(align, 0), pos0));
+
+    TAlignPos pos1 = infixAlignVBeginPosition // beginPosition(infixAlignV) // correct for infixes
+                     - beginPosition(source(row(align, 1))) // ...
+                     + beginPosition(row(infixAlign, 1)); // respect source clipping
+
+    appendValue(viewPos, toViewPosition(row(align, 1), pos1));
+
+    integrateAlign(align, infixAlign, viewPos);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Conducts the traceback on the extension to the left from best start position
 //   and writes the result into align.
-template<typename TMatrix, typename TCoord, typename TAlphabet, typename TDiagonal, typename TPos, typename TAlign>
+template<typename TMatrix, typename TCoord, typename TAlphabet, typename TBeginPosition, typename TDiagonal, typename TPos, typename TAlign>
 void
 _tracebackLeft(TMatrix const & matrixLeft,
                TCoord const & coordinate,
                StringSet<Segment<String<TAlphabet> const, InfixSegment>> const & sequencesLeft,
+               TBeginPosition const infixAlignHBeginPosition,
+               TBeginPosition const infixAlignVBeginPosition,
                TDiagonal const diagLower,
                TDiagonal const diagUpper,
                TPos const endLeftH,
@@ -563,7 +594,7 @@ _tracebackLeft(TMatrix const & matrixLeft,
     _pumpTraceToGaps(row(infixAlign, 0), row(infixAlign, 1), traceBack);
     // std::cerr << "INFIX ALIGN AFTER LEFT TRACEBACK\n\n" << infixAlign << "\n";
     // std::cerr << "ALIGN BEFORE INTEGRATION WITH INFIX ALIGN\n\n" << align << "\n";
-    integrateAlign(align, infixAlign);
+    _copyInfixAlignmentIntoAlignment(align, infixAlign, infixAlignHBeginPosition, infixAlignVBeginPosition);
     // std::cerr << "ALIGN AFTER INTEGRATION WITH INFIX ALIGN\n\n" << align << "\n";
 }
 
@@ -571,11 +602,13 @@ _tracebackLeft(TMatrix const & matrixLeft,
 ///////////////////////////////////////////////////////////////////////////////
 // Conducts the traceback on the extension to the right from best end position
 //   and writes the result into align.
-template<typename TMatrix, typename TCoord, typename TAlphabet, typename TDiagonal, typename TPos, typename TAlign>
+template<typename TMatrix, typename TCoord, typename TAlphabet, typename TBeginPosition, typename TDiagonal, typename TPos, typename TAlign>
 void
 _tracebackRight(TMatrix const & matrixRight,
                TCoord const & coordinate,
                StringSet<Segment<String<TAlphabet> const, InfixSegment>> const & sequencesRight,
+               TBeginPosition const infixAlignHBeginPosition,
+               TBeginPosition const infixAlignVBeginPosition,
                TDiagonal const diagLower,
                TDiagonal const diagUpper,
                TPos const endRightH,
@@ -599,7 +632,7 @@ _tracebackRight(TMatrix const & matrixRight,
     _pumpTraceToGaps(row(infixAlign, 0), row(infixAlign, 1), traceBack);
     // std::cerr << "INFIX ALIGN AFTER RIGHT TRACEBACK\n\n" << infixAlign << "\n";
     // std::cerr << "ALIGN BEFORE INTEGRATION WITH INFIX ALIGN\n\n" << align << "\n";
-    integrateAlign(align, infixAlign);
+    _copyInfixAlignmentIntoAlignment(align, infixAlign, infixAlignHBeginPosition, infixAlignVBeginPosition);
     // std::cerr << "ALIGN AFTER INTEGRATION WITH INFIX ALIGN\n\n" << align << "\n";
 }
 
@@ -719,10 +752,32 @@ _bestExtension(Segment<TSequence, InfixSegment> const & infH,
 
     // traceback through matrix from begin/end pos on ...
     if((*endPair.i1).length != 0) { // ... extension to the left
-        _tracebackLeft(matrixLeft, (*endPair.i1).coord, sequencesLeft, diagLowerLeft, diagUpperLeft, endLeftH, endLeftV, align);
+        auto const infixAlignHBeginPosition = beginPositionH(seed) + length(sequencesLeft[0]) - endLeftH;
+        auto const infixAlignVBeginPosition = beginPositionV(seed) + length(sequencesLeft[1]) - endLeftV;
+        _tracebackLeft(matrixLeft,
+                       (*endPair.i1).coord,
+                       sequencesLeft,
+                       infixAlignHBeginPosition,
+                       infixAlignVBeginPosition,
+                       diagLowerLeft,
+                       diagUpperLeft,
+                       endLeftH,
+                       endLeftV,
+                       align);
     }
     if((*endPair.i2).length != 0) { // ... extension to the right
-        _tracebackRight(matrixRight, (*endPair.i2).coord, sequencesRight, diagLowerRight, diagUpperRight, endRightH, endRightV, align);
+        auto const infixAlignHBeginPosition = endPositionH(seedOld);
+        auto const infixAlignVBeginPosition = endPositionV(seedOld);
+        _tracebackRight(matrixRight,
+                        (*endPair.i2).coord,
+                        sequencesRight,
+                        infixAlignHBeginPosition,
+                        infixAlignVBeginPosition,
+                        diagLowerRight,
+                        diagUpperRight,
+                        endRightH,
+                        endRightV,
+                        align);
     }
     SEQAN_ASSERT_EQ(length(row(align, 0)), length(row(align, 1)));
 
