@@ -419,11 +419,11 @@ _insertMatch(QueryMatches<StellarMatch<TSource const, TId> > & queryMatches,
 
 ///////////////////////////////////////////////////////////////////////////////
 // Conducts banded alignment on swift hit and extracts longest contained eps-match.
-template<typename TInfix, typename TEpsilon, typename TSize, typename TDelta,
+template<typename TSequence, typename TEpsilon, typename TSize, typename TDelta,
          typename TDrop, typename TSize1, typename TSource, typename TId>
 void
-verifySwiftHit(Segment<TInfix, InfixSegment> const & infH,
-               Segment<TInfix, InfixSegment> const & infV,
+verifySwiftHit(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> const & infH,
+               Segment<Segment<TSequence const, InfixSegment>, InfixSegment> const & infV,
                TEpsilon const eps,
                TSize const minLength,
                TDrop /*xDrop*/,
@@ -435,6 +435,7 @@ verifySwiftHit(Segment<TInfix, InfixSegment> const & infH,
                bool const dbStrand,
                QueryMatches<StellarMatch<TSource const, TId> > & matches,
                BandedGlobal) {
+    using TInfix = Segment<TSequence const, InfixSegment>;
     typedef Segment<TInfix, InfixSegment> TSegment;
     typedef typename StellarMatch<TSource const, TId>::TAlign TAlign;
 
@@ -486,11 +487,11 @@ verifySwiftHit(Segment<TInfix, InfixSegment> const & infH,
 
 ///////////////////////////////////////////////////////////////////////////////
 // Conducts banded alignment on swift hit, extends alignment, and extracts longest contained eps-match.
-template<typename TInfix, typename TEpsilon, typename TSize, typename TDelta,
+template<typename TSequence, typename TEpsilon, typename TSize, typename TDelta,
          typename TDrop, typename TSize1, typename TSource, typename TId>
 void
-verifySwiftHit(Segment<TInfix, InfixSegment> const & infH,
-               Segment<TInfix, InfixSegment> const & infV,
+verifySwiftHit(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> const & infH,
+               Segment<Segment<TSequence const, InfixSegment>, InfixSegment> const & infV,
                TEpsilon const eps,
                TSize const minLength,
                TDrop const xDrop,
@@ -502,6 +503,7 @@ verifySwiftHit(Segment<TInfix, InfixSegment> const & infH,
                bool const dbStrand,
                QueryMatches<StellarMatch<TSource const, TId> > & matches,
                BandedGlobalExtend) {
+    using TInfix = Segment<TSequence const, InfixSegment>;
     typedef Segment<TInfix, InfixSegment> TSegment;
     typedef typename StellarMatch<TSource const, TId>::TAlign TAlign;
 
@@ -544,11 +546,11 @@ verifySwiftHit(Segment<TInfix, InfixSegment> const & infH,
 ///////////////////////////////////////////////////////////////////////////////
 // Conducts banded local alignment on swift hit (= computes eps-cores),
 //  splits eps-cores at X-drops, and calls _extendAndExtract for extension of eps-cores
-template<typename TInfix, typename TEpsilon, typename TSize, typename TDelta, typename TDrop,
+template<typename TSequence, typename TEpsilon, typename TSize, typename TDelta, typename TDrop,
          typename TSize1, typename TId, typename TSource, typename TTag>
 void
-verifySwiftHit(Segment<TInfix, InfixSegment> const & infH,
-               Segment<TInfix, InfixSegment> const & infV,
+verifySwiftHit(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> const & infH,
+               Segment<Segment<TSequence const, InfixSegment>, InfixSegment> const & infV,
                TEpsilon const eps,
                TSize const minLength,
                TDrop const xDrop,
@@ -560,6 +562,7 @@ verifySwiftHit(Segment<TInfix, InfixSegment> const & infH,
                bool const dbStrand,
                QueryMatches<StellarMatch<TSource const, TId> > & matches,
                TTag tag) {
+    using TInfix = Segment<TSequence const, InfixSegment>;
     typedef Segment<TInfix, InfixSegment> TSegment;
     typedef typename StellarMatch<TSource const, TId>::TAlign TAlign;
 
@@ -649,8 +652,8 @@ verifySwiftHit(Segment<TInfix, InfixSegment> const & infH,
 // Calls swift filter and verifies swift hits. = Computes eps-matches.
 template<typename TText, typename TStringSetSpec, typename TIndexSpec, typename TSize, typename TDrop, typename TSize1,
          typename TMode, typename TSource, typename TId, typename TTag>
-void stellar(Finder<TText, Swift<SwiftLocal> > & finder,
-             Pattern<Index<StringSet<TText, TStringSetSpec>, TIndexSpec>, Swift<SwiftLocal> > & pattern,
+void stellar(Finder<TText const, Swift<SwiftLocal> > & finder,
+             Pattern<Index<StringSet<TText, TStringSetSpec> const, TIndexSpec>, Swift<SwiftLocal> > & pattern,
              double const epsilon,
              TSize const minLength,
              TDrop const xDrop,
@@ -662,9 +665,8 @@ void stellar(Finder<TText, Swift<SwiftLocal> > & finder,
              bool const dbStrand,
              StringSet<QueryMatches<StellarMatch<TSource const, TId> > > & matches,
              TTag tag) {
-    typedef StellarMatch<TSource const, TId> TMatch;
-    typedef typename GetSequenceByNo<StringSet<TText, TStringSetSpec> >::Type TPatternSeq;
-    typedef typename Infix<TText>::Type TInfix;
+    using TMatch = StellarMatch<TSource const, TId>;
+    using TInfix = typename Infix<TText const>::Type;
 
     TSize numSwiftHits = 0;
 
@@ -672,8 +674,8 @@ void stellar(Finder<TText, Swift<SwiftLocal> > & finder,
     TSize totalLength = 0;
 
     while (find(finder, pattern, epsilon, minLength)) {
-        TInfix finderInfix = infix(finder);
-        TInfix finderInfixSeq = infix(haystack(finder), 0, length(haystack(finder)));
+        TInfix const finderInfix = infix(finder);
+        TInfix const finderInfixSeq = infix(haystack(finder), 0, length(haystack(finder)));
         Segment<TInfix, InfixSegment> finderSegment(finderInfixSeq,
             beginPosition(finderInfix) - beginPosition(haystack(finder)),
             endPosition(finderInfix) - beginPosition(haystack(finder)));
@@ -684,18 +686,14 @@ void stellar(Finder<TText, Swift<SwiftLocal> > & finder,
 
         if (value(matches, pattern.curSeqNo).disabled) continue;
 
-        TPatternSeq patternSeq = getSequenceByNo(pattern.curSeqNo, indexText(needle(pattern)));
-        typename Infix<TPatternSeq>::Type patternInfix = infix(pattern, patternSeq);
-        typename Infix<TPatternSeq>::Type patternInfixSeq = infix(patternSeq, 0, length(patternSeq));
-        Segment<typename Infix<TPatternSeq>::Type, InfixSegment> patternSegment(patternInfixSeq,
+        TText const & patternSeq = getSequenceByNo(pattern.curSeqNo, indexText(needle(pattern)));
+        TInfix const patternInfix = infix(pattern, patternSeq);
+        TInfix const patternInfixSeq = infix(patternSeq, 0, length(patternSeq));
+        Segment<TInfix, InfixSegment> patternSegment(patternInfixSeq,
             beginPosition(patternInfix) - beginPosition(patternSeq),
             endPosition(patternInfix) - beginPosition(patternSeq));
 
         ////Debug stuff:
-        //typedef typename Infix<TPatternSeq>::Type TPatternSeqInfix;
-        //bool i = IsSameType<TInfix, TPatternSeqInfix>::VALUE;
-        //SEQAN_ASSERT(i);
-        //
         //std::cout << beginPosition(finderInfix) << ",";
         //std::cout << endPosition(finderInfix) << "  ";
         //std::cout << beginPosition(patternSegment) << ",";
@@ -729,7 +727,7 @@ void stellar(Finder<TText, Swift<SwiftLocal> > & finder,
 // Wrapper for stellar
 template<typename TText, typename TIndex, typename TSize, typename TDrop,
          typename TSource, typename TId, typename TTag>
-void stellar(Finder<TText, Swift<SwiftLocal> > & finder,
+void stellar(Finder<TText const, Swift<SwiftLocal> > & finder,
              Pattern<TIndex, Swift<SwiftLocal> > & pattern,
              double const epsilon,
              TSize const minLength,

@@ -33,12 +33,12 @@ using namespace seqan;
 ///////////////////////////////////////////////////////////////////////////////
 // Initializes a Finder object for a database sequence,
 //  calls stellar, and writes matches to file
-template <typename TAlphabet, typename TId, typename TPattern>
+template <typename TAlphabet, typename TId, typename TStringSetSpec, typename TIndexSpec>
 inline bool
-_stellarOnOne(String<TAlphabet> & database,
-              TId & databaseID,
-              TPattern & swiftPattern,
-              bool databaseStrand,
+_stellarOnOne(String<TAlphabet> const & database,
+              TId const & databaseID,
+              Pattern<Index<StringSet<String<TAlphabet>, TStringSetSpec> const, TIndexSpec>, Swift<SwiftLocal> > & swiftPattern,
+              bool const databaseStrand,
               StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > & matches,
               StellarOptions & options)
 {
@@ -49,7 +49,7 @@ _stellarOnOne(String<TAlphabet> & database,
 
     // finder
     using TSequence = String<TAlphabet>;
-    typedef Finder<TSequence, Swift<SwiftLocal> > TFinder;
+    typedef Finder<TSequence const, Swift<SwiftLocal> > TFinder;
     TFinder swiftFinder(database, options.minRepeatLength, options.maxRepeatPeriod);
 
     // stellar
@@ -96,9 +96,10 @@ struct Cargo<Index<TStringSet, IndexQGram<TShape, TSpec> > >
 template <typename TStringSet, typename TShape, typename TSpec>
 inline bool _qgramDisableBuckets(Index<TStringSet, IndexQGram<TShape, TSpec> > & index)
 {
-    typedef typename Fibre<TStringSet, QGramDir>::Type      TDir;
-    typedef typename Iterator<TDir, Standard>::Type         TDirIterator;
-    typedef typename Value<TDir>::Type                      TSize;
+    using TIndex = Index<TStringSet, IndexQGram<TShape, TSpec> >;
+    using TDir = typename Fibre<TIndex, QGramDir>::Type;
+    using TDirIterator = typename Iterator<TDir, Standard>::Type;
+    using TSize = typename Value<TDir>::Type;
 
     TDir & dir    = indexDir(index);
     bool result  = false;
@@ -142,14 +143,16 @@ struct FunctorComplement<AminoAcid>:
 template <typename TSequence, typename TId>
 inline bool
 _stellarOnAll(StringSet<TSequence> & databases,
-              StringSet<TId> & databaseIDs,
-              StringSet<TSequence> & queries,
-              StringSet<TId> & queryIDs,
+              StringSet<TId> const & databaseIDs,
+              StringSet<TSequence> const & queries,
+              StringSet<TId> const & queryIDs,
               StellarOptions & options)
 {
     // pattern
-    typedef Index<StringSet<TSequence, Dependent<> >, IndexQGram<SimpleShape, OpenAddressing> > TQGramIndex;
-    TQGramIndex qgramIndex(queries);
+    using TDependentQueries = StringSet<TSequence, Dependent<> > const;
+    using TQGramIndex = Index<TDependentQueries, IndexQGram<SimpleShape, OpenAddressing> >;
+    TDependentQueries dependentQueries{queries};
+    TQGramIndex qgramIndex(dependentQueries);
     resize(indexShape(qgramIndex), options.qGram);
     cargo(qgramIndex).abundanceCut = options.qgramAbundanceCut;
     Pattern<TQGramIndex, Swift<SwiftLocal> > swiftPattern(qgramIndex);
@@ -206,10 +209,10 @@ _stellarOnAll(StringSet<TSequence> & databases,
 
 template <typename TId>
 inline bool
-_checkUniqueId(std::set<TId> & uniqueIds, TId & id)
+_checkUniqueId(std::set<TId> & uniqueIds, TId const & id)
 {
     TId shortId;
-    typedef typename Iterator<TId>::Type TIterator;
+    typedef typename Iterator<TId const>::Type TIterator;
 
     TIterator it = begin(id);
     TIterator itEnd = end(id);
@@ -270,10 +273,10 @@ _importSequences(CharString const & fileName,
 ///////////////////////////////////////////////////////////////////////////////
 // Calculates parameters from parameters in options object and from sequences and writes them to std::cout
 template <typename TStringSet>
-void _writeMoreCalculatedParams(StellarOptions & options, TStringSet & databases, TStringSet & queries)
+void _writeMoreCalculatedParams(StellarOptions const & options, TStringSet const & databases, TStringSet const & queries)
 {
 //IOREV _notio_
-    typedef typename Size<TStringSet>::Type TSize;
+    typedef typename Size<TStringSet const>::Type TSize;
     typedef typename Value<typename Value<TStringSet>::Type>::Type TAlphabet;
 
     if (options.qgramAbundanceCut != 1)
@@ -298,8 +301,8 @@ void _writeMoreCalculatedParams(StellarOptions & options, TStringSet & databases
         TSize maxLengthQueries = 0;
         TSize maxLengthDatabases = 0;
 
-        typename Iterator<TStringSet>::Type dbIt = begin(databases);
-        typename Iterator<TStringSet>::Type dbEnd = end(databases);
+        typename Iterator<TStringSet const>::Type dbIt = begin(databases);
+        typename Iterator<TStringSet const>::Type dbEnd = end(databases);
         while (dbIt != dbEnd)
         {
             if (length(*dbIt) > maxLengthDatabases)
@@ -309,8 +312,8 @@ void _writeMoreCalculatedParams(StellarOptions & options, TStringSet & databases
             ++dbIt;
         }
 
-        typename Iterator<TStringSet>::Type queriesIt = begin(queries);
-        typename Iterator<TStringSet>::Type queriesEnd = end(queries);
+        typename Iterator<TStringSet const>::Type queriesIt = begin(queries);
+        typename Iterator<TStringSet const>::Type queriesEnd = end(queries);
         while (queriesIt != queriesEnd)
         {
             if (length(*queriesIt) > maxLengthQueries)
@@ -368,7 +371,7 @@ void _writeCalculatedParams(StellarOptions & options)
 // Writes user specified parameters from options object to std::cout
 template <typename TOptions>
 void
-_writeSpecifiedParams(TOptions & options)
+_writeSpecifiedParams(TOptions const & options)
 {
 //IOREV _notio_
     // Output user specified parameters
@@ -405,7 +408,7 @@ _writeSpecifiedParams(TOptions & options)
 // Writes file name from options object to std::cout
 template <typename TOptions>
 void
-_writeFileNames(TOptions & options)
+_writeFileNames(TOptions const & options)
 {
 //IOREV _notio_
     std::cout << "I/O options:" << std::endl;
@@ -425,7 +428,7 @@ _writeFileNames(TOptions & options)
 // Parses options from command line parser and writes them into options object
 template <typename TOptions>
 ArgumentParser::ParseResult
-_parseOptions(ArgumentParser & parser, TOptions & options)
+_parseOptions(ArgumentParser const & parser, TOptions & options)
 {
     getArgumentValue(options.databaseFile, parser, 0);
     getArgumentValue(options.queryFile, parser, 1);
