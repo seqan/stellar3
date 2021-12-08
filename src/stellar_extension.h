@@ -403,26 +403,14 @@ _fillMatrixBestEndsLeft(TMatrix & matrixLeft,
 ///////////////////////////////////////////////////////////////////////////////
 // Computes the banded alignment matrix for the right extension and
 //   returns a string with possible end positions of an eps-match.
-template<typename TMatrix, typename TPossEnd, typename TSequence, typename TSeed, typename TDiagonal, typename TScore>
+template<typename TMatrix, typename TPossEnd, typename TAlphabet, typename TDiagonal, typename TScore>
 void
 _fillMatrixBestEndsRight(TMatrix & matrixRight,
                          String<TPossEnd> & possibleEndsRight,
-                         Segment<TSequence, InfixSegment> const & infH,
-                         Segment<TSequence, InfixSegment> const & infV,
-                         TSeed const & seed,
-                         TSeed const & seedOld,
+                         StringSet<Segment<String<TAlphabet>, InfixSegment>> const & sequencesRight,
                          TDiagonal const diagLower,
                          TDiagonal const diagUpper,
                          TScore const & scoreMatrix) {
-    typedef Segment<TSequence, InfixSegment> TInfix;
-
-    TInfix infixH(host(infH), endPositionH(seedOld), endPositionH(seed));
-    TInfix infixV(host(infV), endPositionV(seedOld), endPositionV(seed));
-
-    StringSet<TInfix> str;
-    appendValue(str, infixH);
-    appendValue(str, infixV);
-
     // std::cerr << "FILL MATRIX RIGHT SEQS\n"
     //           << "0: " << infixH << "\n"
     //           << "1: " << infixV << "\n";
@@ -439,7 +427,7 @@ _fillMatrixBestEndsRight(TMatrix & matrixRight,
 
     // Use legacy adapted NW computation with infixH/first alignment row being in the vertical direction.
     // TODO(holtgrew): When switching to DP from new alignment module, make sure to mirror diagonals.
-    _align_banded_nw_best_ends(matrixRight, possibleEndsRight, str, scoreMatrix, -diagUpper, -diagLower);
+    _align_banded_nw_best_ends(matrixRight, possibleEndsRight, sequencesRight, scoreMatrix, -diagUpper, -diagLower);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -679,6 +667,7 @@ _bestExtension(TInfix const & infH,
     assert(endPositionV(seedOld) <= endPositionV(seed)); // infixRightV
 
     StringSet<TInfix> sequencesLeft;
+    StringSet<TInfix> sequencesRight;
 
     // Compute diagonals for updated seeds module with infixH/first alignment row being in the horizontal direction.
     TDiagonal const diagLowerLeft = lowerDiagonal(seedOld) - upperDiagonal(seed);
@@ -705,7 +694,10 @@ _bestExtension(TInfix const & infH,
         SEQAN_ASSERT_NOT(empty(possibleEndsLeft));
     } else appendValue(possibleEndsLeft, TEndInfo());
     if (direction == EXTEND_BOTH || direction == EXTEND_RIGHT) { // ... extension to the right
-        _fillMatrixBestEndsRight(matrixRight, possibleEndsRight, infH, infV, seed, seedOld, diagLowerRight, diagUpperRight, scoreMatrix);
+        appendValue(sequencesRight, infix(host(infH), endPositionH(seedOld), endPositionH(seed)));
+        appendValue(sequencesRight, infix(host(infV), endPositionV(seedOld), endPositionV(seed)));
+
+        _fillMatrixBestEndsRight(matrixRight, possibleEndsRight, sequencesRight, diagLowerRight, diagUpperRight, scoreMatrix);
         SEQAN_ASSERT_NOT(empty(possibleEndsRight));
     } else appendValue(possibleEndsRight, TEndInfo());
 
