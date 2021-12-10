@@ -38,7 +38,7 @@ include (SeqAnBuildSystem) # for seqan_setup_install_vars
 # A interface to reuse common properties.
 # You can add more external include paths of other projects that are needed for your project.
 add_library ("${PROJECT_NAME}_interface" INTERFACE)
-target_link_libraries ("${PROJECT_NAME}_interface" INTERFACE seqan3::seqan3)
+# target_link_libraries ("${PROJECT_NAME}_interface" INTERFACE seqan3::seqan3)
 target_include_directories ("${PROJECT_NAME}_interface" INTERFACE ../include)
 target_compile_options ("${PROJECT_NAME}_interface" INTERFACE "-pedantic" "-Wall" "-Wextra")
 
@@ -56,15 +56,21 @@ endif ()
 # ----------------------------------------------------------------------------
 
 # Add include directories.
-include_directories (${SEQAN_INCLUDE_DIRS})
+target_include_directories("${PROJECT_NAME}_interface" INTERFACE ${SEQAN_INCLUDE_DIRS})
 
 # Add definitions set by find_package (SeqAn).
-add_definitions (${SEQAN_DEFINITIONS})
+target_compile_definitions ("${PROJECT_NAME}_interface" INTERFACE ${SEQAN_DEFINITIONS})
 
 # Add definitions set by the build system.
-add_definitions (-DSEQAN_APP_VERSION="${SEQAN_APP_VERSION}")
-add_definitions (-DSEQAN_REVISION="${SEQAN_REVISION}")
-add_definitions (-DSEQAN_DATE="${SEQAN_DATE}")
+target_compile_definitions ("${PROJECT_NAME}_interface" INTERFACE -DSEQAN_APP_VERSION="${SEQAN_APP_VERSION}")
+target_compile_definitions ("${PROJECT_NAME}_interface" INTERFACE -DSEQAN_REVISION="${SEQAN_REVISION}")
+target_compile_definitions ("${PROJECT_NAME}_interface" INTERFACE -DSEQAN_DATE="${SEQAN_DATE}")
+
+# Add CXX flags found by find_package (SeqAn).
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SEQAN_CXX_FLAGS}")
+
+# Require at least C++-14
+target_compile_features ("${PROJECT_NAME}_interface" INTERFACE cxx_relaxed_constexpr)
 
 # Update the list of file names below if you add source files to your application.
 add_executable (stellar stellar.cpp
@@ -74,12 +80,7 @@ add_executable (stellar stellar.cpp
                        stellar_types.h)
 
 # Add dependencies found by find_package (SeqAn).
-target_link_libraries (stellar ${SEQAN_LIBRARIES})
-
-target_compile_features (stellar PUBLIC cxx_relaxed_constexpr) # require C++-14
-
-# Add CXX flags found by find_package (SeqAn).
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SEQAN_CXX_FLAGS}")
+target_link_libraries (stellar PUBLIC "${PROJECT_NAME}_interface" ${SEQAN_LIBRARIES})
 
 # ----------------------------------------------------------------------------
 # Installation
