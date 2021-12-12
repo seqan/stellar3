@@ -219,6 +219,8 @@ _stellarOnAll(StringSet<TSequence> & databases,
                         options.outputFile, options.outputFormat, writeDisabledFile, options.disabledQueriesFile))
         return 1;
 
+    _writeOutputStatistics(matches, options.verbose, writeDisabledFile);
+
     return 0;
 }
 

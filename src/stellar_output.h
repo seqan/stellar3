@@ -392,11 +392,6 @@ _outputMatches(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > &
                TString const & disabledFile) {
     typedef typename Value<TInfix>::Type TAlphabet;
 
-    size_t maxLength = 0;
-    size_t totalLength = 0;
-    size_t numMatches = 0;
-    size_t numDisabled = 0;
-
     std::ofstream daFile, file;
     file.open(toCString(fileName), ::std::ios_base::out | ::std::ios_base::app);
     if (!file.is_open()) {
@@ -410,22 +405,6 @@ _outputMatches(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > &
         if (!daFile.is_open()) {
             std::cerr << "Could not open file for disabled queries." << std::endl;
             return 1;
-        }
-    }
-
-    // compute output statistics
-    for (size_t i = 0; i < length(matches); i++) {
-        QueryMatches<StellarMatch<TInfix const, TQueryId>> const & queryMatches = value(matches, i);
-
-        numMatches += length(queryMatches.matches);
-
-        if (queryMatches.disabled)
-            ++numDisabled;
-
-        for (StellarMatch<TInfix const, TQueryId> const & match : queryMatches.matches) {
-            size_t len = std::max<size_t>(length(match.row1), length(match.row2));
-            totalLength += len;
-            maxLength = std::max<size_t>(maxLength, len);
         }
     }
 
@@ -478,16 +457,6 @@ _outputMatches(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > &
         daFile.close();
     }
     file.close();
-
-    std::cout << "# Eps-matches     : " << numMatches << std::endl;
-    if (verbose) {
-        if (numMatches > 0) {
-            std::cout << "Longest eps-match : " << maxLength << std::endl;
-            std::cout << "Avg match length  : " << totalLength / numMatches << std::endl;
-        }
-        if (writeDisabledFile)
-            std::cout << "# Disabled queries: " << numDisabled << std::endl;
-    }
 
     return 0;
 }
