@@ -119,6 +119,8 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SEQAN_CXX_FLAGS}")
 target_compile_features ("${PROJECT_NAME}_interface" INTERFACE cxx_relaxed_constexpr)
 
 if (STELLAR_PARALLEL_BUILD)
+    target_compile_definitions ("${PROJECT_NAME}_interface" INTERFACE -DSTELLAR_PARALLEL_BUILD)
+
     add_library (stellar_main OBJECT
                  stellar/stellar.main.dna.cpp
                  stellar/stellar.main.dna5.cpp
@@ -126,8 +128,13 @@ if (STELLAR_PARALLEL_BUILD)
                  stellar/stellar.main.rna5.cpp
                  stellar/stellar.main.aminoacid.cpp
                  stellar/stellar.main.char.cpp)
-
     target_link_libraries (stellar_main PUBLIC "${PROJECT_NAME}_interface")
+
+    add_library (stellar_arg_parser OBJECT stellar/stellar.arg_parser.cpp)
+    target_link_libraries (stellar_arg_parser PUBLIC "${PROJECT_NAME}_interface")
+
+    add_library (stellar_diagnostics OBJECT stellar/stellar.diagnostics.cpp)
+    target_link_libraries (stellar_diagnostics PUBLIC "${PROJECT_NAME}_interface")
 endif ()
 
 if (STELLAR_PARALLEL_BUILD AND STELLAR_PRECOMPILED_HEADER_BUILD)
@@ -142,8 +149,7 @@ add_executable (stellar stellar.cpp
                        stellar_types.h)
 
 if (STELLAR_PARALLEL_BUILD)
-    target_compile_definitions ("${PROJECT_NAME}_interface" INTERFACE -DSTELLAR_PARALLEL_BUILD)
-    target_link_libraries (stellar PRIVATE stellar_main)
+    target_link_libraries (stellar PRIVATE stellar_main stellar_arg_parser stellar_diagnostics)
 endif ()
 
 # Add dependencies found by find_package (SeqAn).
