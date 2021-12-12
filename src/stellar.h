@@ -30,6 +30,9 @@
 #include "stellar_types.h"
 #include "stellar_extension.h"
 
+namespace stellar
+{
+
 using namespace seqan;
 
 
@@ -744,5 +747,7 @@ void stellar(Finder<TText const, Swift<SwiftLocal> > & finder,
             disableThresh, compactThresh, numMatches, /*verbose*/ false, id, /*databaseStrand*/ true,
             matches, tag);
 }
+
+} // namespace stellar
 
 #endif

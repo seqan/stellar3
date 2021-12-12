@@ -26,6 +26,9 @@
 
 #include <seqan/align.h>
 
+namespace stellar
+{
+
 using namespace seqan;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -279,5 +282,7 @@ inline typename Size<TSequence const>::Type
 length(StellarMatch<TSequence const, TId> & match) {
     return _max(length(match.row1), length(match.row2));
 }
+
+} // namespace stellar
 
 #endif

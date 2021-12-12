@@ -31,7 +31,13 @@
 #include "../stellar.h"
 #include "../stellar_output.h"
 
+namespace stellar
+{
+
 using namespace seqan;
+
+namespace app
+{
 
 ///////////////////////////////////////////////////////////////////////////////
 // Initializes a Finder object for a database sequence,
@@ -81,6 +87,10 @@ _stellarOnOne(String<TAlphabet> const & database,
     std::cout << std::endl;
     return true;
 }
+
+} // namespace stellar::app
+
+} // namespace stellar
 
 //////////////////////////////////////////////////////////////////////////////
 namespace seqan {
@@ -139,6 +149,12 @@ struct FunctorComplement<AminoAcid>:
 };
 
 } // namespace seqan
+
+namespace stellar
+{
+
+namespace app
+{
 
 ///////////////////////////////////////////////////////////////////////////////
 // Initializes a Pattern object with the query sequences,
@@ -436,11 +452,11 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
     typedef String<TAlphabet> TSequence;
 
     // output file names
-    _writeFileNames(options);
+    stellar::app::_writeFileNames(options);
 
     // output parameters
-    _writeSpecifiedParams(options);
-    _writeCalculatedParams(options);
+    stellar::app::_writeSpecifiedParams(options);
+    stellar::app::_writeCalculatedParams(options);
 
     // import query sequences
     StringSet<TSequence> queries;
@@ -455,7 +471,7 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
         return 1;
 
     std::cout << std::endl;
-    _writeMoreCalculatedParams(options, databases, queries);
+    stellar::app::_writeMoreCalculatedParams(options, databases, queries);
 
     // open output files
     std::ofstream file;
@@ -490,3 +506,7 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
 
     return 0;
 }
+
+} // namespace stellar::app
+
+} // namespace stellar
