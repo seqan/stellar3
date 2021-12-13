@@ -230,12 +230,16 @@ _stellarOnAll(StringSet<TSequence> & databases,
         _writeDisabledQueriesToFastaFile(matches, queryIDs, queries, disabledQueriesFile);
     }
 
+    std::ofstream outputFile(toCString(options.outputFile), ::std::ios_base::out | ::std::ios_base::app);
+    if (!outputFile.is_open()) {
+        std::cerr << "Could not open output file." << std::endl;
+        return 1;
+    }
+
     // adjust length for each matches of a single query (only for dna5 and rna5)
     _postproccessLengthAdjustment(matches);
 
-    if (!_outputMatches(matches, queryIDs, databases, options.verbose,
-                        options.outputFile, options.outputFormat))
-        return 1;
+    _outputMatches(matches, queryIDs, databases, options.outputFormat, outputFile);
 
     _writeOutputStatistics(matches, options.verbose, writeDisabledQueriesFile);
 

@@ -416,29 +416,20 @@ void _postproccessLengthAdjustment(StringSet<QueryMatches<StellarMatch<TInfix co
 ///////////////////////////////////////////////////////////////////////////////
 // Calls _writeMatchGff for each match in StringSet of String of matches.
 //   = Writes matches in gff format to a file.
-template<typename TInfix, typename TQueryId, typename TDatabases, typename TIds,
-         typename TMode, typename TFile, typename TString>
-bool
+template<typename TInfix, typename TQueryId, typename TIds, typename TDatabases>
+void
 _outputMatches(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > & matches,
                TIds const & ids,
                TDatabases & databases,
-               TMode const verbose,
-               TFile const & fileName,
-               TString const & format) {
+               CharString const & outputFormat,
+               std::ofstream & outputFile) {
     typedef typename Value<TInfix>::Type TAlphabet;
-
-    std::ofstream file;
-    file.open(toCString(fileName), ::std::ios_base::out | ::std::ios_base::app);
-    if (!file.is_open()) {
-        std::cerr << "Could not open output file." << std::endl;
-        return 1;
-    }
 
     // output matches on positive database strand
     for (size_t i = 0; i < length(matches); i++) {
         QueryMatches<StellarMatch<TInfix const, TQueryId>> const & queryMatches = value(matches, i);
 
-        _writeQueryMatchesToFile(queryMatches, ids[i], true, format, file);
+        _writeQueryMatchesToFile(queryMatches, ids[i], true, outputFormat, outputFile);
     }
 
     if (IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE)
@@ -449,13 +440,9 @@ _outputMatches(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > &
         for (size_t i = 0; i < length(matches); i++) {
             QueryMatches<StellarMatch<TInfix const, TQueryId>> const & queryMatches = value(matches, i);
 
-            _writeQueryMatchesToFile(queryMatches, ids[i], false, format, file);
+            _writeQueryMatchesToFile(queryMatches, ids[i], false, outputFormat, outputFile);
         }
     }
-
-    file.close();
-
-    return 0;
 }
 
 } // namespace stellar
