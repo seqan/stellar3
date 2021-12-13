@@ -163,14 +163,15 @@ namespace app
 ///////////////////////////////////////////////////////////////////////////////
 // Initializes a Pattern object with the query sequences,
 //  and calls _stellarOnOne for each database sequence
-template <typename TSequence, typename TId>
+template <typename TAlphabet, typename TId>
 inline bool
-_stellarOnAll(StringSet<TSequence> & databases,
+_stellarOnAll(StringSet<String<TAlphabet>> & databases,
               StringSet<TId> const & databaseIDs,
-              StringSet<TSequence> const & queries,
+              StringSet<String<TAlphabet>> const & queries,
               StringSet<TId> const & queryIDs,
               StellarOptions & options)
 {
+    using TSequence = String<TAlphabet>;
     // pattern
     using TDependentQueries = StringSet<TSequence, Dependent<> > const;
     using TQGramIndex = Index<TDependentQueries, IndexQGram<SimpleShape, OpenAddressing> >;
@@ -213,19 +214,44 @@ _stellarOnAll(StringSet<TSequence> & databases,
     }
     std::cout << std::endl;
 
-    // file output
-    if (options.disableThresh != std::numeric_limits<unsigned>::max())
+    bool const writeDisabledQueriesFile = options.disableThresh != std::numeric_limits<unsigned>::max();
+
+    // Writes disabled query sequences to disabledFile.
+    if (writeDisabledQueriesFile)
     {
-        if (!_outputMatches(matches, queries, queryIDs, databases, options.verbose,
-                            options.outputFile, options.outputFormat, options.disabledQueriesFile))
+        std::ofstream disabledQueriesFile(toCString(options.disabledQueriesFile),
+                                          ::std::ios_base::out | ::std::ios_base::app);
+
+        if (!disabledQueriesFile.is_open()) {
+            std::cerr << "Could not open file for disabled queries." << std::endl;
             return 1;
+        }
+
+        // write disabled query file
+        _writeDisabledQueriesToFastaFile(matches, queryIDs, queries, disabledQueriesFile);
     }
-    else
+
+    std::ofstream outputFile(toCString(options.outputFile), ::std::ios_base::out | ::std::ios_base::app);
+    if (!outputFile.is_open()) {
+        std::cerr << "Could not open output file." << std::endl;
+        return 1;
+    }
+
+    // adjust length for each matches of a single query (only for dna5 and rna5)
+    _postproccessLengthAdjustment(matches);
+
+    // output matches on positive database strand
+    _writeAllQueryMatchesToFile(matches, queryIDs, true, options.outputFormat, outputFile);
+
+    // output matches on negative database strand
+    if (IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE)
     {
-        if (!_outputMatches(matches, queryIDs, databases, options.verbose,
-                            options.outputFile, options.outputFormat))
-            return 1;
+        reverseComplement(databases);
+
+        _writeAllQueryMatchesToFile(matches, queryIDs, false, options.outputFormat, outputFile);
     }
+
+    _writeOutputStatistics(matches, options.verbose, writeDisabledQueriesFile);
 
     return 0;
 }

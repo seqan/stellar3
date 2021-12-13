@@ -338,210 +338,92 @@ _writeMatch(TId const & databaseID,
     file << "----------------------------------------------------------------------\n" << std::endl;
 }
 
+template <typename TInfix, typename TQueryId>
+void _writeMatchesToGffFile(QueryMatches<StellarMatch<TInfix const, TQueryId> > const & queryMatches, CharString const & id, bool const orientation, std::ofstream & outputFile)
+{
+    for (StellarMatch<TInfix const, TQueryId> const & match : queryMatches.matches) {
+        if (match.orientation != orientation)
+            continue;
+
+        _writeMatchGff(match.id, id, match.orientation, queryMatches.lengthAdjustment,
+                       match.row1, match.row2, outputFile);
+    }
+};
+
+template <typename TInfix, typename TQueryId>
+void _writeMatchesToTxtFile(QueryMatches<StellarMatch<TInfix const, TQueryId> > const &queryMatches, CharString const & id, bool const orientation, std::ofstream & outputFile)
+{
+    for (StellarMatch<TInfix const, TQueryId> const & match : queryMatches.matches) {
+        if (match.orientation != orientation)
+            continue;
+
+        _writeMatch(match.id, id, match.orientation, queryMatches.lengthAdjustment,
+                    match.row1, match.row2, outputFile);
+    }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// Calls _writeMatchGff for each match in String of matches.
+//   = Writes matches in gff format to a file.
+template <typename TInfix, typename TQueryId>
+void _writeQueryMatchesToFile(QueryMatches<StellarMatch<TInfix const, TQueryId> > const & queryMatches, CharString const & id, bool const orientation, CharString const & outputFormat, std::ofstream & outputFile)
+{
+    if (outputFormat == "gff")
+        _writeMatchesToGffFile(queryMatches, id, orientation, outputFile);
+    else
+        _writeMatchesToTxtFile(queryMatches, id, orientation, outputFile);
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 // Calls _writeMatchGff for each match in StringSet of String of matches.
 //   = Writes matches in gff format to a file.
-template<typename TInfix, typename TQueryId, typename TIds, typename TDatabases, typename TMode, typename TFile,
-         typename TString>
-bool
-_outputMatches(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > & matches,
-               TIds const & ids,
-               TDatabases & databases,
-               TMode const verbose,
-               TFile const & fileName,
-               TString const & format) {
-    typedef StellarMatch<TInfix const, TQueryId> TMatch;
-    typedef typename Size<typename TMatch::TAlign>::Type TSize;
-    typedef typename Iterator<String<TMatch> >::Type TIterator;
-    typedef typename Value<TInfix>::Type TAlphabet;
+template <typename TInfix, typename TQueryId, typename TQueryIDs>
+void _writeAllQueryMatchesToFile(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > const & matches, TQueryIDs const & queryIDs, bool const orientation, CharString const & outputFormat, std::ofstream & outputFile)
+{
+    for (size_t i = 0; i < length(matches); i++) {
+        QueryMatches<StellarMatch<TInfix const, TQueryId>> const & queryMatches = value(matches, i);
 
-    TSize numMatches = 0;
-    TSize totalLength = 0;
-    TSize maxLength = 0;
-
-    std::ofstream file;
-    file.open(toCString(fileName), ::std::ios_base::out | ::std::ios_base::app);
-    if (!file.is_open()) {
-        std::cerr << "Could not open output file." << std::endl;
-        return 1;
+        _writeQueryMatchesToFile(queryMatches, queryIDs[i], orientation, outputFormat, outputFile);
     }
+};
 
-    // output matches on positive database strand
-    for (TSize i = 0; i < length(matches); i++) {
-        QueryMatches<TMatch> &queryMatches = value(matches, i);
-
-        TIterator it = begin(queryMatches.matches);
-        TIterator itEnd = end(queryMatches.matches);
-
-        if (it != itEnd && (IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE)) {
-            queryMatches.lengthAdjustment = _computeLengthAdjustment(length(source((*it).row1)),
-                                                                     length(source((*it).row2)));
-        }
-
-        while (it < itEnd) {
-            TSize len = _max(length((*it).row1), length((*it).row2));
-            totalLength += len;
-            if(len > maxLength) maxLength = len;
-
-            if ((*it).orientation) {
-                if (format == "gff")
-                    _writeMatchGff((*it).id, ids[i], (*it).orientation, queryMatches.lengthAdjustment,
-                                   (*it).row1, (*it).row2, file);
-                else
-                    _writeMatch((*it).id, ids[i], (*it).orientation, queryMatches.lengthAdjustment,
-                                (*it).row1, (*it).row2, file);
-            }
-
-            ++it;
-        }
-        numMatches += length(queryMatches.matches);
-    }
-
-    if (IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE)
-    {
-        reverseComplement(databases);
-
-        // output matches on negative database strand
-        for (TSize i = 0; i < length(matches); i++) {
-            QueryMatches<TMatch> &queryMatches = value(matches, i);
-
-            TIterator it = begin(queryMatches.matches);
-            TIterator itEnd = end(queryMatches.matches);
-
-            while (it < itEnd) {
-                if (!(*it).orientation) {
-                    if (format == "gff")
-                        _writeMatchGff((*it).id, ids[i], (*it).orientation, queryMatches.lengthAdjustment, (*it).row1, (*it).row2, file);
-                    else
-                        _writeMatch((*it).id, ids[i], (*it).orientation, queryMatches.lengthAdjustment, (*it).row1, (*it).row2, file);
-                }
-                ++it;
-            }
-        }
-    }
-
-    file.close();
-
-    std::cout << "# Eps-matches     : " << numMatches << std::endl;
-    if (verbose) {
-        if (numMatches > 0) {
-            std::cout << "Longest eps-match : " << maxLength << std::endl;
-            std::cout << "Avg match length  : " << totalLength / numMatches << std::endl;
-        }
-    }
-
-    return 0;
+template <typename TQuery>
+void _appendDisabledQueryToFastaFile(CharString const & id, TQuery const & query, std::ofstream & disabledQueriesFile)
+{
+    disabledQueriesFile << ">" << id << "\n";
+    disabledQueriesFile << query << "\n\n";
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// Calls _writeMatchGff for each match in StringSet of String of matches.
-//   = Writes matches in gff format to a file.
-// Writes disabled query sequences to disabledFile.
-template<typename TInfix, typename TQueryId, typename TQueries, typename TDatabases, typename TIds,
-         typename TMode, typename TFile, typename TString>
-bool
-_outputMatches(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > & matches,
-               TQueries const & queries,
-               TIds const & ids,
-               TDatabases & databases,
-               TMode const verbose,
-               TFile const & fileName,
-               TString const & format,
-               TString const & disabledFile) {
-    typedef StellarMatch<TInfix const, TQueryId> TMatch;
-    typedef typename Size<typename TMatch::TAlign>::Type TSize;
-    typedef typename Iterator<String<TMatch> >::Type TIterator;
-    typedef typename Value<TInfix>::Type TAlphabet;
+template <typename TInfix, typename TQueryId, typename TIds, typename TQueries>
+void _writeDisabledQueriesToFastaFile(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > const & matches, TIds const & ids, TQueries const & queries, std::ofstream & disabledQueriesFile)
+{
+    assert(disabledQueriesFile.is_open());
 
-    TSize maxLength = 0;
-    TSize totalLength = 0;
-    TSize numMatches = 0;
-    TSize numDisabled = 0;
+    for (size_t i = 0u; i < length(matches); i++) {
+        QueryMatches<StellarMatch<TInfix const, TQueryId>> const & queryMatches = value(matches, i);
 
-    std::ofstream daFile, file;
-    file.open(toCString(fileName), ::std::ios_base::out | ::std::ios_base::app);
-    if (!file.is_open()) {
-        std::cerr << "Could not open output file." << std::endl;
-        return 1;
+        if (!queryMatches.disabled)
+            continue;
+
+        _appendDisabledQueryToFastaFile(ids[i], queries[i], disabledQueriesFile);
     }
+}
 
-    daFile.open(toCString(disabledFile), ::std::ios_base::out | ::std::ios_base::app);
-    if (!daFile.is_open()) {
-        std::cerr << "Could not open file for disabled queries." << std::endl;
-        return 1;
-    }
+template <typename TInfix, typename TQueryId>
+void _postproccessLengthAdjustment(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > & matches)
+{
+    using TAlphabet = typename Value<TInfix>::Type;
 
-    // output matches on positive database strand
-    for (TSize i = 0; i < length(matches); i++) {
-        QueryMatches<TMatch> &queryMatches = value(matches, i);
-        if (queryMatches.disabled) {
-            daFile << ">" << ids[i] << "\n";
-            daFile << queries[i] << "\n\n";
-            ++numDisabled;
-        }
-
-        TIterator it = begin(queryMatches.matches);
-        TIterator itEnd = end(queryMatches.matches);
-
-        if (it != itEnd && (IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE)) {
-            queryMatches.lengthAdjustment = _computeLengthAdjustment(length(source((*it).row1)),
-                                                                     length(source((*it).row2)));
-        }
-
-        while (it < itEnd) {
-            TSize len = _max(length((*it).row1), length((*it).row2));
-            totalLength += len;
-            if(len > maxLength) maxLength = len;
-
-            if ((*it).orientation) {
-                if (format == "gff")
-                    _writeMatchGff((*it).id, ids[i], (*it).orientation, queryMatches.lengthAdjustment,
-                                   (*it).row1, (*it).row2, file);
-                else
-                    _writeMatch((*it).id, ids[i], (*it).orientation, queryMatches.lengthAdjustment,
-                                (*it).row1, (*it).row2, file);
-            }
-            ++it;
-        }
-        numMatches += length(queryMatches.matches);
-    }
-
-    if (IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE)
-    {
-        reverseComplement(databases);
-
-        // output matches on positive database strand
-        for (TSize i = 0; i < length(matches); i++) {
-            QueryMatches<TMatch> &queryMatches = value(matches, i);
-            TIterator it = begin(queryMatches.matches);
-            TIterator itEnd = end(queryMatches.matches);
-
-            while (it < itEnd) {
-                if (!(*it).orientation) {
-                    if (format == "gff")
-                        _writeMatchGff((*it).id, ids[i], (*it).orientation, queryMatches.lengthAdjustment,
-                                       (*it).row1, (*it).row2, file);
-                    else
-                        _writeMatch((*it).id, ids[i], (*it).orientation, queryMatches.lengthAdjustment,
-                                    (*it).row1, (*it).row2, file);
-                }
-                ++it;
+    constexpr bool is_dna5_or_rna5 = IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE;
+    if constexpr (is_dna5_or_rna5) {
+        for (QueryMatches<StellarMatch<TInfix const, TQueryId>> & queryMatches : matches) {
+            for (StellarMatch<TInfix const, TQueryId> const & firstMatch : queryMatches.matches) {
+                queryMatches.lengthAdjustment = _computeLengthAdjustment(length(source(firstMatch.row1)),
+                                                                         length(source(firstMatch.row2)));
+                break;
             }
         }
     }
-    daFile.close();
-    file.close();
-
-    std::cout << "# Eps-matches     : " << numMatches << std::endl;
-    if (verbose) {
-        if (numMatches > 0) {
-            std::cout << "Longest eps-match : " << maxLength << std::endl;
-            std::cout << "Avg match length  : " << totalLength / numMatches << std::endl;
-        }
-        std::cout << "# Disabled queries: " << numDisabled << std::endl;
-    }
-
-    return 0;
 }
 
 } // namespace stellar
