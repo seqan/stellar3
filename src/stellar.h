@@ -30,6 +30,8 @@
 #include "stellar_types.h"
 #include "stellar_extension.h"
 
+#include "stellar/stellar.diagnostics.hpp"
+
 namespace stellar
 {
 
@@ -671,10 +673,7 @@ void stellar(Finder<TText const, Swift<SwiftLocal> > & finder,
     using TMatch = StellarMatch<TSource const, TId>;
     using TInfix = typename Infix<TText const>::Type;
 
-    TSize numSwiftHits = 0;
-
-    TSize maxLength = 0;
-    TSize totalLength = 0;
+    StellarComputeStatistics statistics{};
 
     while (find(finder, pattern, epsilon, minLength)) {
         TInfix const finderInfix = infix(finder);
@@ -683,9 +682,9 @@ void stellar(Finder<TText const, Swift<SwiftLocal> > & finder,
             beginPosition(finderInfix) - beginPosition(haystack(finder)),
             endPosition(finderInfix) - beginPosition(haystack(finder)));
 
-        ++numSwiftHits;
-        totalLength += length(finderInfix);
-        if ((TSize)length(finderInfix) > maxLength) maxLength = length(finderInfix);
+        ++statistics.numSwiftHits;
+        statistics.totalLength += length(finderInfix);
+        statistics.maxLength = std::max<size_t>(statistics.maxLength, length(finderInfix));
 
         if (value(matches, pattern.curSeqNo).disabled) continue;
 
@@ -708,11 +707,8 @@ void stellar(Finder<TText const, Swift<SwiftLocal> > & finder,
                        numMatches, databaseID, dbStrand, value(matches, pattern.curSeqNo), tag);
     }
 
-    if (verbose && numSwiftHits > 0) {
-        std::cout << std::endl << "    # SWIFT hits      : " << numSwiftHits;
-        std::cout << std::endl << "    Longest hit       : " << maxLength;
-        std::cout << std::endl << "    Avg hit length    : " << totalLength/numSwiftHits;
-    }
+    if (verbose)
+        stellar::app::_printStellarKernelStatistics(statistics);
 
     typedef typename Iterator<StringSet<QueryMatches<TMatch> >, Standard>::Type TIterator;
     TIterator it = begin(matches, Standard());

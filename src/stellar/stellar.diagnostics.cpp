@@ -11,31 +11,20 @@ namespace app
 void _writeCalculatedParams(StellarOptions & options)
 {
 //IOREV _notio_
-    int errMinLen = (int) floor(options.epsilon * options.minLength);
-    int n = (int) ceil((errMinLen + 1) / options.epsilon);
-    int errN = (int) floor(options.epsilon * n);
-    unsigned smin = (unsigned) _min(ceil((double)(options.minLength - errMinLen) / (errMinLen + 1)),
-                                    ceil((double)(n - errN) / (errN + 1)));
+    StellarStatistics statistics{options};
 
     std::cout << "Calculated parameters:" << std::endl;
-    if (options.qGram == (unsigned)-1)
+    if (statistics.kMerComputed)
     {
-        options.qGram = (unsigned)_min(smin, 32u);
-        std::cout << "  k-mer length : " << options.qGram << std::endl;
+        options.qGram = (unsigned)statistics.kMerLength;
+        std::cout << "  k-mer length : " << statistics.kMerLength << std::endl;
     }
 
-    int threshold = (int) _max(1, (int) _min((n + 1) - options.qGram * (errN + 1),
-                                             (options.minLength + 1) - options.qGram * (errMinLen + 1)));
-    int overlap = (int) floor((2 * threshold + options.qGram - 3) / (1 / options.epsilon - options.qGram));
-    int distanceCut = (threshold - 1) + options.qGram * overlap + options.qGram;
-    int logDelta = _max(4, (int) ceil(log((double)overlap + 1) / log(2.0)));
-    int delta = 1 << logDelta;
-
-    std::cout << "  s^min        : " << smin << std::endl;
-    std::cout << "  threshold    : " << threshold << std::endl;
-    std::cout << "  distance cut : " << distanceCut << std::endl;
-    std::cout << "  delta        : " << delta << std::endl;
-    std::cout << "  overlap      : " << overlap << std::endl;
+    std::cout << "  s^min        : " << statistics.smin << std::endl;
+    std::cout << "  threshold    : " << statistics.threshold << std::endl;
+    std::cout << "  distance cut : " << statistics.distanceCut << std::endl;
+    std::cout << "  delta        : " << statistics.delta << std::endl;
+    std::cout << "  overlap      : " << statistics.overlap << std::endl;
     std::cout << std::endl;
 }
 
@@ -90,6 +79,29 @@ void _writeFileNames(StellarOptions const & options)
         std::cout << "  disabled queries: " << options.disabledQueriesFile << std::endl;
     }
     std::cout << std::endl;
+}
+
+void _writeOutputStatistics(StellarOutputStatistics const & statistics, bool const verbose, bool const writeDisabledQueriesFile)
+{
+    std::cout << "# Eps-matches     : " << statistics.numMatches << std::endl;
+    if (verbose) {
+        if (statistics.numMatches > 0) {
+            std::cout << "Longest eps-match : " << statistics.maxLength << std::endl;
+            std::cout << "Avg match length  : " << statistics.totalLength / statistics.numMatches << std::endl;
+        }
+        if (writeDisabledQueriesFile)
+            std::cout << "# Disabled queries: " << statistics.numDisabled << std::endl;
+    }
+}
+
+void _printStellarKernelStatistics(StellarComputeStatistics const & statistics)
+{
+    if (statistics.numSwiftHits == 0)
+        return;
+
+    std::cout << std::endl << "    # SWIFT hits      : " << statistics.numSwiftHits;
+    std::cout << std::endl << "    Longest hit       : " << statistics.maxLength;
+    std::cout << std::endl << "    Avg hit length    : " << statistics.totalLength/statistics.numSwiftHits;
 }
 
 } // namespace stellar::app

@@ -26,8 +26,9 @@ void _writeFileNames(StellarOptions const & options);
 template <typename TStringSet>
 void _writeMoreCalculatedParams(StellarOptions const & options, TStringSet const & databases, TStringSet const & queries);
 
-template<typename TInfix, typename TQueryId>
-void _writeOutputStatistics(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > const & matches, bool const verbose, bool const writeDisabledQueriesFile);
+void _writeOutputStatistics(StellarOutputStatistics const & statistics, bool const verbose, bool const writeDisabledQueriesFile);
+
+void _printStellarKernelStatistics(StellarComputeStatistics const & statistics);
 
 } // namespace stellar::app
 

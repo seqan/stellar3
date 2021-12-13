@@ -87,6 +87,55 @@ struct StellarOptions {
     }
 };
 
+struct StellarStatistics
+{
+    bool kMerComputed{};
+    unsigned kMerLength{};
+    unsigned smin{};
+    int threshold{};
+    int distanceCut{};
+    int delta{};
+    int overlap{};
+
+    StellarStatistics(StellarOptions const & options)
+    {
+
+        int errMinLen = (int) floor(options.epsilon * options.minLength);
+        int n = (int) ceil((errMinLen + 1) / options.epsilon);
+        int errN = (int) floor(options.epsilon * n);
+        smin = (unsigned) _min(ceil((double)(options.minLength - errMinLen) / (errMinLen + 1)),
+                               ceil((double)(n - errN) / (errN + 1)));
+
+        kMerLength = options.qGram;
+        kMerComputed = options.qGram == (unsigned)-1;
+
+        if (kMerComputed)
+            kMerLength = (unsigned)_min(smin, 32u);
+
+        threshold = (int) _max(1, (int) _min((n + 1) - options.qGram * (errN + 1),
+                                             (options.minLength + 1) - options.qGram * (errMinLen + 1)));
+        overlap = (int) floor((2 * threshold + options.qGram - 3) / (1 / options.epsilon - options.qGram));
+        distanceCut = (threshold - 1) + options.qGram * overlap + options.qGram;
+        int logDelta = _max(4, (int) ceil(log((double)overlap + 1) / log(2.0)));
+        delta = 1 << logDelta;
+    }
+};
+
+struct StellarComputeStatistics
+{
+    size_t numSwiftHits = 0;
+
+    size_t maxLength = 0;
+    size_t totalLength = 0;
+};
+
+struct StellarOutputStatistics
+{
+    size_t maxLength{0u};
+    size_t totalLength{0u};
+    size_t numMatches{0u};
+    size_t numDisabled{0u};
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 // Container for storing local alignment matches of one query sequence
