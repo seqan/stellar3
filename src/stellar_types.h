@@ -26,6 +26,12 @@
 
 #include <seqan/align.h>
 
+#if __cpp_designated_initializers || __GNUC__ >= 8
+#   define STELLAR_DESIGNATED_INITIALIZER(designator, value) designator value
+#else
+#   define STELLAR_DESIGNATED_INITIALIZER(designator, value) value
+#endif // __cpp_designated_initializers || __GNUC__ >= 8
+
 namespace stellar
 {
 

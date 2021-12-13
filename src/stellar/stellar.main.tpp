@@ -25,10 +25,10 @@
 
 #include "stellar.main.hpp"
 
-#include <seqan/index.h>
 #include <seqan/seq_io.h>
 
 #include "../stellar.h"
+#include "../stellar_index.hpp"
 #include "../stellar_output.h"
 
 #include "stellar.diagnostics.hpp"
@@ -46,11 +46,11 @@ namespace app
 ///////////////////////////////////////////////////////////////////////////////
 // Initializes a Finder object for a database sequence,
 //  calls stellar, and writes matches to file
-template <typename TAlphabet, typename TId, typename TStringSetSpec, typename TIndexSpec>
+template <typename TAlphabet, typename TId>
 inline bool
 _stellarOnOne(String<TAlphabet> const & database,
               TId const & databaseID,
-              Pattern<Index<StringSet<String<TAlphabet>, TStringSetSpec> const, TIndexSpec>, Swift<SwiftLocal> > & swiftPattern,
+              StellarSwiftPattern<TAlphabet> & swiftPattern,
               bool const databaseStrand,
               StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > & matches,
               StellarOptions & options)
@@ -61,31 +61,60 @@ _stellarOnOne(String<TAlphabet> const & database,
     std::cout << std::flush;
 
     // finder
-    using TSequence = String<TAlphabet>;
-    typedef Finder<TSequence const, Swift<SwiftLocal> > TFinder;
-    TFinder swiftFinder(database, options.minRepeatLength, options.maxRepeatPeriod);
+    StellarSwiftFinder<TAlphabet> swiftFinder(database, options.minRepeatLength, options.maxRepeatPeriod);
+
+    using TMatch = StellarMatch<String<TAlphabet> const, TId>;
+    auto _stellar = [&](StellarSwiftFinder<TAlphabet> & finder,
+                        StellarSwiftPattern<TAlphabet> & swiftPattern,
+                        StringSet<QueryMatches<TMatch> > & matches,
+                        auto tag) mutable -> StellarComputeStatistics
+    {
+        using TTag = decltype(tag);
+        SwiftHitVerifier<TTag> swiftVerifier
+        {
+            STELLAR_DESIGNATED_INITIALIZER(.epsilon = , options.epsilon),
+            STELLAR_DESIGNATED_INITIALIZER(.minLength = , options.minLength),
+            STELLAR_DESIGNATED_INITIALIZER(.xDrop = , options.xDrop),
+            STELLAR_DESIGNATED_INITIALIZER(.disableThresh = , options.disableThresh),
+            // compactThresh is basically an output-parameter; will be updated in kernel and propagated back
+            // outside of this function, the reason why StellarOptions can't be passed as const to this function.
+            // TODO: We might want to make this tied to the QueryMatches itself, as it should know then to consolidate
+            // the matches
+            STELLAR_DESIGNATED_INITIALIZER(.compactThresh = , options.compactThresh),
+            STELLAR_DESIGNATED_INITIALIZER(.numMatches = , options.numMatches),
+            STELLAR_DESIGNATED_INITIALIZER(.databaseID = , databaseID),
+            STELLAR_DESIGNATED_INITIALIZER(.databaseStrand = , databaseStrand)
+        };
+
+        return _stellarKernel(finder, swiftPattern, matches, swiftVerifier);
+    };
+
+    StellarComputeStatistics statistics;
 
     // stellar
     if (options.fastOption == CharString("exact"))
-        stellar(swiftFinder, swiftPattern, options.epsilon, options.minLength, options.xDrop,
-                options.disableThresh, options.compactThresh, options.numMatches, options.verbose,
-                databaseID, databaseStrand, matches, AllLocal());
+        statistics = _stellar(swiftFinder, swiftPattern, matches, AllLocal());
     else if (options.fastOption == "bestLocal")
-        stellar(swiftFinder, swiftPattern, options.epsilon, options.minLength, options.xDrop,
-                options.disableThresh, options.compactThresh, options.numMatches, options.verbose,
-                databaseID, databaseStrand, matches, BestLocal());
+        statistics = _stellar(swiftFinder, swiftPattern, matches, BestLocal());
     else if (options.fastOption == "bandedGlobal")
-        stellar(swiftFinder, swiftPattern, options.epsilon, options.minLength, options.xDrop,
-                options.disableThresh, options.compactThresh, options.numMatches, options.verbose,
-                databaseID, databaseStrand, matches, BandedGlobal());
+        statistics = _stellar(swiftFinder, swiftPattern, matches, BandedGlobal());
     else if (options.fastOption == "bandedGlobalExtend")
-        stellar(swiftFinder, swiftPattern, options.epsilon, options.minLength, options.xDrop,
-                options.disableThresh, options.compactThresh, options.numMatches, options.verbose,
-                databaseID, databaseStrand, matches, BandedGlobalExtend());
+        statistics = _stellar(swiftFinder, swiftPattern, matches, BandedGlobalExtend());
     else
     {
         std::cerr << "\nUnknown verification strategy: " << options.fastOption << std::endl;
         return false;
+    }
+
+    if (options.verbose)
+        _printStellarKernelStatistics(statistics);
+
+    for (QueryMatches<TMatch> & queryMatches : matches) {
+        removeOverlapsAndCompactMatches(queryMatches,
+                                        options.disableThresh,
+                                        /*compactThresh*/ 0,
+                                        options.minLength,
+                                        options.numMatches);
     }
 
     std::cout << std::endl;
@@ -99,8 +128,8 @@ _stellarOnOne(String<TAlphabet> const & database,
 //////////////////////////////////////////////////////////////////////////////
 namespace seqan {
 
-template <typename TStringSet, typename TShape, typename TSpec>
-struct Cargo<Index<TStringSet, IndexQGram<TShape, TSpec> > >
+template <typename TAlphabet>
+struct Cargo<::stellar::StellarQGramIndex<TAlphabet>>
 {
     typedef struct
     {
@@ -110,15 +139,15 @@ struct Cargo<Index<TStringSet, IndexQGram<TShape, TSpec> > >
 
 //////////////////////////////////////////////////////////////////////////////
 // Repeat masker
-template <typename TStringSet, typename TShape, typename TSpec>
-inline bool _qgramDisableBuckets(Index<TStringSet, IndexQGram<TShape, TSpec> > & index)
+template <typename TAlphabet>
+inline bool _qgramDisableBuckets(::stellar::StellarQGramIndex<TAlphabet> & index)
 {
-    using TIndex = Index<TStringSet, IndexQGram<TShape, TSpec> >;
+    using TIndex = ::stellar::StellarQGramIndex<TAlphabet>;
     using TDir = typename Fibre<TIndex, QGramDir>::Type;
     using TDirIterator = typename Iterator<TDir, Standard>::Type;
     using TSize = typename Value<TDir>::Type;
 
-    TDir & dir    = indexDir(index);
+    TDir & dir   = indexDir(index);
     bool result  = false;
     unsigned counter = 0;
     TSize thresh = (TSize)(length(index) * cargo(index).abundanceCut);
@@ -173,20 +202,15 @@ _stellarOnAll(StringSet<String<TAlphabet>> & databases,
 {
     using TSequence = String<TAlphabet>;
     // pattern
-    using TDependentQueries = StringSet<TSequence, Dependent<> > const;
-    using TQGramIndex = Index<TDependentQueries, IndexQGram<SimpleShape, OpenAddressing> >;
-    TDependentQueries dependentQueries{queries};
-    TQGramIndex qgramIndex(dependentQueries);
-    resize(indexShape(qgramIndex), options.qGram);
-    cargo(qgramIndex).abundanceCut = options.qgramAbundanceCut;
-    Pattern<TQGramIndex, Swift<SwiftLocal> > swiftPattern(qgramIndex);
+    StellarIndex<TAlphabet> stellarIndex{queries, options};
+    StellarSwiftPattern<TAlphabet> swiftPattern = stellarIndex.createSwiftPattern();
 
     if (options.verbose)
         swiftPattern.params.printDots = true;
 
     // Construct index
     std::cout << "Constructing index..." << std::endl;
-    indexRequire(qgramIndex, QGramSADir());
+    stellarIndex.construct();
     std::cout << std::endl;
 
     // container for eps-matches
