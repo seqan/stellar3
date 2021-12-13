@@ -389,6 +389,33 @@ compactMatches(String<StellarMatch<TSequence const, TId> > & matches, TSize cons
     resize(matches, _min(num, numMatches));
 }
 
+template<typename TSource, typename TId>
+inline bool
+removeOverlapsAndCompactMatches(QueryMatches<StellarMatch<TSource, TId> > & queryMatches,
+                                size_t const disableThresh,
+                                size_t const compactThresh,
+                                size_t const minLength,
+                                size_t const numMatches)
+{
+    if (queryMatches.disabled)
+        return false;
+
+    size_t const matchesCount = length(queryMatches.matches);
+
+    if (matchesCount > disableThresh) {
+        queryMatches.disabled = true;
+        clear(queryMatches.matches);
+        return false;
+    }
+
+    if (matchesCount <= compactThresh)
+        return false;
+
+    maskOverlaps(queryMatches.matches, minLength);      // remove overlaps and duplicates
+    compactMatches(queryMatches.matches, numMatches);   // keep only the <numMatches> longest matches
+    return true;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Appends a match to matches container and removes overlapping matches if threshold is reached.
 template<typename TSource, typename TId, typename TSize, typename TSize1>
@@ -404,15 +431,8 @@ _insertMatch(QueryMatches<StellarMatch<TSource const, TId> > & queryMatches,
 
     // std::cerr << "Inserting match \n-------------\n" << match.row1 <<"\n" << match.row2 << "----------------\n";
 
-    if (length(queryMatches.matches) > disableThresh) {
-        queryMatches.disabled = true;
-        clear(queryMatches.matches);
-        return false;
-    }
-    if (length(queryMatches.matches) > compactThresh) {
-        maskOverlaps(queryMatches.matches, minLength);      // remove overlaps and duplicates
-        compactMatches(queryMatches.matches, numMatches);   // keep only the <numMatches> longest matches
-
+    if (removeOverlapsAndCompactMatches(queryMatches, disableThresh, compactThresh, minLength, numMatches))
+    {
         // raise compact threshold if many matches are kept
         if ((length(queryMatches.matches) << 1) > compactThresh)
             compactThresh += (compactThresh >> 1);
@@ -772,10 +792,7 @@ void stellar(StellarSwiftFinder<TAlphabet> & finder,
 
     using TMatch = StellarMatch<TSource const, TId>;
     for (QueryMatches<TMatch> & queryMatches : matches) {
-        if (length(queryMatches) > 0 && !queryMatches.disabled) {
-            maskOverlaps(queryMatches.matches, minLength);    // remove overlaps and duplicates
-            compactMatches(queryMatches.matches, numMatches); // keep only the <numMatches> longest matches
-        }
+        removeOverlapsAndCompactMatches(queryMatches, disableThresh, /*compactThresh*/ 0, minLength, numMatches);
     }
 }
 
