@@ -389,30 +389,30 @@ compactMatches(String<StellarMatch<TSequence const, TId> > & matches, TSize cons
     resize(matches, _min(num, numMatches));
 }
 
-template<typename TSource, typename TId>
+template<typename TMatch_>
 inline bool
-removeOverlapsAndCompactMatches(QueryMatches<StellarMatch<TSource, TId> > & queryMatches,
-                                size_t const disableThresh,
+QueryMatches<TMatch_>::
+removeOverlapsAndCompactMatches(size_t const disableThresh,
                                 size_t const compactThresh,
                                 size_t const minLength,
                                 size_t const numMatches)
 {
-    if (queryMatches.disabled)
+    if (this->disabled)
         return false;
 
-    size_t const matchesCount = length(queryMatches.matches);
+    size_t const matchesCount = length(this->matches);
 
     if (matchesCount > disableThresh) {
-        queryMatches.disabled = true;
-        clear(queryMatches.matches);
+        this->disabled = true;
+        clear(this->matches);
         return false;
     }
 
     if (matchesCount <= compactThresh)
         return false;
 
-    maskOverlaps(queryMatches.matches, minLength);      // remove overlaps and duplicates
-    compactMatches(queryMatches.matches, numMatches);   // keep only the <numMatches> longest matches
+    maskOverlaps(this->matches, minLength);      // remove overlaps and duplicates
+    compactMatches(this->matches, numMatches);   // keep only the <numMatches> longest matches
     return true;
 }
 
@@ -431,7 +431,7 @@ _insertMatch(QueryMatches<StellarMatch<TSource const, TId> > & queryMatches,
 
     // std::cerr << "Inserting match \n-------------\n" << match.row1 <<"\n" << match.row2 << "----------------\n";
 
-    if (removeOverlapsAndCompactMatches(queryMatches, disableThresh, compactThresh, minLength, numMatches))
+    if (queryMatches.removeOverlapsAndCompactMatches(disableThresh, compactThresh, minLength, numMatches))
     {
         // raise compact threshold if many matches are kept
         if ((length(queryMatches.matches) << 1) > compactThresh)
@@ -690,9 +690,9 @@ struct SwiftHitVerifier
     TId const & databaseID;
     bool const databaseStrand;
 
-    template <typename TFinderSegment, typename TPatternSegment, typename TDelta, typename TSource, typename TId>
-    void verify(TFinderSegment & finderSegment,
-                TPatternSegment & patternSegment,
+    template <typename TSequence, typename TDelta, typename TSource, typename TId>
+    void verify(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> const & finderSegment,
+                Segment<Segment<TSequence const, InfixSegment>, InfixSegment> const & patternSegment,
                 TDelta const delta,
                 QueryMatches<StellarMatch<TSource const, TId> > & queryMatches)
     {

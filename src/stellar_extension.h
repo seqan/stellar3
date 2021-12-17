@@ -754,6 +754,7 @@ _bestExtension(Segment<TSequence const, InfixSegment> const & infH,
 
     // traceback through matrix from begin/end pos on ...
     if((*endPair.i1).length != 0) { // ... extension to the left
+        assert(direction == EXTEND_BOTH || direction == EXTEND_LEFT);
         auto const infixAlignHBeginPosition = beginPositionH(seed) + length(sequencesLeft[0]) - endLeftH;
         auto const infixAlignVBeginPosition = beginPositionV(seed) + length(sequencesLeft[1]) - endLeftV;
         _tracebackLeft(matrixLeft,
@@ -768,6 +769,7 @@ _bestExtension(Segment<TSequence const, InfixSegment> const & infH,
                        align);
     }
     if((*endPair.i2).length != 0) { // ... extension to the right
+        assert(direction == EXTEND_BOTH || direction == EXTEND_RIGHT);
         auto const infixAlignHBeginPosition = endPositionH(seedOld);
         auto const infixAlignVBeginPosition = endPositionV(seedOld);
         _tracebackRight(matrixRight,

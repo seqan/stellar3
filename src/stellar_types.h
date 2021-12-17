@@ -163,6 +163,23 @@ struct QueryMatches {
 
     QueryMatches() : disabled(false), lengthAdjustment(0)
     {}
+
+    bool removeOverlapsAndCompactMatches(size_t const disableThresh,
+                                         size_t const compactThresh,
+                                         size_t const minLength,
+                                         size_t const numMatches);
+
+    void mergeIn(QueryMatches const & otherMatches)
+    {
+        this->disabled = this->disabled || otherMatches.disabled;
+        if (this->disabled)
+        {
+            clear(this->matches);
+        } else
+        {
+            append(this->matches, otherMatches.matches);
+        }
+    }
 };
 
 ///////////////////////////////////////////////////////////////////////////////

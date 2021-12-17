@@ -231,11 +231,10 @@ _stellarOnWholeDatabase(StringSet<String<TAlphabet> > const & databases,
     {
         QueryMatches<StellarMatch<TSequence const, TId>> & queryMatches = value(matches, queryID);
 
-        removeOverlapsAndCompactMatches(queryMatches,
-                                        options.disableThresh,
-                                        /*compactThresh*/ 0,
-                                        options.minLength,
-                                        options.numMatches);
+        queryMatches.removeOverlapsAndCompactMatches(options.disableThresh,
+                                                     /*compactThresh*/ 0,
+                                                     options.minLength,
+                                                     options.numMatches);
 
         if (queryMatches.disabled)
             disabledQueryIDs.push_back(queryID);
