@@ -158,8 +158,8 @@ void _setParser(ArgumentParser & parser)
                                      "Name of output file for disabled query sequences.", ArgParseArgument::OUTPUT_FILE));
     setValidValues(parser, "outDisabled", seqan::SeqFileOut::getFileExtensions());
     setDefaultValue(parser, "od", "stellar.disabled.fasta");
-    addOption(parser, ArgParseOption("t", "no-rt", "Suppress printing running time."));
-    hideOption(parser, "t");
+    addOption(parser, ArgParseOption("no-rt", "suppress-runtime-printing", "Suppress printing running time."));
+    hideOption(parser, "no-rt");
 
     addTextSection(parser, "References");
     addText(parser, "Kehr, B., Weese, D., Reinert, K.: STELLAR: fast and exact local alignments. BMC Bioinformatics, "
