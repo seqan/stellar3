@@ -60,6 +60,7 @@ void _writeSpecifiedParams(StellarOptions const & options)
     {
         std::cout << "  q-gram abundance cut ratio       : " << options.qgramAbundanceCut << std::endl;
     }
+    std::cout << "  threads                          : " << options.threadCount << std::endl;
     std::cout << std::endl;
 }
 

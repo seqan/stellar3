@@ -467,6 +467,9 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
 {
     typedef String<TAlphabet> TSequence;
 
+    // set threads
+    omp_set_num_threads(options.threadCount);
+
     // output file names
     stellar::app::_writeFileNames(options);
 

@@ -56,6 +56,7 @@ struct StellarOptions {
     double xDrop;               // maximal x-drop
 
     // more options
+    unsigned threadCount{1u};   // The maximum number of threads
     bool forward;               // compute matches to forward strand of database
     bool reverse;               // compute matches to reverse complemented database
     CharString fastOption;      // verification strategy: exact, bestLocal, bandedGlobal
