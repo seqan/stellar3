@@ -118,6 +118,10 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SEQAN_CXX_FLAGS}")
 # Require at least C++-14
 target_compile_features ("${PROJECT_NAME}_interface" INTERFACE cxx_relaxed_constexpr)
 
+# Require OpenMP
+find_package (OpenMP)
+target_link_libraries ("${PROJECT_NAME}_interface" INTERFACE OpenMP::OpenMP_CXX)
+
 if (STELLAR_PARALLEL_BUILD)
     target_compile_definitions ("${PROJECT_NAME}_interface" INTERFACE -DSTELLAR_PARALLEL_BUILD)
 

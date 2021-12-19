@@ -55,10 +55,13 @@ _stellarOnOne(String<TAlphabet> const & database,
               StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > & matches,
               StellarOptions & options)
 {
-    std::cout << "  " << databaseID;
-    if (!databaseStrand)
-        std::cout << ", complement";
-    std::cout << std::flush;
+    #pragma omp critical
+    {
+        std::cout << "  " << databaseID;
+        if (!databaseStrand)
+            std::cout << ", complement";
+        std::cout << std::flush;
+    }
 
     // finder
     StellarSwiftFinder<TAlphabet> swiftFinder(database, options.minRepeatLength, options.maxRepeatPeriod);
@@ -203,6 +206,20 @@ struct optional
     bool _has_value{false};
 };
 
+template <typename TSequence, typename TId>
+void _mergeMatchesIntoFirst(StringSet<QueryMatches<StellarMatch<TSequence const, TId> > > & matches1,
+                            StringSet<QueryMatches<StellarMatch<TSequence const, TId> > > & matches2)
+{
+    // merge matches and reverseMatches
+    if (length(matches1) != length(matches2))
+        throw std::runtime_error{"Matches mismatch"};
+
+    for (size_t i = 0; i < length(matches1); ++i)
+    {
+        matches1[i].mergeIn(matches2[i]);
+    }
+}
+
 template <typename TAlphabet, typename TId>
 inline optional<StellarOutputStatistics>
 _stellarOnWholeDatabase(StringSet<String<TAlphabet> > const & databases,
@@ -221,11 +238,32 @@ _stellarOnWholeDatabase(StringSet<String<TAlphabet> > const & databases,
     StringSet<QueryMatches<StellarMatch<TSequence const, TId> > > matches;
     resize(matches, length(queries));
 
-    for (size_t i = 0; i < length(databases); ++i)
+    #pragma omp parallel default(none) firstprivate(databaseStrand) shared(queries, databases, std::cout, options, swiftPattern, databaseIDs, matches)
     {
-        if (!_stellarOnOne(databases[i], databaseIDs[i], swiftPattern, databaseStrand, matches, options))
-            return optional<StellarOutputStatistics>{};
-    }
+        StringSet<QueryMatches<StellarMatch<TSequence const, TId> > > localMatches;
+        resize(localMatches, length(matches));
+
+        StellarOptions localOptions = options;
+
+        StellarIndex<TAlphabet> localStellarIndex{queries, localOptions};
+        StellarSwiftPattern<TAlphabet> localSwiftPattern = localStellarIndex.createSwiftPattern();
+
+        if (localOptions.verbose)
+            localSwiftPattern.params.printDots = true;
+
+        localStellarIndex.construct();
+
+        #pragma omp for nowait
+        for (size_t i = 0; i < length(databases); ++i)
+        {
+            _stellarOnOne(databases[i], databaseIDs[i], localSwiftPattern, databaseStrand, localMatches, localOptions);
+        }
+
+        #pragma omp critical
+        {
+            _mergeMatchesIntoFirst(matches, localMatches);
+        }
+    } // parallel region - end
 
     for (size_t queryID = 0; queryID < length(matches); ++queryID)
     {
@@ -274,7 +312,7 @@ _stellarOnAll(StringSet<String<TAlphabet>> & databases,
 
     // Construct index
     std::cout << "Constructing index..." << std::endl;
-    stellarIndex.construct();
+    // stellarIndex.construct();
     std::cout << std::endl;
 
     std::cout << "Aligning all query sequences to database sequence..." << std::endl;
