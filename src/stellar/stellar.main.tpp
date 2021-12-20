@@ -245,13 +245,7 @@ _stellarOnWholeDatabase(StringSet<String<TAlphabet> > const & databases,
 
         StellarOptions localOptions = options;
 
-        StellarIndex<TAlphabet> localStellarIndex{queries, localOptions};
-        StellarSwiftPattern<TAlphabet> localSwiftPattern = localStellarIndex.createSwiftPattern();
-
-        if (localOptions.verbose)
-            localSwiftPattern.params.printDots = true;
-
-        localStellarIndex.construct();
+        StellarSwiftPattern<TAlphabet> localSwiftPattern = swiftPattern;
 
         #pragma omp for nowait
         for (size_t i = 0; i < length(databases); ++i)
@@ -312,7 +306,7 @@ _stellarOnAll(StringSet<String<TAlphabet>> & databases,
 
     // Construct index
     std::cout << "Constructing index..." << std::endl;
-    // stellarIndex.construct();
+    stellarIndex.construct();
     std::cout << std::endl;
 
     std::cout << "Aligning all query sequences to database sequence..." << std::endl;
