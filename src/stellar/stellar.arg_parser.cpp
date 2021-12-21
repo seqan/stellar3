@@ -35,6 +35,7 @@ _parseOptions(ArgumentParser const & parser, StellarOptions & options)
     getOptionValue(options.epsilon, parser, "epsilon");
     getOptionValue(options.xDrop, parser, "xDrop");
     getOptionValue(options.alphabet, parser, "alphabet");
+    getOptionValue(options.threadCount, parser, "threads");
 
     if (isSet(parser, "forward") && !isSet(parser, "reverse"))
         options.reverse = false;
@@ -91,6 +92,11 @@ void _setParser(ArgumentParser & parser)
     setValidValues(parser, 0, "fa fasta");  // allow only fasta files as input
     addArgument(parser, ArgParseArgument(ArgParseArgument::INPUT_FILE, "FASTA FILE 2"));
     setValidValues(parser, 1, "fa fasta");  // allow only fasta files as input
+
+    // Add threads option.
+    addOption(parser, ArgParseOption("t", "threads", "Specify the number of threads to use.", ArgParseOption::INTEGER));
+    setMinValue(parser, "threads", "1");
+    setDefaultValue(parser, "threads", "1");
 
     addSection(parser, "Main Options");
 
@@ -158,8 +164,8 @@ void _setParser(ArgumentParser & parser)
                                      "Name of output file for disabled query sequences.", ArgParseArgument::OUTPUT_FILE));
     setValidValues(parser, "outDisabled", seqan::SeqFileOut::getFileExtensions());
     setDefaultValue(parser, "od", "stellar.disabled.fasta");
-    addOption(parser, ArgParseOption("t", "no-rt", "Suppress printing running time."));
-    hideOption(parser, "t");
+    addOption(parser, ArgParseOption("no-rt", "suppress-runtime-printing", "Suppress printing running time."));
+    hideOption(parser, "no-rt");
 
     addTextSection(parser, "References");
     addText(parser, "Kehr, B., Weese, D., Reinert, K.: STELLAR: fast and exact local alignments. BMC Bioinformatics, "

@@ -6,7 +6,7 @@
 # CMakeLists.txt file for STELLAR.
 # ===========================================================================
 
-cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.10)
 message (STATUS "Configuring apps/stellar")
 
 set (SEQAN_APP_VERSION "${PROJECT_VERSION}")
@@ -117,6 +117,10 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SEQAN_CXX_FLAGS}")
 
 # Require at least C++-14
 target_compile_features ("${PROJECT_NAME}_interface" INTERFACE cxx_relaxed_constexpr)
+
+# Require OpenMP
+find_package (OpenMP) # requires cmake 3.10
+target_link_libraries ("${PROJECT_NAME}_interface" INTERFACE OpenMP::OpenMP_CXX)
 
 if (STELLAR_PARALLEL_BUILD)
     target_compile_definitions ("${PROJECT_NAME}_interface" INTERFACE -DSTELLAR_PARALLEL_BUILD)
