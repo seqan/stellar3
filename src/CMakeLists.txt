@@ -142,15 +142,11 @@ if (STELLAR_PARALLEL_BUILD)
 endif ()
 
 if (STELLAR_PARALLEL_BUILD AND STELLAR_PRECOMPILED_HEADER_BUILD)
-    target_precompile_headers (stellar_main PRIVATE stellar/stellar.main.tpp)
+    target_precompile_headers (stellar_main PRIVATE ../include/stellar/app/stellar.main.tpp)
 endif ()
 
 # Update the list of file names below if you add source files to your application.
-add_executable (stellar stellar.cpp
-                       stellar.h
-                       stellar_extension.h
-                       stellar_output.h
-                       stellar_types.h)
+add_executable (stellar stellar.cpp)
 
 if (STELLAR_PARALLEL_BUILD)
     target_link_libraries (stellar PRIVATE stellar_main stellar_arg_parser stellar_diagnostics)

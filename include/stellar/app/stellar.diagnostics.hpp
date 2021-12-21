@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "../stellar_types.h"
+#include <stellar/stellar_types.h>
 
 namespace stellar
 {

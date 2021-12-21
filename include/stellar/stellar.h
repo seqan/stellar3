@@ -26,11 +26,11 @@
 
 #include <iostream>
 #include <seqan/seeds.h>
-#include "stellar_types.h"
-#include "stellar_extension.h"
-#include "stellar_index.hpp"
+#include <stellar/stellar_types.h>
+#include <stellar/stellar_extension.h>
+#include <stellar/stellar_index.hpp>
 
-#include "stellar/stellar.diagnostics.hpp"
+#include <stellar/app/stellar.diagnostics.hpp>
 
 namespace stellar
 {

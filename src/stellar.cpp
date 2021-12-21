@@ -25,17 +25,17 @@
 #include <seqan/index.h>
 #include <seqan/seq_io.h>
 
-#include "stellar.h"
-#include "stellar_output.h"
+#include <stellar/stellar.h>
+#include <stellar/stellar_output.h>
 
-#include "stellar/stellar.arg_parser.hpp"
-#include "stellar/stellar.diagnostics.hpp"
-#include "stellar/stellar.main.hpp"
+#include <stellar/app/stellar.arg_parser.hpp>
+#include <stellar/app/stellar.diagnostics.hpp>
+#include <stellar/app/stellar.main.hpp>
 
 #ifndef STELLAR_PARALLEL_BUILD
 #include "stellar/stellar.arg_parser.cpp"
 #include "stellar/stellar.diagnostics.cpp"
-#include "stellar/stellar.main.tpp"
+#include <stellar/app/stellar.main.tpp>
 #endif // STELLAR_PARALLEL_BUILD
 
 // TODO(holtgrew): Move this into a SeqAn misc module.

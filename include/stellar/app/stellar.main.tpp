@@ -23,17 +23,17 @@
 
 #pragma once
 
-#include "stellar.main.hpp"
+#include <stellar/app/stellar.main.hpp>
 
 #include <seqan/seq_io.h>
 
-#include "../stellar.h"
-#include "../stellar_index.hpp"
-#include "../stellar_output.h"
+#include <stellar/stellar.h>
+#include <stellar/stellar_index.hpp>
+#include <stellar/stellar_output.h>
 
-#include "stellar.diagnostics.hpp"
+#include <stellar/app/stellar.diagnostics.hpp>
 
-#include "stellar.diagnostics.tpp"
+#include <stellar/app/stellar.diagnostics.tpp>
 
 namespace stellar
 {
