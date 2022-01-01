@@ -12,3 +12,5 @@ macro (add_api_test test_filename)
     seqan3_test_component (target "${test_filename}" TARGET_NAME)
     add_dependencies (api_test ${target})
 endmacro ()
+
+add_subdirectory (stellar)
