@@ -47,7 +47,7 @@ namespace app
 // Initializes a Finder object for a database sequence,
 //  calls stellar, and writes matches to file
 template <typename TAlphabet, typename TId>
-inline void
+inline StellarComputeStatistics
 _stellarOnOne(String<TAlphabet> const & database,
               TId const & databaseID,
               StellarSwiftPattern<TAlphabet> & swiftPattern,
@@ -55,14 +55,6 @@ _stellarOnOne(String<TAlphabet> const & database,
               StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > & matches,
               StellarOptions & options)
 {
-    #pragma omp critical
-    {
-        std::cout << "  " << databaseID;
-        if (!databaseStrand)
-            std::cout << ", complement";
-        std::cout << std::flush;
-    }
-
     // finder
     StellarSwiftFinder<TAlphabet> swiftFinder(database, options.minRepeatLength, options.maxRepeatPeriod);
 
@@ -104,10 +96,7 @@ _stellarOnOne(String<TAlphabet> const & database,
     else if (options.verificationMethod == StellarVerificationMethod{BandedGlobalExtend{}})
         statistics = _stellar(swiftFinder, swiftPattern, matches, BandedGlobalExtend());
 
-    if (options.verbose)
-        _printStellarKernelStatistics(statistics);
-
-    std::cout << std::endl;
+    return statistics;
 }
 
 } // namespace stellar::app
@@ -244,7 +233,26 @@ _stellarOnWholeDatabase(StringSet<String<TAlphabet> > const & databases,
         #pragma omp for nowait
         for (size_t i = 0; i < length(databases); ++i)
         {
-            _stellarOnOne(databases[i], databaseIDs[i], localSwiftPattern, databaseStrand, localMatches, localOptions);
+            String<TAlphabet> const & database = databases[i];
+            CharString const & databaseID = databaseIDs[i];
+
+            #pragma omp critical
+            {
+                std::cout << "  " << databaseID;
+                if (!databaseStrand)
+                    std::cout << ", complement";
+                std::cout << std::flush;
+            }
+
+            StellarComputeStatistics statistics
+                = _stellarOnOne(database, databaseID, localSwiftPattern, databaseStrand, localMatches, localOptions);
+
+            if (options.verbose)
+            {
+                _printStellarKernelStatistics(statistics);
+            }
+
+            std::cout << std::endl;
         }
 
         #pragma omp critical
