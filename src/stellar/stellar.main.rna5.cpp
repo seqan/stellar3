@@ -1,4 +1,4 @@
-#include "stellar.main.tpp"
+#include <stellar/app/stellar.main.tpp>
 
 namespace stellar
 {

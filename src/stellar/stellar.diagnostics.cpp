@@ -1,4 +1,4 @@
-#include "stellar.diagnostics.hpp"
+#include <stellar/app/stellar.diagnostics.hpp>
 
 namespace stellar
 {

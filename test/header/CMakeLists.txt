@@ -27,7 +27,10 @@ foreach (header ${header_files})
         set (header_target_source "${PROJECT_BINARY_DIR}/${target}_files/${header_test_name}.hpp-${header_sub_test}.cpp")
         set (header_target "${target}--${header_target_name}-${header_sub_test}")
 
-        string (REPLACE "-" "__" header_test_name_safe "${target}, ${header_target}")
+        # sanitize gtest test names
+        set (header_test_name_safe "${target}, ${header_target}")
+        string (REPLACE "-" "__" header_test_name_safe "${header_test_name_safe}")
+        string (REPLACE "." "_dot_" header_test_name_safe "${header_test_name_safe}")
 
         # we use add_custom_command to detect changes to a header file, which will update the generated source file
         add_custom_command (OUTPUT "${header_target_source}"

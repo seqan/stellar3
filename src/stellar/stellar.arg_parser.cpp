@@ -1,4 +1,4 @@
-#include "stellar.arg_parser.hpp"
+#include <stellar/app/stellar.arg_parser.hpp>
 
 #include <seqan/seq_io.h>
 
