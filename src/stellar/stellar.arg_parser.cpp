@@ -42,7 +42,23 @@ _parseOptions(ArgumentParser const & parser, StellarOptions & options)
     if (!isSet(parser, "forward") && isSet(parser, "reverse"))
         options.forward = false;
 
-    getOptionValue(options.fastOption, parser, "verification");
+    CharString verificationMethod;
+    getOptionValue(verificationMethod, parser, "verification");
+
+    if (verificationMethod == to_string(StellarVerificationMethod{AllLocal{}}))
+        options.verificationMethod = StellarVerificationMethod{AllLocal{}};
+    else if (verificationMethod == to_string(StellarVerificationMethod{BestLocal{}}))
+        options.verificationMethod = StellarVerificationMethod{BestLocal{}};
+    else if (verificationMethod == to_string(StellarVerificationMethod{BandedGlobal{}}))
+        options.verificationMethod = StellarVerificationMethod{BandedGlobal{}};
+    else if (verificationMethod == to_string(StellarVerificationMethod{BandedGlobalExtend{}}))
+        options.verificationMethod = StellarVerificationMethod{BandedGlobalExtend{}};
+    else
+    {
+        std::cerr << "Invalid parameter value: Please choose one of the --verification={exact, bestLocal, bandedGlobal, bandedGlobalExtend}" << std::endl;
+        return ArgumentParser::PARSE_ERROR;
+    }
+
     getOptionValue(options.disableThresh, parser, "disableThresh");
     getOptionValue(options.numMatches, parser, "numMatches");
     getOptionValue(options.compactThresh, parser, "sortThresh");
