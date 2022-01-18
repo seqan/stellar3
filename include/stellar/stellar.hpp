@@ -37,19 +37,6 @@ namespace stellar
 
 using namespace seqan;
 
-
-struct VerifyAllLocal_;
-typedef Tag<VerifyAllLocal_> const AllLocal;
-
-struct VerifyBestLocal_;
-typedef Tag<VerifyBestLocal_> const BestLocal;
-
-struct VerifyBandedGlobal_;
-typedef Tag<VerifyBandedGlobal_> const BandedGlobal;
-
-struct VerifyBandedGlobalExtend_;
-typedef Tag<VerifyBandedGlobalExtend_> const BandedGlobalExtend;
-
 ///////////////////////////////////////////////////////////////////////////////
 
 inline bool _verifyFast(BestLocal) {

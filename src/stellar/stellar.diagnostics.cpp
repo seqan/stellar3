@@ -44,7 +44,7 @@ void _writeSpecifiedParams(StellarOptions const & options)
     std::cout << "  search reverse complement        : " << ((options.reverse) ? "yes" : "no") << std::endl;
     std::cout << std::endl;
 
-    std::cout << "  verification strategy            : " << options.fastOption << std::endl;
+    std::cout << "  verification strategy            : " << to_string(options.verificationMethod) << std::endl;
     if (options.disableThresh != (unsigned)-1)
     {
         std::cout << "  disable queries with more than   : " << options.disableThresh << " matches" << std::endl;

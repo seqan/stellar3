@@ -47,7 +47,7 @@ namespace app
 // Initializes a Finder object for a database sequence,
 //  calls stellar, and writes matches to file
 template <typename TAlphabet, typename TId>
-inline bool
+inline void
 _stellarOnOne(String<TAlphabet> const & database,
               TId const & databaseID,
               StellarSwiftPattern<TAlphabet> & swiftPattern,
@@ -95,25 +95,19 @@ _stellarOnOne(String<TAlphabet> const & database,
     StellarComputeStatistics statistics;
 
     // stellar
-    if (options.fastOption == CharString("exact"))
+    if (options.verificationMethod == StellarVerificationMethod{AllLocal{}})
         statistics = _stellar(swiftFinder, swiftPattern, matches, AllLocal());
-    else if (options.fastOption == "bestLocal")
+    else if (options.verificationMethod == StellarVerificationMethod{BestLocal{}})
         statistics = _stellar(swiftFinder, swiftPattern, matches, BestLocal());
-    else if (options.fastOption == "bandedGlobal")
+    else if (options.verificationMethod == StellarVerificationMethod{BandedGlobal{}})
         statistics = _stellar(swiftFinder, swiftPattern, matches, BandedGlobal());
-    else if (options.fastOption == "bandedGlobalExtend")
+    else if (options.verificationMethod == StellarVerificationMethod{BandedGlobalExtend{}})
         statistics = _stellar(swiftFinder, swiftPattern, matches, BandedGlobalExtend());
-    else
-    {
-        std::cerr << "\nUnknown verification strategy: " << options.fastOption << std::endl;
-        return false;
-    }
 
     if (options.verbose)
         _printStellarKernelStatistics(statistics);
 
     std::cout << std::endl;
-    return true;
 }
 
 } // namespace stellar::app
