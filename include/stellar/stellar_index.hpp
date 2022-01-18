@@ -26,8 +26,12 @@
 
 #include <seqan/index.h>
 
+#include <stellar/stellar_types.hpp> // StellarOptions
+
 namespace stellar
 {
+using namespace seqan;
+
 template <typename TAlphabet>
 using StellarQGramIndex = Index<StringSet<String<TAlphabet>, Dependent<> > const, IndexQGram<SimpleShape, OpenAddressing> >;
 

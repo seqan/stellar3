@@ -27,6 +27,8 @@
 #include <iostream>
 #include <seqan/align.h>
 
+#include <stellar/stellar_types.hpp> // QueryMatches
+
 namespace stellar
 {
 
