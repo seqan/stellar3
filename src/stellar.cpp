@@ -25,8 +25,8 @@
 #include <seqan/index.h>
 #include <seqan/seq_io.h>
 
-#include <stellar/stellar.h>
-#include <stellar/stellar_output.h>
+#include <stellar/stellar.hpp>
+#include <stellar/stellar_output.hpp>
 
 #include <stellar/app/stellar.arg_parser.hpp>
 #include <stellar/app/stellar.diagnostics.hpp>

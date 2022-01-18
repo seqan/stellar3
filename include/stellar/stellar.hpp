@@ -26,8 +26,8 @@
 
 #include <iostream>
 #include <seqan/seeds.h>
-#include <stellar/stellar_types.h>
-#include <stellar/stellar_extension.h>
+#include <stellar/stellar_types.hpp>
+#include <stellar/stellar_extension.hpp>
 #include <stellar/stellar_index.hpp>
 
 #include <stellar/app/stellar.diagnostics.hpp>
