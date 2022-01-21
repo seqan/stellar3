@@ -87,6 +87,7 @@ add_library ("${PROJECT_NAME}_interface" INTERFACE)
 # target_link_libraries ("${PROJECT_NAME}_interface" INTERFACE seqan3::seqan3)
 target_include_directories ("${PROJECT_NAME}_interface" INTERFACE ../include)
 target_compile_options ("${PROJECT_NAME}_interface" INTERFACE "-pedantic" "-Wall" "-Wextra")
+target_compile_features ("${PROJECT_NAME}_interface" INTERFACE cxx_std_17)
 
 # ----------------------------------------------------------------------------
 # Dependencies
