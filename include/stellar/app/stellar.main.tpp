@@ -135,11 +135,10 @@ struct StellarApp
         return StellarComputeStatistics{};
     };
 
-    template <typename TPrefilter>
     static StellarComputeStatisticsCollection
     parallel_prefilter
     (
-        TPrefilter & prefilter,
+        stellar::prefilter<TAlphabet> & prefilter,
         DatabaseIDMap<TAlphabet> const & databaseIDMap,
         bool const databaseStrand,
         StellarOptions const & options,
@@ -147,14 +146,14 @@ struct StellarApp
         StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > & matches
     )
     {
-        using TPrefilterAgent = typename TPrefilter::Agent;
-        using TDatabaseSegments = typename TPrefilter::TDatabaseSegments;
-        using TQueryFilter = StellarSwiftPattern<TAlphabet>;
+        using TPrefilterAgent = stellar::prefilter_agent<TAlphabet>;
+        using TDatabaseSegments = typename TPrefilterAgent::TDatabaseSegments; // std::span<StellarDatabaseSegment<TAlphabet> const>
+        using TQueryFilter = typename TPrefilterAgent::TQueryFilter; // StellarSwiftPattern<TAlphabet>
         using TSequence = String<TAlphabet>;
 
         StellarComputeStatisticsCollection computeStatistics{length(databaseIDMap.databases)};
 
-        std::vector<TPrefilterAgent> prefilterAgents = prefilter.agents(options.threadCount, options.minLength);
+        stellar::prefilter_agents<TAlphabet> prefilterAgents = prefilter.agents(options.threadCount, options);
 
         #pragma omp parallel for num_threads(prefilterAgents.size()) default(none) firstprivate(databaseStrand) shared(std::cout, prefilterAgents, options, matches, databaseIDMap, computeStatistics, stellar_kernel_runtime)
         for (TPrefilterAgent & agent: prefilterAgents)
@@ -166,7 +165,7 @@ struct StellarApp
             StellarComputeStatisticsPartialCollection localPartialStatistics{computeStatistics.size()};
             stellar::stellar_kernel_runtime local_runtime{};
 
-            agent.prefilter([&](TDatabaseSegments const & databaseSegments, TQueryFilter localSwiftPattern)
+            agent.prefilter([&](TDatabaseSegments const & databaseSegments, TQueryFilter & localSwiftPattern)
             {
                 for (StellarDatabaseSegment<TAlphabet> const & databaseSegment : databaseSegments)
                 {

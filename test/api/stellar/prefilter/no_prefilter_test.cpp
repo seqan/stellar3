@@ -29,13 +29,14 @@ TYPED_TEST(NoQueryPrefilterTest, prefilter)
     appendValue(queries, "TTTT");
 
     using TPrefilter = stellar::NoQueryPrefilter<TAlphabet, TAgentSplitter>;
-    using TPrefilterAgent = typename TPrefilter::Agent;
+    using TPrefilterAgent = stellar::prefilter_agent<TAlphabet>;
 
     stellar::StellarOptions options{};
     options.minLength = 2u;
     options.threadCount = 3u;
     options.epsilon = {0, 1}; // 0.0
 
+    // TODO: this should be done in prefilter
     stellar::StellarIndex<TAlphabet> index{queries, options};
 
     TAgentSplitter const splitter = []()
@@ -55,7 +56,7 @@ TYPED_TEST(NoQueryPrefilterTest, prefilter)
     std::vector<TDatabaseSegment> expectedSeenDatabases = splitter.split(databases, options.minLength);
 
     // implicit conversion to base class
-    for (TPrefilterAgent & prefilterAgent: prefilter.agents(options.threadCount, options.minLength))
+    for (TPrefilterAgent & prefilterAgent: prefilter.agents(options.threadCount, options))
     {
         using TDatabaseSegments = typename TPrefilter::TDatabaseSegments;
         using TQuerySwiftFilter = typename TPrefilter::TQueryFilter;
