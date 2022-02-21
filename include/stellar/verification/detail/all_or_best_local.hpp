@@ -178,7 +178,7 @@ _splitAtXDrops(TAlign const & align,
 // Conducts banded local alignment on swift hit (= computes eps-cores),
 //  splits eps-cores at X-drops, and calls _extendAndExtract for extension of eps-cores
 template<typename TSequence, typename TEpsilon, typename TSize, typename TDelta, typename TDrop,
-         typename TSize1, typename TId, typename TSource, bool bestLocalMethod>
+         typename TOnAlignmentResultFn, bool bestLocalMethod>
 void
 allOrBestLocal(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> const & infH,
                Segment<Segment<TSequence const, InfixSegment>, InfixSegment> const & infV,
@@ -186,16 +186,11 @@ allOrBestLocal(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> con
                TSize const minLength,
                TDrop const xDrop,
                TDelta const delta,
-               TSize1 const disableThresh,
-               TSize1 & compactThresh,
-               TSize1 const numMatches,
-               TId const & databaseId,
-               bool const dbStrand,
-               QueryMatches<StellarMatch<TSource const, TId> > & matches,
+               TOnAlignmentResultFn && onAlignmentResult,
                std::integral_constant<bool, bestLocalMethod>) {
     using TInfix = Segment<TSequence const, InfixSegment>;
     typedef Segment<TInfix, InfixSegment> TSegment;
-    typedef typename StellarMatch<TSource const, TId>::TAlign TAlign;
+    typedef typename StellarMatch<TSequence const, seqan::CharString>::TAlign TAlign;
 
     TSize maxLength = 1000000000;
     if ((TSize)length(infH) > maxLength) {
@@ -270,9 +265,10 @@ allOrBestLocal(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> con
             }
 
             // insert eps-match in matches string
-            StellarMatch<TSource const, TId> m(align, databaseId, dbStrand);
-            length(m);  // DEBUG: Contains assertion on clipping.
-            if(!_insertMatch(matches, m, minLength, disableThresh, compactThresh, numMatches)) return;
+            bool success = onAlignmentResult(align);
+            if (!success)
+                return;
+
             ++aliIt;
         }
         if (bestLocalMethod) break;

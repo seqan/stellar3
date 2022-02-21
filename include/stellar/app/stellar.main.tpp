@@ -46,55 +46,41 @@ namespace app
 ///////////////////////////////////////////////////////////////////////////////
 // Initializes a Finder object for a database sequence,
 //  calls stellar, and writes matches to file
-template <typename TAlphabet, typename TId>
+template <typename TAlphabet, typename TIsPatternDisabledFn, typename TOnAlignmentResultFn>
 inline StellarComputeStatistics
 _stellarOnOne(String<TAlphabet> const & database,
-              TId const & databaseID,
               StellarSwiftPattern<TAlphabet> & swiftPattern,
-              bool const databaseStrand,
-              StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > & matches,
-              StellarOptions & options)
+              StellarOptions const & options,
+              TIsPatternDisabledFn && isPatternDisabled,
+              TOnAlignmentResultFn && onAlignmentResult)
 {
     // finder
     StellarSwiftFinder<TAlphabet> swiftFinder(database, options.minRepeatLength, options.maxRepeatPeriod);
 
-    using TMatch = StellarMatch<String<TAlphabet> const, TId>;
-    auto _stellar = [&](StellarSwiftFinder<TAlphabet> & finder,
-                        StellarSwiftPattern<TAlphabet> & swiftPattern,
-                        StringSet<QueryMatches<TMatch> > & matches,
-                        auto tag) mutable -> StellarComputeStatistics
+    auto _stellar = [&](auto tag) -> StellarComputeStatistics
     {
         using TTag = decltype(tag);
         SwiftHitVerifier<TTag> swiftVerifier
         {
             STELLAR_DESIGNATED_INITIALIZER(.epsilon = , options.epsilon),
             STELLAR_DESIGNATED_INITIALIZER(.minLength = , options.minLength),
-            STELLAR_DESIGNATED_INITIALIZER(.xDrop = , options.xDrop),
-            STELLAR_DESIGNATED_INITIALIZER(.disableThresh = , options.disableThresh),
-            // compactThresh is basically an output-parameter; will be updated in kernel and propagated back
-            // outside of this function, the reason why StellarOptions can't be passed as const to this function.
-            // TODO: We might want to make this tied to the QueryMatches itself, as it should know then to consolidate
-            // the matches
-            STELLAR_DESIGNATED_INITIALIZER(.compactThresh = , options.compactThresh),
-            STELLAR_DESIGNATED_INITIALIZER(.numMatches = , options.numMatches),
-            STELLAR_DESIGNATED_INITIALIZER(.databaseID = , databaseID),
-            STELLAR_DESIGNATED_INITIALIZER(.databaseStrand = , databaseStrand)
+            STELLAR_DESIGNATED_INITIALIZER(.xDrop = , options.xDrop)
         };
 
-        return _stellarKernel(finder, swiftPattern, matches, swiftVerifier);
+        return _stellarKernel(swiftFinder, swiftPattern, swiftVerifier, isPatternDisabled, onAlignmentResult);
     };
 
     StellarComputeStatistics statistics;
 
     // stellar
     if (options.verificationMethod == StellarVerificationMethod{AllLocal{}})
-        statistics = _stellar(swiftFinder, swiftPattern, matches, AllLocal());
+        statistics = _stellar(AllLocal());
     else if (options.verificationMethod == StellarVerificationMethod{BestLocal{}})
-        statistics = _stellar(swiftFinder, swiftPattern, matches, BestLocal());
+        statistics = _stellar(BestLocal());
     else if (options.verificationMethod == StellarVerificationMethod{BandedGlobal{}})
-        statistics = _stellar(swiftFinder, swiftPattern, matches, BandedGlobal());
+        statistics = _stellar(BandedGlobal());
     else if (options.verificationMethod == StellarVerificationMethod{BandedGlobalExtend{}})
-        statistics = _stellar(swiftFinder, swiftPattern, matches, BandedGlobalExtend());
+        statistics = _stellar(BandedGlobalExtend());
 
     return statistics;
 }
@@ -222,8 +208,39 @@ _stellarOnWholeDatabase(StringSet<String<TAlphabet> > const & databases,
                 std::cout << std::flush;
             }
 
+            auto getQueryMatches = [&](auto const & pattern) -> QueryMatches<StellarMatch<TSequence const, TId> > &
+            {
+                return value(localMatches, pattern.curSeqNo);
+            };
+
+            auto isPatternDisabled = [&](StellarSwiftPattern<TAlphabet> & pattern) -> bool {
+                QueryMatches<StellarMatch<TSequence const, TId> > & queryMatches = getQueryMatches(pattern);
+                return queryMatches.disabled;
+            };
+
+            auto onAlignmentResult = [&](auto & alignment) -> bool {
+                QueryMatches<StellarMatch<TSequence const, TId> > & queryMatches = getQueryMatches(localSwiftPattern);
+
+                StellarMatch<TSequence const, TId> match(alignment, databaseID, databaseStrand);
+                length(match);  // DEBUG: Contains assertion on clipping.
+
+                // success
+                return _insertMatch(
+                    queryMatches,
+                    match,
+                    localOptions.minLength,
+                    localOptions.disableThresh,
+                    // compactThresh is basically an output-parameter; will be updated in kernel and propagated back
+                    // outside of this function, the reason why StellarOptions can't be passed as const to this function.
+                    // TODO: We might want to make this tied to the QueryMatches itself, as it should know then to consolidate
+                    // the matches
+                    localOptions.compactThresh,
+                    localOptions.numMatches
+                );
+            };
+
             StellarComputeStatistics statistics
-                = _stellarOnOne(database, databaseID, localSwiftPattern, databaseStrand, localMatches, localOptions);
+                = _stellarOnOne(database, localSwiftPattern, localOptions, isPatternDisabled, onAlignmentResult);
 
             if (options.verbose)
             {

@@ -9,8 +9,8 @@ namespace stellar
 ///////////////////////////////////////////////////////////////////////////////
 // Conducts banded local alignment on swift hit (= computes eps-cores),
 //  splits eps-cores at X-drops, and calls _extendAndExtract for extension of eps-cores
-template<typename TSequence, typename TEpsilon, typename TSize, typename TDelta, typename TDrop,
-         typename TSize1, typename TId, typename TSource>
+template<typename TSequence, typename TEpsilon, typename TSize, typename TDrop, typename TDelta,
+         typename TOnAlignmentResultFn>
 void
 verifySwiftHit(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> const & infH,
                Segment<Segment<TSequence const, InfixSegment>, InfixSegment> const & infV,
@@ -18,28 +18,11 @@ verifySwiftHit(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> con
                TSize const minLength,
                TDrop const xDrop,
                TDelta const delta,
-               TSize1 const disableThresh,
-               TSize1 & compactThresh,
-               TSize1 const numMatches,
-               TId const & databaseId,
-               bool const dbStrand,
-               QueryMatches<StellarMatch<TSource const, TId> > & matches,
+               TOnAlignmentResultFn && onAlignmentResult,
                BestLocal) {
-    allOrBestLocal(
-        infH,
-        infV,
-        eps,
-        minLength,
-        xDrop,
-        delta,
-        disableThresh,
-        compactThresh,
-        numMatches,
-        databaseId,
-        dbStrand,
-        matches,
-        std::true_type{} // true == best local match
-    );
+
+    // true == best local match
+    allOrBestLocal(infH, infV, eps, minLength, xDrop, delta, onAlignmentResult, std::true_type{});
 }
 
 } // namespace stellar
