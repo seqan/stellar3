@@ -55,7 +55,7 @@ _stellarOnOne(StellarDatabaseSegment<TAlphabet> const & databaseSegment,
               TOnAlignmentResultFn && onAlignmentResult)
 {
     // finder
-    StellarSwiftFinder<TAlphabet> swiftFinder(databaseSegment.underlyingDatabase(), options.minRepeatLength, options.maxRepeatPeriod);
+    StellarSwiftFinder<TAlphabet> swiftFinder(databaseSegment.asInfixSegment(), options.minRepeatLength, options.maxRepeatPeriod);
 
     auto _stellar = [&](auto tag) -> StellarComputeStatistics
     {

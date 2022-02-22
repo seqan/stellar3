@@ -39,7 +39,7 @@ template <typename TAlphabet>
 using StellarSwiftPattern = Pattern<StellarQGramIndex<TAlphabet>, Swift<SwiftLocal> >;
 
 template <typename TAlphabet>
-using StellarSwiftFinder = Finder<String<TAlphabet> const, Swift<SwiftLocal> >;
+using StellarSwiftFinder = Finder<Segment<String<TAlphabet> const, InfixSegment> const, Swift<SwiftLocal> >;
 
 template <typename TAlphabet>
 struct StellarIndex
