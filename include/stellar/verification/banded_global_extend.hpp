@@ -9,8 +9,8 @@ namespace stellar
 
 ///////////////////////////////////////////////////////////////////////////////
 // Conducts banded alignment on swift hit, extends alignment, and extracts longest contained eps-match.
-template<typename TSequence, typename TEpsilon, typename TSize, typename TDelta,
-         typename TDrop, typename TSize1, typename TSource, typename TId>
+template<typename TSequence, typename TEpsilon, typename TSize, typename TDrop, typename TDelta,
+         typename TOnAlignmentResultFn>
 void
 verifySwiftHit(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> const & infH,
                Segment<Segment<TSequence const, InfixSegment>, InfixSegment> const & infV,
@@ -18,16 +18,11 @@ verifySwiftHit(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> con
                TSize const minLength,
                TDrop const xDrop,
                TDelta const delta,
-               TSize1 const disableThresh,
-               TSize1 & compactThresh,
-               TSize1 const numMatches,
-               TId const & databaseId,
-               bool const dbStrand,
-               QueryMatches<StellarMatch<TSource const, TId> > & matches,
+               TOnAlignmentResultFn && onAlignmentResult,
                BandedGlobalExtend) {
     using TInfix = Segment<TSequence const, InfixSegment>;
     typedef Segment<TInfix, InfixSegment> TSegment;
-    typedef typename StellarMatch<TSource const, TId>::TAlign TAlign;
+    typedef typename StellarMatch<TSequence const, CharString>::TAlign TAlign;
 
     // define a scoring scheme
     typedef int TScore;
@@ -61,8 +56,7 @@ verifySwiftHit(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> con
         return;
 
     // insert eps-match in matches string
-    StellarMatch<TSource const, TId> m(align, databaseId, dbStrand);
-    _insertMatch(matches, m, minLength, disableThresh, compactThresh, numMatches);
+    onAlignmentResult(align);
 }
 
 } // namespace stellar

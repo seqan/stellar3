@@ -261,14 +261,14 @@ _insertMatch(QueryMatches<StellarMatch<TSource const, TId> > & queryMatches,
 ///////////////////////////////////////////////////////////////////////////////
 // Calls swift filter and verifies swift hits. = Computes eps-matches.
 // A basic block for stellar
-template<typename TAlphabet, typename TSource, typename TId, typename TTag>
+template<typename TAlphabet, typename TTag, typename TIsPatternDisabledFn, typename TOnAlignmentResultFn>
 StellarComputeStatistics
 _stellarKernel(StellarSwiftFinder<TAlphabet> & finder,
                StellarSwiftPattern<TAlphabet> & pattern,
-               StringSet<QueryMatches<StellarMatch<TSource const, TId> > > & matches,
-               SwiftHitVerifier<TTag> & swiftVerifier) {
+               SwiftHitVerifier<TTag> & swiftVerifier,
+               TIsPatternDisabledFn && isPatternDisabled,
+               TOnAlignmentResultFn && onAlignmentResult) {
     using TText = String<TAlphabet>;
-    using TMatch = StellarMatch<TSource const, TId>;
     using TInfix = typename Infix<TText const>::Type;
 
     StellarComputeStatistics statistics{};
@@ -284,9 +284,7 @@ _stellarKernel(StellarSwiftFinder<TAlphabet> & finder,
         statistics.totalLength += length(finderInfix);
         statistics.maxLength = std::max<size_t>(statistics.maxLength, length(finderInfix));
 
-        QueryMatches<TMatch> & queryMatches = value(matches, pattern.curSeqNo);
-
-        if (queryMatches.disabled) continue;
+        if (isPatternDisabled(pattern)) continue;
 
         TText const & patternSeq = getSequenceByNo(pattern.curSeqNo, indexText(needle(pattern)));
         TInfix const patternInfix = infix(pattern, patternSeq);
@@ -305,72 +303,10 @@ _stellarKernel(StellarSwiftFinder<TAlphabet> & finder,
         swiftVerifier.verify(finderSegment,
                              patternSegment,
                              pattern.bucketParams[0].delta + pattern.bucketParams[0].overlap,
-                             queryMatches);
+                             onAlignmentResult);
     }
 
     return statistics;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Calls swift filter and verifies swift hits. = Computes eps-matches.
-template<typename TAlphabet, typename TSize, typename TDrop, typename TSize1,
-         typename TMode, typename TSource, typename TId, typename TTag>
-void stellar(StellarSwiftFinder<TAlphabet> & finder,
-             StellarSwiftPattern<TAlphabet> & pattern,
-             double const epsilon,
-             TSize const minLength,
-             TDrop const xDrop,
-             TSize1 const disableThresh,
-             TSize1 & compactThresh,
-             TSize1 const numMatches,
-             TMode const verbose,
-             TId const & databaseID,
-             bool const databaseStrand,
-             StringSet<QueryMatches<StellarMatch<TSource const, TId> > > & matches,
-             TTag /*tag*/) {
-
-    SwiftHitVerifier<TTag> swiftVerifier
-    {
-        STELLAR_DESIGNATED_INITIALIZER(.epsilon =, epsilon),
-        STELLAR_DESIGNATED_INITIALIZER(.minLength =, minLength),
-        STELLAR_DESIGNATED_INITIALIZER(.xDrop =, xDrop),
-        STELLAR_DESIGNATED_INITIALIZER(.disableThresh =, disableThresh),
-        STELLAR_DESIGNATED_INITIALIZER(.compactThresh =, compactThresh),
-        STELLAR_DESIGNATED_INITIALIZER(.numMatches =, numMatches),
-        STELLAR_DESIGNATED_INITIALIZER(.databaseID =, databaseID),
-        STELLAR_DESIGNATED_INITIALIZER(.databaseStrand =, databaseStrand)
-    };
-
-    StellarComputeStatistics statistics = _stellarKernel(finder, pattern, matches, swiftVerifier);
-
-    if (verbose)
-        stellar::app::_printStellarKernelStatistics(statistics);
-
-    using TMatch = StellarMatch<TSource const, TId>;
-    for (QueryMatches<TMatch> & queryMatches : matches) {
-        removeOverlapsAndCompactMatches(queryMatches, disableThresh, /*compactThresh*/ 0, minLength, numMatches);
-    }
-}
-
-// Wrapper for stellar
-template<typename TAlphabet, typename TSize, typename TDrop,
-         typename TSource, typename TId, typename TTag>
-void stellar(StellarSwiftFinder<TAlphabet> & finder,
-             StellarSwiftPattern<TAlphabet> & pattern,
-             double const epsilon,
-             TSize const minLength,
-             TDrop const xDrop,
-             StringSet<QueryMatches<StellarMatch<TSource const, TId> > > & matches,
-             TTag tag) {
-    unsigned const maxValue = (unsigned)-1;
-    unsigned const disableThresh = maxValue;
-    unsigned const numMatches = disableThresh;
-    unsigned compactThresh = 1000;
-    TId const id = "db";
-
-    stellar(finder, pattern, epsilon, minLength, xDrop,
-            disableThresh, compactThresh, numMatches, /*verbose*/ false, id, /*databaseStrand*/ true,
-            matches, tag);
 }
 
 } // namespace stellar
