@@ -167,28 +167,6 @@ namespace stellar
 namespace app
 {
 
-template <typename value_t>
-struct optional
-{
-    optional() = default;
-    optional(value_t value)
-        : _value{value}, _has_value{true}
-    {}
-
-    bool has_value() const
-    {
-        return _has_value;
-    }
-
-    value_t const & value() const &
-    {
-        return _value;
-    }
-
-    value_t _value{};
-    bool _has_value{false};
-};
-
 template <typename TSequence, typename TId>
 void _mergeMatchesIntoFirst(StringSet<QueryMatches<StellarMatch<TSequence const, TId> > > & matches1,
                             StringSet<QueryMatches<StellarMatch<TSequence const, TId> > > & matches2)
@@ -204,7 +182,7 @@ void _mergeMatchesIntoFirst(StringSet<QueryMatches<StellarMatch<TSequence const,
 }
 
 template <typename TAlphabet, typename TId>
-inline optional<StellarOutputStatistics>
+inline StellarOutputStatistics
 _stellarOnWholeDatabase(StringSet<String<TAlphabet> > const & databases,
                         StringSet<TId> const & databaseIDs,
                         StringSet<String<TAlphabet> > const & queries,
@@ -285,7 +263,7 @@ _stellarOnWholeDatabase(StringSet<String<TAlphabet> > const & databases,
         _writeAllQueryMatchesToFile(matches, queryIDs, databaseStrand, options.outputFormat, outputFile);
     }
 
-    return optional<StellarOutputStatistics>{_computeOutputStatistics(matches)};
+    return _computeOutputStatistics(matches);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -327,7 +305,7 @@ _stellarOnAll(StringSet<String<TAlphabet>> & databases,
     // positive database strand
     if (options.forward)
     {
-        optional<StellarOutputStatistics> statistics
+        outputStatistics
             = _stellarOnWholeDatabase(databases,
                                       databaseIDs,
                                       queries,
@@ -337,11 +315,6 @@ _stellarOnAll(StringSet<String<TAlphabet>> & databases,
                                       swiftPattern,
                                       disabledQueryIDs,
                                       outputFile);
-
-        if (!statistics.has_value())
-            return false;
-
-        outputStatistics = statistics.value();
     }
 
     // negative (reverse complemented) database strand
@@ -351,7 +324,7 @@ _stellarOnAll(StringSet<String<TAlphabet>> & databases,
         for (size_t i = 0; i < length(databases); ++i)
             reverseComplement(databases[i]);
 
-        optional<StellarOutputStatistics> statistics
+        StellarOutputStatistics statistics
             = _stellarOnWholeDatabase(databases,
                                       databaseIDs,
                                       queries,
@@ -362,10 +335,7 @@ _stellarOnAll(StringSet<String<TAlphabet>> & databases,
                                       disabledQueryIDs,
                                       outputFile);
 
-        if (!statistics.has_value())
-            return false;
-
-        outputStatistics.mergeIn(statistics.value());
+        outputStatistics.mergeIn(statistics);
     }
     std::cout << std::endl;
 
