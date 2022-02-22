@@ -47,7 +47,7 @@ namespace app
 // Initializes a Finder object for a database sequence,
 //  calls stellar, and writes matches to file
 template <typename TAlphabet, typename TId>
-inline void
+inline StellarComputeStatistics
 _stellarOnOne(String<TAlphabet> const & database,
               TId const & databaseID,
               StellarSwiftPattern<TAlphabet> & swiftPattern,
@@ -55,14 +55,6 @@ _stellarOnOne(String<TAlphabet> const & database,
               StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > & matches,
               StellarOptions & options)
 {
-    #pragma omp critical
-    {
-        std::cout << "  " << databaseID;
-        if (!databaseStrand)
-            std::cout << ", complement";
-        std::cout << std::flush;
-    }
-
     // finder
     StellarSwiftFinder<TAlphabet> swiftFinder(database, options.minRepeatLength, options.maxRepeatPeriod);
 
@@ -104,10 +96,7 @@ _stellarOnOne(String<TAlphabet> const & database,
     else if (options.verificationMethod == StellarVerificationMethod{BandedGlobalExtend{}})
         statistics = _stellar(swiftFinder, swiftPattern, matches, BandedGlobalExtend());
 
-    if (options.verbose)
-        _printStellarKernelStatistics(statistics);
-
-    std::cout << std::endl;
+    return statistics;
 }
 
 } // namespace stellar::app
@@ -178,28 +167,6 @@ namespace stellar
 namespace app
 {
 
-template <typename value_t>
-struct optional
-{
-    optional() = default;
-    optional(value_t value)
-        : _value{value}, _has_value{true}
-    {}
-
-    bool has_value() const
-    {
-        return _has_value;
-    }
-
-    value_t const & value() const &
-    {
-        return _value;
-    }
-
-    value_t _value{};
-    bool _has_value{false};
-};
-
 template <typename TSequence, typename TId>
 void _mergeMatchesIntoFirst(StringSet<QueryMatches<StellarMatch<TSequence const, TId> > > & matches1,
                             StringSet<QueryMatches<StellarMatch<TSequence const, TId> > > & matches2)
@@ -215,7 +182,7 @@ void _mergeMatchesIntoFirst(StringSet<QueryMatches<StellarMatch<TSequence const,
 }
 
 template <typename TAlphabet, typename TId>
-inline optional<StellarOutputStatistics>
+inline StellarOutputStatistics
 _stellarOnWholeDatabase(StringSet<String<TAlphabet> > const & databases,
                         StringSet<TId> const & databaseIDs,
                         StringSet<String<TAlphabet> > const & queries,
@@ -244,7 +211,26 @@ _stellarOnWholeDatabase(StringSet<String<TAlphabet> > const & databases,
         #pragma omp for nowait
         for (size_t i = 0; i < length(databases); ++i)
         {
-            _stellarOnOne(databases[i], databaseIDs[i], localSwiftPattern, databaseStrand, localMatches, localOptions);
+            String<TAlphabet> const & database = databases[i];
+            CharString const & databaseID = databaseIDs[i];
+
+            #pragma omp critical
+            {
+                std::cout << "  " << databaseID;
+                if (!databaseStrand)
+                    std::cout << ", complement";
+                std::cout << std::flush;
+            }
+
+            StellarComputeStatistics statistics
+                = _stellarOnOne(database, databaseID, localSwiftPattern, databaseStrand, localMatches, localOptions);
+
+            if (options.verbose)
+            {
+                _printStellarKernelStatistics(statistics);
+            }
+
+            std::cout << std::endl;
         }
 
         #pragma omp critical
@@ -277,7 +263,7 @@ _stellarOnWholeDatabase(StringSet<String<TAlphabet> > const & databases,
         _writeAllQueryMatchesToFile(matches, queryIDs, databaseStrand, options.outputFormat, outputFile);
     }
 
-    return optional<StellarOutputStatistics>{_computeOutputStatistics(matches)};
+    return _computeOutputStatistics(matches);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -319,7 +305,7 @@ _stellarOnAll(StringSet<String<TAlphabet>> & databases,
     // positive database strand
     if (options.forward)
     {
-        optional<StellarOutputStatistics> statistics
+        outputStatistics
             = _stellarOnWholeDatabase(databases,
                                       databaseIDs,
                                       queries,
@@ -329,11 +315,6 @@ _stellarOnAll(StringSet<String<TAlphabet>> & databases,
                                       swiftPattern,
                                       disabledQueryIDs,
                                       outputFile);
-
-        if (!statistics.has_value())
-            return false;
-
-        outputStatistics = statistics.value();
     }
 
     // negative (reverse complemented) database strand
@@ -343,7 +324,7 @@ _stellarOnAll(StringSet<String<TAlphabet>> & databases,
         for (size_t i = 0; i < length(databases); ++i)
             reverseComplement(databases[i]);
 
-        optional<StellarOutputStatistics> statistics
+        StellarOutputStatistics statistics
             = _stellarOnWholeDatabase(databases,
                                       databaseIDs,
                                       queries,
@@ -354,10 +335,7 @@ _stellarOnAll(StringSet<String<TAlphabet>> & databases,
                                       disabledQueryIDs,
                                       outputFile);
 
-        if (!statistics.has_value())
-            return false;
-
-        outputStatistics.mergeIn(statistics.value());
+        outputStatistics.mergeIn(statistics);
     }
     std::cout << std::endl;
 
