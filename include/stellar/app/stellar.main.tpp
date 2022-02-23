@@ -48,14 +48,14 @@ namespace app
 //  calls stellar, and writes matches to file
 template <typename TAlphabet, typename TIsPatternDisabledFn, typename TOnAlignmentResultFn>
 inline StellarComputeStatistics
-_stellarOnOne(String<TAlphabet> const & database,
+_stellarOnOne(StellarDatabaseSegment<TAlphabet> const & databaseSegment,
               StellarSwiftPattern<TAlphabet> & swiftPattern,
               StellarOptions const & options,
               TIsPatternDisabledFn && isPatternDisabled,
               TOnAlignmentResultFn && onAlignmentResult)
 {
     // finder
-    StellarSwiftFinder<TAlphabet> swiftFinder(database, options.minRepeatLength, options.maxRepeatPeriod);
+    StellarSwiftFinder<TAlphabet> swiftFinder(databaseSegment.underlyingDatabase(), options.minRepeatLength, options.maxRepeatPeriod);
 
     auto _stellar = [&](auto tag) -> StellarComputeStatistics
     {
@@ -239,8 +239,9 @@ _stellarOnWholeDatabase(StringSet<String<TAlphabet> > const & databases,
                 );
             };
 
+            StellarDatabaseSegment<TAlphabet> databaseSegment{database, 0u, length(database)};
             StellarComputeStatistics statistics
-                = _stellarOnOne(database, localSwiftPattern, localOptions, isPatternDisabled, onAlignmentResult);
+                = _stellarOnOne(databaseSegment, localSwiftPattern, localOptions, isPatternDisabled, onAlignmentResult);
 
             if (options.verbose)
             {

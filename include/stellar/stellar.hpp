@@ -29,6 +29,9 @@
 
 #include <stellar/stellar_types.hpp>
 #include <stellar/stellar_extension.hpp>
+#include <stellar/stellar_database_segment.hpp>
+#include <stellar/stellar_query_segment.hpp>
+#include <stellar/stellar_query_segment.tpp>
 #include <stellar/stellar_index.hpp>
 #include <stellar/verification/all_local.hpp>
 #include <stellar/verification/banded_global_extend.hpp>
@@ -274,24 +277,17 @@ _stellarKernel(StellarSwiftFinder<TAlphabet> & finder,
     StellarComputeStatistics statistics{};
 
     while (find(finder, pattern, swiftVerifier.epsilon, swiftVerifier.minLength)) {
-        TInfix const finderInfix = infix(finder);
-        TInfix const finderInfixSeq = infix(haystack(finder), 0, length(haystack(finder)));
-        Segment<TInfix, InfixSegment> finderSegment(finderInfixSeq,
-            beginPosition(finderInfix) - beginPosition(haystack(finder)),
-            endPosition(finderInfix) - beginPosition(haystack(finder)));
+        Segment<TInfix, InfixSegment> finderSegment
+            = StellarDatabaseSegment<TAlphabet>::fromFinderMatch(infix(finder)).asFinderSegment();
 
         ++statistics.numSwiftHits;
-        statistics.totalLength += length(finderInfix);
-        statistics.maxLength = std::max<size_t>(statistics.maxLength, length(finderInfix));
+        statistics.totalLength += length(finderSegment);
+        statistics.maxLength = std::max<size_t>(statistics.maxLength, length(finderSegment));
 
         if (isPatternDisabled(pattern)) continue;
 
-        TText const & patternSeq = getSequenceByNo(pattern.curSeqNo, indexText(needle(pattern)));
-        TInfix const patternInfix = infix(pattern, patternSeq);
-        TInfix const patternInfixSeq = infix(patternSeq, 0, length(patternSeq));
-        Segment<TInfix, InfixSegment> patternSegment(patternInfixSeq,
-            beginPosition(patternInfix) - beginPosition(patternSeq),
-            endPosition(patternInfix) - beginPosition(patternSeq));
+        Segment<TInfix, InfixSegment> patternSegment
+            = StellarQuerySegment<TAlphabet>::fromPatternMatch(pattern).asPatternSegment();
 
         ////Debug stuff:
         //std::cout << beginPosition(finderInfix) << ",";
