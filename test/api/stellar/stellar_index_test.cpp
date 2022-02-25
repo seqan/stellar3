@@ -1,9 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <stellar/stellar_index.hpp>
-#include <stellar/stellar_database_segment.hpp>
-#include <stellar/stellar_query_segment.hpp>
-#include <stellar/stellar_query_segment.tpp>
+#include <stellar/stellar.hpp>
 
 namespace seqan {
 
@@ -91,8 +88,34 @@ struct results
     // Note: verifySwiftHit's delta is the sum of pattern_delta + pattern_overlap
     std::vector<unsigned> pattern_deltas{};
     std::vector<unsigned> pattern_overlaps{};
+    std::vector<unsigned> verify_deltas{};
     std::vector<TAlignment> alignments{};
+    stellar::StellarComputeStatistics statistics{};
 };
+
+// Hijack SwiftHitVerifier for testing.
+namespace stellar
+{
+struct TVerifyPassthroughSeed{};
+
+template <>
+struct SwiftHitVerifier<TVerifyPassthroughSeed>
+{
+    double const epsilon;
+    int const minLength;
+    double const xDrop;
+
+    template <typename TAlphabet, typename TDelta, typename TOnAlignmentResultFn>
+    void verify(StellarDatabaseSegment<TAlphabet> const & databaseSegment,
+                StellarQuerySegment<TAlphabet> const & querySegment,
+                TDelta const delta,
+                TOnAlignmentResultFn && onAlignmentResult)
+    {
+        onAlignmentResult(databaseSegment, querySegment, delta);
+    }
+};
+
+} // namespace stellar
 
 template <typename TAlphabet, typename TypeParam>
 results<TAlphabet> stellar_kernel_swift_seeds(
@@ -145,17 +168,30 @@ results<TAlphabet> stellar_kernel_swift_seeds(
 
     TResults results{};
 
-    while (seqan::find(swiftFinder, swiftPattern, options.epsilon, options.minLength)) {
-        TDatabaseSegment const databaseSegment = TDatabaseSegment::fromFinderMatch(seqan::infix(swiftFinder));
-        TQuerySegment const querySegment = TQuerySegment::fromPatternMatch(swiftPattern);
+    stellar::SwiftHitVerifier<stellar::TVerifyPassthroughSeed> verifier
+    {
+        STELLAR_DESIGNATED_INITIALIZER(.epsilon =, options.epsilon),
+        STELLAR_DESIGNATED_INITIALIZER(.minLength =, options.minLength),
+        STELLAR_DESIGNATED_INITIALIZER(.xDrop =, options.xDrop)
+    };
+    auto isPatternDisabled = [](...){ return false; };
 
+    results.statistics = stellar::_stellarKernel(
+        swiftFinder,
+        swiftPattern,
+        verifier,
+        isPatternDisabled,
+        [&](TDatabaseSegment const & databaseSegment, TQuerySegment const & querySegment, unsigned const delta)
+    {
         // should always be the same number
         results.pattern_deltas.emplace_back(swiftPattern.bucketParams[0].delta);
         // should always be the same number
         results.pattern_overlaps.emplace_back(swiftPattern.bucketParams[0].overlap);
+        // should always be the same number = pattern_deltas + pattern_overlaps
+        results.verify_deltas.emplace_back(delta);
         // different for each invocation
         results.alignments.emplace_back(databaseSegment, querySegment);
-    }
+    });
 
     // sort alignments by query and not database
     std::sort(results.alignments.begin(), results.alignments.end(), [&](auto const & v1, auto const & v2)
@@ -195,6 +231,10 @@ TYPED_TEST(StellarIndexTest, validSeedWithExactMatches)
     using TResults = results<TAlphabet>;
     TResults results = stellar_kernel_swift_seeds(*this, database, queries, options);
 
+    EXPECT_EQ(results.statistics.numSwiftHits, 6u);
+    EXPECT_EQ(results.statistics.totalLength, 16u + 9u + 9u + 9u + 15u + 9u);
+    EXPECT_EQ(results.statistics.maxLength, 16u);
+    EXPECT_EQ(results.verify_deltas, (std::vector<unsigned>{16u, 16u, 16u, 16u, 16u, 16u}));
     EXPECT_EQ(results.pattern_deltas, (std::vector<unsigned>{16u, 16u, 16u, 16u, 16u, 16u}));
     EXPECT_EQ(results.pattern_overlaps, (std::vector<unsigned>{0u, 0u, 0u, 0u, 0u, 0u}));
 
@@ -266,6 +306,10 @@ TYPED_TEST(StellarIndexTest, validSeedWithOneErrorMatches)
     using TResults = results<TAlphabet>;
     TResults results = stellar_kernel_swift_seeds(*this, database, queries, options);
 
+    EXPECT_EQ(results.statistics.numSwiftHits, 6u);
+    EXPECT_EQ(results.statistics.totalLength, 16u + 16u + 9u + 9u + 15u + 9u);
+    EXPECT_EQ(results.statistics.maxLength, 16u);
+    EXPECT_EQ(results.verify_deltas, (std::vector<unsigned>{22u, 22u, 22u, 22u, 22u, 22u}));
     EXPECT_EQ(results.pattern_deltas, (std::vector<unsigned>{16u, 16u, 16u, 16u, 16u, 16u}));
     EXPECT_EQ(results.pattern_overlaps, (std::vector<unsigned>{6u, 6u, 6u, 6u, 6u, 6u}));
 
