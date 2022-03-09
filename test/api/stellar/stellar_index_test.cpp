@@ -101,7 +101,7 @@ struct TVerifyPassthroughSeed{};
 template <>
 struct SwiftHitVerifier<TVerifyPassthroughSeed>
 {
-    double const epsilon;
+    stellar::utils::fraction const epsilon;
     int const minLength;
     double const xDrop;
 
@@ -225,7 +225,7 @@ TYPED_TEST(StellarIndexTest, validSeedWithExactMatches)
     size_t const kmerSize = 7u;
     stellar::StellarOptions options{};
     options.qGram = kmerSize;
-    options.epsilon = 0.01;
+    options.epsilon = {1, 100};
     options.minLength = 9u;
 
     using TResults = results<TAlphabet>;
@@ -300,7 +300,7 @@ TYPED_TEST(StellarIndexTest, validSeedWithOneErrorMatches)
     size_t const kmerSize = 7u;
     stellar::StellarOptions options{};
     options.qGram = kmerSize;
-    options.epsilon = 0.125; // 9 length * 0.125 error-rate = 1 error
+    options.epsilon = {1, 8}; // 9 length * 0.125 error-rate = 1 error
     options.minLength = 9u;
 
     using TResults = results<TAlphabet>;
