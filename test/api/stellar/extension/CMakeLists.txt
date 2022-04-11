@@ -1,0 +1,1 @@
+add_api_test (extension_banded_trace_matrix_test.cpp)
