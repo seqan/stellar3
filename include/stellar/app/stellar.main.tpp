@@ -31,6 +31,7 @@
 #include <stellar/stellar_index.hpp>
 #include <stellar/stellar_output.hpp>
 #include <stellar/database_id_map.hpp>
+#include <stellar/utils/stellar_app_runtime.hpp>
 
 #include <stellar/parallel/compute_statistics_collection.hpp>
 
@@ -292,9 +293,11 @@ _stellarMain(
     StringSet<TId> const & queryIDs,
     StellarOptions const & options,
     std::ofstream & outputFile,
-    std::ofstream & disabledQueriesFile)
+    std::ofstream & disabledQueriesFile,
+    stellar_app_runtime & stellar_runtime)
 {
     // pattern
+    auto current_time = stellar_runtime.swift_index_construction_time.now();
     StellarIndex<TAlphabet> stellarIndex{queries, options};
     StellarSwiftPattern<TAlphabet> swiftPattern = stellarIndex.createSwiftPattern();
 
@@ -305,6 +308,7 @@ _stellarMain(
     std::cout << "Constructing index..." << std::endl;
     stellarIndex.construct();
     std::cout << std::endl;
+    stellar_runtime.swift_index_construction_time.manual_timing(current_time);
 
     std::cout << "Aligning all query sequences to database sequence..." << std::endl;
 
@@ -316,6 +320,8 @@ _stellarMain(
     // positive database strand
     if (options.forward)
     {
+        stellar_runtime.forward_strand_stellar_time.measure_time([&]()
+        {
         // container for eps-matches
         StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > forwardMatches;
         resize(forwardMatches, length(queries));
@@ -344,15 +350,21 @@ _stellarMain(
         }
 
         outputStatistics = _computeOutputStatistics(forwardMatches);
+        }); // measure_time
     }
 
     // negative (reverse complemented) database strand
     bool const reverse = options.reverse && options.alphabet != "protein" && options.alphabet != "char";
     if (reverse)
     {
+        stellar_runtime.reverse_complement_database_time.measure_time([&]()
+        {
         for (size_t i = 0; i < length(databases); ++i)
             reverseComplement(databases[i]);
+        }); // measure_time
 
+        stellar_runtime.reverse_strand_stellar_time.measure_time([&]()
+        {
         // container for eps-matches
         StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > reverseMatches;
         resize(reverseMatches, length(queries));
@@ -381,14 +393,18 @@ _stellarMain(
         }
 
         outputStatistics.mergeIn(_computeOutputStatistics(reverseMatches));
+        }); // measure_time
     }
     std::cout << std::endl;
 
     // Writes disabled query sequences to disabledFile.
     if (disabledQueriesFile.is_open())
     {
+        stellar_runtime.output_disabled_queries_time.measure_time([&]()
+        {
         // write disabled query file
         _writeDisabledQueriesToFastaFile(disabledQueryIDs, queryIDs, queries, disabledQueriesFile);
+        }); // measure_time
     }
 
     _writeOutputStatistics(outputStatistics, options.verbose, disabledQueriesFile.is_open());
@@ -468,6 +484,9 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
 {
     typedef String<TAlphabet> TSequence;
 
+    stellar_app_runtime stellar_time{};
+    auto current_time = stellar_time.now();
+
     // set threads
     omp_set_num_threads(options.threadCount);
 
@@ -481,13 +500,21 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
     // import query sequences
     StringSet<TSequence> queries;
     StringSet<CharString> queryIDs;
-    if (!_importSequences(options.queryFile, "query", queries, queryIDs))
+    bool const queriesSuccess = stellar_time.input_queries_time.measure_time([&]()
+    {
+        return _importSequences(options.queryFile, "query", queries, queryIDs);
+    });
+    if (!queriesSuccess)
         return 1;
 
     // import database sequence
     StringSet<TSequence> databases;
     StringSet<CharString> databaseIDs;
-    if (!_importSequences(options.databaseFile, "database", databases, databaseIDs))
+    bool const databasesSuccess = stellar_time.input_databases_time.measure_time([&]()
+    {
+        return _importSequences(options.databaseFile, "database", databases, databaseIDs);
+    });
+    if (!databasesSuccess)
         return 1;
 
     std::cout << std::endl;
@@ -513,13 +540,24 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
     }
 
     // stellar on all databases and queries writing results to file
-
-    double startTime = sysTime();
-    if (!_stellarMain(databases, databaseIDs, queries, queryIDs, options, outputFile, disabledQueriesFile))
+    if (!_stellarMain(databases, databaseIDs, queries, queryIDs, options, outputFile, disabledQueriesFile, stellar_time))
         return 1;
 
     if (options.verbose && options.noRT == false)
-        std::cout << "Running time: " << sysTime() - startTime << "s" << std::endl;
+    {
+        stellar_time.manual_timing(current_time);
+
+        std::cout << "Running time: " << stellar_time.milliseconds() << "ms" << std::endl;
+        std::cout << " * Stellar Application Time: " << stellar_time.milliseconds() << "ms" << std::endl;
+        std::cout << "    + File Input Queries Time: " << stellar_time.input_queries_time.milliseconds() << "ms" << std::endl;
+        std::cout << "    + File Input Databases Time: " << stellar_time.input_databases_time.milliseconds() << "ms" << std::endl;
+        std::cout << "    + SwiftFilter Construction Time: " << stellar_time.swift_index_construction_time.milliseconds() << "ms" << std::endl;
+        std::cout << "    + Stellar Forward Strand Time: " << stellar_time.forward_strand_stellar_time.milliseconds() << "ms" << std::endl;
+        std::cout << "    + Database Reverse Complement Time: " << stellar_time.reverse_complement_database_time.milliseconds() << "ms" << std::endl;
+        std::cout << "    + Stellar Reverse Strand Time: " << stellar_time.reverse_strand_stellar_time.milliseconds() << "ms" << std::endl;
+        std::cout << "    + File Output Disabled Queries Time: " << stellar_time.output_disabled_queries_time.milliseconds() << "ms" << std::endl;
+        std::cout << "    = total time: " << stellar_time.total_time().milliseconds() << "ms" << std::endl;
+    }
 
     return 0;
 }
