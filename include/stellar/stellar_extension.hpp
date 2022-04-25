@@ -24,28 +24,13 @@
 #ifndef SEQAN_HEADER_STELLAR_EXTENSION_H
 #define SEQAN_HEADER_STELLAR_EXTENSION_H
 
+#include <stellar/extension/extension_end_position.hpp>
+
 #include <seqan/seeds.h>
 
 namespace stellar
 {
 using namespace seqan;
-
-///////////////////////////////////////////////////////////////////////////////
-// Container for storing possible end positions in extension of eps-core
-template<typename TPos_>
-struct ExtensionEndPosition {
-    typedef TPos_           TPosition;
-    typedef Pair<TPosition> TCoordinate;
-
-    TPosition length;
-    TCoordinate coord;
-
-    ExtensionEndPosition():
-        length(0), coord(TCoordinate(0,0)) {}
-
-    ExtensionEndPosition(TPosition len, TPosition row, TPosition col):
-        length(len), coord(TCoordinate(row, col)) {}
-};
 
 ///////////////////////////////////////////////////////////////////////////////
 // returns true if align has a match at pos, otherwise false
