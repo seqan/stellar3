@@ -81,8 +81,8 @@ _align_banded_nw_best_ends(TTrace& trace,
         TRowIter matIt = begin(mat, Standard()) + lo_diag;
         TRowIter lenIt = begin(len, Standard()) + lo_diag;
 
-        TScoreValue hori_val = std::numeric_limits<TScoreValue>::min();
-        TScoreValue hori_len = len1+len2+1;
+        TScoreValue score_left = std::numeric_limits<TScoreValue>::min();
+        TScoreValue length_left = len1+len2+1;
 
         for(TSize col = lo_diag; col<hi_diag; ++col, ++matIt, ++traceIt, ++lenIt) {
             TSize actualCol = col + diagL + actualRow;
@@ -97,30 +97,30 @@ _align_banded_nw_best_ends(TTrace& trace,
                 *traceIt = Diagonal;
                 ++(*lenIt);
 
-                TScoreValue verti_val =
+                TScoreValue score_up =
                     (col < diagonalWidth - 1) ?
                     *(matIt+1) + gapScore :
                     std::numeric_limits<TScoreValue>::min();
 
-                if (verti_val > *matIt)
+                if (score_up > *matIt)
                 {
-                    *matIt = verti_val;
+                    *matIt = score_up;
                     *traceIt = Vertical;
                     *lenIt = *(lenIt+1) + 1;
                 }
 
-                hori_val =
+                score_left =
                     (col > 0) ?
-                    hori_val + gapScore :
+                    score_left + gapScore :
                     std::numeric_limits<TScoreValue>::min();
-                if (hori_val > *matIt)
+                if (score_left > *matIt)
                 {
-                    *matIt = hori_val;
+                    *matIt = score_left;
                     *traceIt = Horizontal;
-                    *lenIt = hori_len + 1;
+                    *lenIt = length_left + 1;
                 }
-                hori_val = *matIt;
-                hori_len = *lenIt;
+                score_left = *matIt;
+                length_left = *lenIt;
             } else {
                 // Usual initialization for first row and column
                 if (actualRow == 0) {
@@ -130,8 +130,8 @@ _align_banded_nw_best_ends(TTrace& trace,
                 else {
                     *matIt = actualRow * gapScore;
                     *lenIt = actualRow;
-                    hori_val = *matIt;
-                    hori_len = actualRow;
+                    score_left = *matIt;
+                    length_left = actualRow;
                 }
             }
 
