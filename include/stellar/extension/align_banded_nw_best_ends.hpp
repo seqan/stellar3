@@ -23,6 +23,7 @@ _align_banded_nw_best_ends(TTrace& trace,
     typedef typename Value<TScore>::Type TScoreValue;
     typedef typename Value<TStringSet>::Type TString;
     typedef typename Size<TTrace>::Type TSize;
+    using TAlphabet = typename Value<TString>::Type;
 
     SEQAN_ASSERT_GEQ(diagU, diagL);
 
@@ -61,14 +62,8 @@ _align_banded_nw_best_ends(TTrace& trace,
     // Classical DP with affine gap costs
     typedef typename Iterator<TRow, Standard>::Type TRowIter;
     typedef typename Iterator<TTrace, Standard>::Type TTraceIter;
-    TSize actualCol = 0;
-    TSize actualRow = 0;
-    TScoreValue verti_val = 0;
-    TScoreValue hori_val = 0;
-    TScoreValue hori_len = len1+len2+1;
-    TSize errors;
 
-    using TAlphabet [[maybe_unused]] = typename Value<TString>::Type;
+    TSize errors;
 
     assert(scoreMatch(sc) == 1u);
     assert(scoreGap(sc) == scoreGapExtendHorizontal(sc, TAlphabet{}, TAlphabet{}));
@@ -79,16 +74,18 @@ _align_banded_nw_best_ends(TTrace& trace,
     TScoreValue const gapScore = scoreGap(sc);
 
     for(TSize row = 0; row < height; ++row) {
-        actualRow = row + lo_row;
+        TSize actualRow = row + lo_row;
         if (lo_diag > 0) --lo_diag;
         if ((TDiagonal)actualRow >= (TDiagonal)len1 - diagU) --hi_diag;
         TTraceIter traceIt = begin(trace, Standard()) + row * diagonalWidth + lo_diag;
         TRowIter matIt = begin(mat, Standard()) + lo_diag;
         TRowIter lenIt = begin(len, Standard()) + lo_diag;
-        hori_val = std::numeric_limits<TScoreValue>::min();
-        hori_len = len1+len2+1;
+
+        TScoreValue hori_val = std::numeric_limits<TScoreValue>::min();
+        TScoreValue hori_len = len1+len2+1;
+
         for(TSize col = lo_diag; col<hi_diag; ++col, ++matIt, ++traceIt, ++lenIt) {
-            actualCol = col + diagL + actualRow;
+            TSize actualCol = col + diagL + actualRow;
             if (actualCol >= len1) break;
 
             if ((actualRow != 0) && (actualCol != 0)) {
@@ -100,7 +97,7 @@ _align_banded_nw_best_ends(TTrace& trace,
                 *traceIt = Diagonal;
                 ++(*lenIt);
 
-                verti_val =
+                TScoreValue verti_val =
                     (col < diagonalWidth - 1) ?
                     *(matIt+1) + gapScore :
                     std::numeric_limits<TScoreValue>::min();
