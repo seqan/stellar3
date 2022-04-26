@@ -97,7 +97,7 @@ struct extension_banded_trace_matrix
         size_t const rowEnd = [&]()
         {
             size_t const maxRowEnd = _rowCount;
-            assert (_columnCount >= _lowerDiagonal);
+            assert ((diagonal_t)_columnCount >= _lowerDiagonal);
             if (_columnCount - _lowerDiagonal < maxRowEnd)
                 return _columnCount - _lowerDiagonal;
             else

@@ -69,6 +69,8 @@ _align_banded_nw_best_ends(TTrace& trace,
     TSize errors;
 
     using TAlphabet [[maybe_unused]] = typename Value<TString>::Type;
+
+    assert(scoreMatch(sc) == 1u);
     assert(scoreGap(sc) == scoreGapExtendHorizontal(sc, TAlphabet{}, TAlphabet{}));
     assert(scoreGap(sc) == scoreGapExtendVertical(sc, TAlphabet{}, TAlphabet{}));
     assert(scoreMismatch(sc) == scoreGap(sc));
