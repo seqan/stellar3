@@ -484,30 +484,21 @@ _bestExtension(Segment<TSequence const, InfixSegment> const & infH,
 
     // fill banded matrix and gaps string for ...
     if (direction == EXTEND_BOTH || direction == EXTEND_LEFT) { // ... extension to the left
-        // Note: We copy one character more before the sequence, because _align_banded_nw_best_ends for whatever reason
-        // access the sequence at position -1 (WTF?!).
-
-        // prepare copy segment... (one char more to account -1 access)
-        reserve(sequenceCopyLeftH, beginPositionH(seedOld) - beginPositionH(seed) + 1);
-        reserve(sequenceCopyLeftV, beginPositionV(seedOld) - beginPositionV(seed) + 1);
+        // prepare copy segment...
+        reserve(sequenceCopyLeftH, beginPositionH(seedOld) - beginPositionH(seed));
+        reserve(sequenceCopyLeftV, beginPositionV(seedOld) - beginPositionV(seed));
 
         // ...copy segment...
         append(sequenceCopyLeftH, infix(host(infH), beginPositionH(seed), beginPositionH(seedOld)));
         append(sequenceCopyLeftV, infix(host(infV), beginPositionV(seed), beginPositionV(seedOld)));
-
-        // ... add a single (default) character X at the end ...
-        using TAlphabet = typename Value<TSequence>::Type;
-        appendValue(sequenceCopyLeftH, TAlphabet{});
-        appendValue(sequenceCopyLeftV, TAlphabet{});
 
         // ...and reverse local copy
         reverse(sequenceCopyLeftH);
         reverse(sequenceCopyLeftV);
 
         // put infix segments
-        // Note: Position 0 has the default char for -1 access, after that we have the reversed sequence
-        appendValue(sequencesLeft, infix(sequenceCopyLeftH, 1 /*See above (WTF?!)*/, length(sequenceCopyLeftH)));
-        appendValue(sequencesLeft, infix(sequenceCopyLeftV, 1 /*See above (WTF?!)*/, length(sequenceCopyLeftV)));
+        appendValue(sequencesLeft, infix(sequenceCopyLeftH, 0, length(sequenceCopyLeftH)));
+        appendValue(sequencesLeft, infix(sequenceCopyLeftV, 0, length(sequenceCopyLeftV)));
 
         _fillMatrixBestEndsLeft(matrixLeft, possibleEndsLeft, sequencesLeft, diagLowerLeft, diagUpperLeft, scoreMatrix);
         SEQAN_ASSERT_NOT(empty(possibleEndsLeft));
