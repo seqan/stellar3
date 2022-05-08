@@ -58,6 +58,14 @@ _align_banded_nw_best_ends(TTrace& trace,
     TScoreValue hori_len = len1+len2+1;
     TSize errors;
 
+    using TAlphabet [[maybe_unused]] = typename Value<TString>::Type;
+    assert(scoreGap(sc) == scoreGapExtendHorizontal(sc, TAlphabet{}, TAlphabet{}));
+    assert(scoreGap(sc) == scoreGapExtendVertical(sc, TAlphabet{}, TAlphabet{}));
+    assert(scoreMismatch(sc) == scoreGap(sc));
+
+    TScoreValue const matchScore = scoreMatch(sc);
+    TScoreValue const gapScore = scoreGap(sc);
+
     for(TSize row = 0; row < height; ++row) {
         actualRow = row + lo_row;
         if (lo_diag > 0) --lo_diag;
@@ -72,22 +80,31 @@ _align_banded_nw_best_ends(TTrace& trace,
             if (actualCol >= len1) break;
 
             if ((actualRow != 0) && (actualCol != 0)) {
+                TAlphabet const str1entry = sequenceEntryForScore(sc, str1, ((int) actualCol - 1));
+                TAlphabet const str2entry = sequenceEntryForScore(sc, str2, ((int) actualRow - 1));
+
                 // Get the new maximum for mat
-                *matIt += score(const_cast<TScore&>(sc), sequenceEntryForScore(const_cast<TScore&>(sc), str1, ((int) actualCol - 1)),
-                                sequenceEntryForScore(const_cast<TScore&>(sc), str2, ((int) actualRow - 1)));
+                *matIt += score(sc, str1entry, str2entry);
                 *traceIt = Diagonal;
                 ++(*lenIt);
-                if ((verti_val = (col < diagonalWidth - 1) ? *(matIt+1) +
-                    scoreGapExtendVertical(sc,sequenceEntryForScore(sc, str1, ((int) actualCol - 1)),
-                                           sequenceEntryForScore(sc, str2, ((int) actualRow - 1))) : std::numeric_limits<TScoreValue>::min()) > *matIt)
+
+                verti_val =
+                    (col < diagonalWidth - 1) ?
+                    *(matIt+1) + gapScore :
+                    std::numeric_limits<TScoreValue>::min();
+
+                if (verti_val > *matIt)
                 {
                     *matIt = verti_val;
                     *traceIt = Vertical;
                     *lenIt = *(lenIt+1) + 1;
                 }
-                if ((hori_val = (col > 0) ? hori_val +
-                    scoreGapExtendHorizontal(sc, sequenceEntryForScore(sc, str1, ((int) actualCol - 1)),
-                                             sequenceEntryForScore(sc, str2, ((int) actualRow - 1))) : std::numeric_limits<TScoreValue>::min()) > *matIt)
+
+                hori_val =
+                    (col > 0) ?
+                    hori_val + gapScore :
+                    std::numeric_limits<TScoreValue>::min();
+                if (hori_val > *matIt)
                 {
                     *matIt = hori_val;
                     *traceIt = Horizontal;
@@ -98,20 +115,17 @@ _align_banded_nw_best_ends(TTrace& trace,
             } else {
                 // Usual initialization for first row and column
                 if (actualRow == 0) {
-                    *matIt = actualCol * scoreGapExtendHorizontal(sc, sequenceEntryForScore(sc, str1, ((int) actualCol - 1)),
-                                                                  sequenceEntryForScore(sc, str2, -1));
+                    *matIt = actualCol * gapScore;
                     *lenIt = actualCol;
                 }
                 else {
-                    *matIt = actualRow * scoreGapExtendVertical(sc, sequenceEntryForScore(sc, str1, -1),
-                                                                sequenceEntryForScore(sc, str2, ((int) actualRow - 1)));
+                    *matIt = actualRow * gapScore;
                     *lenIt = actualRow;
                     hori_val = *matIt;
                     hori_len = actualRow;
                 }
             }
-            errors = (*matIt - (*lenIt * scoreMatch(const_cast<TScore&>(sc)))) /
-                        (scoreGap(const_cast<TScore&>(sc)) - scoreMatch(const_cast<TScore&>(sc)));
+            errors = (*matIt - (*lenIt * matchScore)) / (gapScore - matchScore);
             SEQAN_ASSERT_LEQ(errors, length(bestEnds));
             if (errors == length(bestEnds)) {
                     appendValue(bestEnds, TEnd(*lenIt, row, col));
