@@ -181,6 +181,9 @@ struct StellarStatistics
 
     StellarStatistics(StellarOptions const & options)
     {
+        if (!(options.epsilon >= 0.0 && options.epsilon < 1.0))
+            throw std::domain_error{"Epsilon must be between >= 0.0 and < 1.0."};
+
         size_t n0 = options.minLength; // min length
         size_t e0 = StellarOptions::absoluteErrors(options.epsilon, n0);
         // nearest length (after min length) that has exactly e0 + 1 many absolute errors
@@ -191,11 +194,16 @@ struct StellarStatistics
         unsigned smin1 = StellarOptions::pigeonholeLemma(n1, e1);
         smin = (unsigned) std::min(smin0, smin1);
 
+        assert(n1 >= n0);
+
         kMerLength = options.qGram;
         kMerComputed = options.qGram == (unsigned)-1;
 
         if (kMerComputed)
             kMerLength = std::min(std::max(1u, smin), 32u);
+
+        if (kMerLength > (unsigned)options.minLength)
+            throw std::domain_error{"qGram must be smaller than minLength."};
 
         size_t threshold0 = StellarOptions::kmerLemma(n0, kMerLength, e0);
         size_t threshold1 = StellarOptions::kmerLemma(n1, kMerLength, e1);
