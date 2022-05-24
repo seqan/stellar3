@@ -27,20 +27,30 @@ _align_banded_nw_best_ends(TTrace& trace,
     SEQAN_ASSERT_GEQ(diagU, diagL);
 
     // Initialization
-    TTraceValue Diagonal = 0; TTraceValue Horizontal = 1; TTraceValue Vertical = 2;
+    TTraceValue const Diagonal = 0;
+    TTraceValue const Horizontal = 1;
+    TTraceValue const Vertical = 2;
     TString const& str1 = str[0];
     TString const& str2 = str[1];
-    TSize len1 = length(str1) + 1;
-    TSize len2 = length(str2) + 1;
-    TSize diagonalWidth = (TSize) (diagU - diagL + 1);
+    TSize const len1 = length(str1) + 1;
+    TSize const len2 = length(str2) + 1;
+    TSize const diagonalWidth = (TSize) (diagU - diagL + 1);
     TSize hi_diag = diagonalWidth;
     TSize lo_diag = 0;
     if (diagL > 0) lo_diag = 0;
     else lo_diag = (diagU < 0) ? hi_diag : (TSize) (1 - diagL);
-    TSize lo_row = (diagU <= 0) ? -diagU : 0;
-    TSize hi_row = len2;
-    if (len1 - diagL < hi_row) hi_row = len1 - diagL;
-    TSize height = hi_row - lo_row;
+    TSize const lo_row = (diagU <= 0) ? -diagU : 0;
+    TSize const hi_row = [&]()
+    {
+        TSize const max_hi_row = len2;
+        // Note: diagL might be negative
+        assert((TDiagonal) len1 >= diagL);
+        if (len1 - diagL < max_hi_row)
+            return len1 - diagL;
+        else
+            return max_hi_row;
+    }();
+    TSize const height = hi_row - lo_row;
 
     typedef String<TScoreValue> TRow;
     TRow mat, len;
@@ -125,10 +135,27 @@ _align_banded_nw_best_ends(TTrace& trace,
                     hori_len = actualRow;
                 }
             }
+
+            // *matIt: the alignment_score
+            // *lenIt: the alignment_length (basically length of best trace path of the current cell)
+            // alignment_length = |matches| + |mismatches| + |gaps|
+            //
+            // alignment_score
+            //     = |matches| * match_score + |mismatches| * gap_score + |gaps| * gap_score
+            //
+            // alignment_length * match_score
+            //     = |matches| * match_score + |mismatches| * match_score + |gaps| * match_score
+            //
+            // alignment_score - alignment_length * match_score
+            //     = 0 + (|mismatches| + |gaps|)(gap_score - match_score)
+            //
+            // Thus
+            //   (alignment_score - alignment_length * match_score) / (gapScore - matchScore)
+            // = |mismatches| + |gaps| = errors
             errors = (*matIt - (*lenIt * matchScore)) / (gapScore - matchScore);
             SEQAN_ASSERT_LEQ(errors, length(bestEnds));
             if (errors == length(bestEnds)) {
-                    appendValue(bestEnds, TEnd(*lenIt, row, col));
+                appendValue(bestEnds, TEnd(*lenIt, row, col));
             } else if (*lenIt > static_cast<TScoreValue>(value(bestEnds, errors).length))
                 value(bestEnds, errors) = TEnd(*lenIt, row, col);
             //std::cerr << row << ',' << col << ':' << *matIt << std::endl;
