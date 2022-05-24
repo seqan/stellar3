@@ -181,25 +181,27 @@ struct StellarStatistics
 
     StellarStatistics(StellarOptions const & options)
     {
-        int n0 = options.minLength; // min length
-        int e0 = StellarOptions::absoluteErrors(options.epsilon, n0);
+        size_t n0 = options.minLength; // min length
+        size_t e0 = StellarOptions::absoluteErrors(options.epsilon, n0);
         // nearest length (after min length) that has exactly e0 + 1 many absolute errors
-        int n1 = StellarOptions::minLengthWithExactError(e0 + 1, options.epsilon);
-        int e1 = StellarOptions::absoluteErrors(options.epsilon, n1);
+        size_t n1 = StellarOptions::minLengthWithExactError(e0 + 1, options.epsilon);
+        size_t e1 = e0 + 1;
+
         unsigned smin0 = StellarOptions::pigeonholeLemma(n0, e0);
         unsigned smin1 = StellarOptions::pigeonholeLemma(n1, e1);
-        smin = (unsigned) _min(smin0, smin1);
+        smin = (unsigned) std::min(smin0, smin1);
 
         kMerLength = options.qGram;
         kMerComputed = options.qGram == (unsigned)-1;
 
         if (kMerComputed)
-            kMerLength = (unsigned)_min(smin, 32u);
+            kMerLength = std::min(std::max(1u, smin), 32u);
 
-        int threshold0 = StellarOptions::kmerLemma(n0, kMerLength, e0);
-        int threshold1 = StellarOptions::kmerLemma(n1, kMerLength, e1);
-        threshold = (int) _max(1, (int) _min(threshold0, threshold1));
-        overlap = (int) floor((2 * threshold + kMerLength - 3) / (1 / options.epsilon - kMerLength));
+        size_t threshold0 = StellarOptions::kmerLemma(n0, kMerLength, e0);
+        size_t threshold1 = StellarOptions::kmerLemma(n1, kMerLength, e1);
+        threshold = std::max(size_t{1u}, std::min(threshold0, threshold1));
+
+        overlap = (int) floor((2 * threshold + kMerLength - 3) / (1 / (double)options.epsilon - kMerLength));
         distanceCut = (threshold - 1) + kMerLength * overlap + kMerLength;
         int logDelta = _max(4, (int) ceil(log((double)overlap + 1) / log(2.0)));
         delta = 1 << logDelta;
