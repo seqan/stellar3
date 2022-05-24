@@ -26,6 +26,8 @@
 
 #include <seqan/align.h>
 
+#include <stellar/utils/fraction.hpp>
+
 #if __cpp_designated_initializers || __GNUC__ >= 8
 #   define STELLAR_DESIGNATED_INITIALIZER(designator, value) designator value
 #else
@@ -94,7 +96,7 @@ struct StellarOptions {
 
     // main options
     unsigned qGram;             // length of the q-grams
-    double epsilon;             // maximal error rate
+    stellar::utils::fraction epsilon{5, 100}; // maximal error rate
     int minLength;              // minimal length of an epsilon-match
     double xDrop;               // maximal x-drop
 
@@ -121,7 +123,6 @@ struct StellarOptions {
         noRT = false;
 
         qGram = std::numeric_limits<unsigned>::max();
-        epsilon = 0.05;
         minLength = 100;
         xDrop = 5;
 
@@ -155,17 +156,23 @@ struct StellarOptions {
     {
         assert(sequenceLength >= errors);
         // how many consecutive chars must be error free
-        return ceil((double)(sequenceLength - errors) / (errors + 1));
+        using difference_t = stellar::utils::fraction::difference_t;
+        return ceil(stellar::utils::fraction{static_cast<difference_t>(sequenceLength - errors), errors + 1});
     }
 
-    static constexpr size_t minLengthWithExactError(size_t absoluteError, double epsilon)
+    static constexpr size_t minLengthWithExactError(size_t absoluteError, stellar::utils::fraction epsilon)
     {
-        return (size_t) ceil(absoluteError / epsilon);
+        if (epsilon.numerator() == 0)
+            return std::numeric_limits<size_t>::max();
+
+        using difference_t = stellar::utils::fraction::difference_t;
+        return ceil(stellar::utils::fraction{static_cast<difference_t>(absoluteError), 1} / epsilon);
     }
 
-    static constexpr size_t absoluteErrors(double epsilon, size_t sequenceLength)
+    static constexpr size_t absoluteErrors(stellar::utils::fraction epsilon, size_t sequenceLength)
     {
-        return (size_t) floor(epsilon * sequenceLength);
+        using difference_t = stellar::utils::fraction::difference_t;
+        return floor(stellar::utils::fraction{static_cast<difference_t>(sequenceLength), 1} * epsilon);
     }
 };
 
@@ -181,7 +188,7 @@ struct StellarStatistics
 
     StellarStatistics(StellarOptions const & options)
     {
-        if (!(options.epsilon >= 0.0 && options.epsilon < 1.0))
+        if (!options.epsilon.is_proper())
             throw std::domain_error{"Epsilon must be between >= 0.0 and < 1.0."};
 
         size_t n0 = options.minLength; // min length
@@ -195,6 +202,7 @@ struct StellarStatistics
         smin = (unsigned) std::min(smin0, smin1);
 
         assert(n1 >= n0);
+        assert(options.epsilon.numerator() == 0 || StellarOptions::absoluteErrors(options.epsilon, n1) == e1);
 
         kMerLength = options.qGram;
         kMerComputed = options.qGram == (unsigned)-1;
