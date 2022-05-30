@@ -302,13 +302,7 @@ _stellarOnWholeDatabase(StringSet<String<TAlphabet> > const & databases,
     } // parallel region - end
 
     // standard output:
-    std::cerr << std::endl; // swift filter output is on same line
-    for (size_t i = 0; i < length(databases); ++i)
-    {
-        CharString const & databaseID = databaseIDs[i];
-        StellarComputeStatistics const & statistics = computeStatistics[i];
-        _printDatabaseIdAndStellarKernelStatistics(options.verbose, databaseStrand, databaseID, statistics);
-    }
+    _printParallelPrefilterStellarStatistics(options.verbose, databaseStrand, databaseIDs, computeStatistics);
 
     _postproccessQueryMatches(databaseStrand, options, matches, disabledQueryIDs);
 

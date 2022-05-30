@@ -2,6 +2,7 @@
 #pragma once
 
 #include <stellar/stellar_types.hpp>
+#include <stellar/parallel/compute_statistics_collection.hpp>
 
 namespace stellar
 {
@@ -35,6 +36,12 @@ void _printDatabaseIdAndStellarKernelStatistics(
     bool const databaseStrand,
     CharString const & databaseID,
     StellarComputeStatistics const & statistics);
+
+void _printParallelPrefilterStellarStatistics(
+    bool const verbose,
+    bool const databaseStrand,
+    StringSet<CharString> const & databaseIDs,
+    StellarComputeStatisticsCollection const & computeStatistics);
 
 } // namespace stellar::app
 
