@@ -206,16 +206,14 @@ void _postproccessQueryMatches(bool const databaseStrand, StellarOptions const &
 }
 
 template <typename TAlphabet, typename TId>
-inline StellarOutputStatistics
+inline StellarComputeStatisticsCollection
 _stellarOnWholeDatabase(StringSet<String<TAlphabet> > const & databases,
                         StringSet<TId> const & databaseIDs,
                         StringSet<String<TAlphabet> > const & queries,
-                        StringSet<TId> const & queryIDs,
                         bool const databaseStrand,
-                        StellarOptions & options,
+                        StellarOptions const & options,
                         StellarSwiftPattern<TAlphabet> & swiftPattern,
-                        std::vector<size_t> & disabledQueryIDs,
-                        std::ofstream & outputFile)
+                        StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > & matches)
 {
     using TSequence = String<TAlphabet>;
 
@@ -226,10 +224,6 @@ _stellarOnWholeDatabase(StringSet<String<TAlphabet> > const & databases,
     using TDatabaseSegments = typename TPrefilter::TDatabaseSegments;
 
     TPrefilter prefilter{databases, TQueryFilter{swiftPattern} /*copy pattern*/, TSplitter{}};
-
-    // container for eps-matches
-    StringSet<QueryMatches<StellarMatch<TSequence const, TId> > > matches;
-    resize(matches, length(queries));
 
     StellarComputeStatisticsCollection computeStatistics{length(databases)};
 
@@ -301,18 +295,7 @@ _stellarOnWholeDatabase(StringSet<String<TAlphabet> > const & databases,
         }
     } // parallel region - end
 
-    // standard output:
-    _printParallelPrefilterStellarStatistics(options.verbose, databaseStrand, databaseIDs, computeStatistics);
-
-    _postproccessQueryMatches(databaseStrand, options, matches, disabledQueryIDs);
-
-    if (_shouldWriteOutputFile(databaseStrand, matches))
-    {
-        // output matches on positive database strand
-        _writeAllQueryMatchesToFile(matches, queryIDs, databaseStrand, options.outputFormat, outputFile);
-    }
-
-    return _computeOutputStatistics(matches);
+    return computeStatistics;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -354,16 +337,34 @@ _stellarOnAll(StringSet<String<TAlphabet>> & databases,
     // positive database strand
     if (options.forward)
     {
-        outputStatistics
-            = _stellarOnWholeDatabase(databases,
-                                      databaseIDs,
-                                      queries,
-                                      queryIDs,
-                                      true,
-                                      options,
-                                      swiftPattern,
-                                      disabledQueryIDs,
-                                      outputFile);
+        // container for eps-matches
+        StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > forwardMatches;
+        resize(forwardMatches, length(queries));
+
+        constexpr bool databaseStrand = true;
+
+        StellarComputeStatisticsCollection computeStatistics =
+            _stellarOnWholeDatabase(
+                databases,
+                databaseIDs,
+                queries,
+                databaseStrand,
+                options,
+                swiftPattern,
+                forwardMatches);
+
+        // standard output:
+        _printParallelPrefilterStellarStatistics(options.verbose, databaseStrand, databaseIDs, computeStatistics);
+
+        _postproccessQueryMatches(databaseStrand, options, forwardMatches, disabledQueryIDs);
+
+        if (_shouldWriteOutputFile(databaseStrand, forwardMatches))
+        {
+            // output forwardMatches on positive database strand
+            _writeAllQueryMatchesToFile(forwardMatches, queryIDs, databaseStrand, options.outputFormat, outputFile);
+        }
+
+        outputStatistics = _computeOutputStatistics(forwardMatches);
     }
 
     // negative (reverse complemented) database strand
@@ -373,18 +374,34 @@ _stellarOnAll(StringSet<String<TAlphabet>> & databases,
         for (size_t i = 0; i < length(databases); ++i)
             reverseComplement(databases[i]);
 
-        StellarOutputStatistics statistics
-            = _stellarOnWholeDatabase(databases,
-                                      databaseIDs,
-                                      queries,
-                                      queryIDs,
-                                      false,
-                                      options,
-                                      swiftPattern,
-                                      disabledQueryIDs,
-                                      outputFile);
+        // container for eps-matches
+        StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > reverseMatches;
+        resize(reverseMatches, length(queries));
 
-        outputStatistics.mergeIn(statistics);
+        constexpr bool databaseStrand = false;
+
+        StellarComputeStatisticsCollection computeStatistics =
+            _stellarOnWholeDatabase(
+                databases,
+                databaseIDs,
+                queries,
+                databaseStrand,
+                options,
+                swiftPattern,
+                reverseMatches);
+
+        // standard output:
+        _printParallelPrefilterStellarStatistics(options.verbose, databaseStrand, databaseIDs, computeStatistics);
+
+        _postproccessQueryMatches(databaseStrand, options, reverseMatches, disabledQueryIDs);
+
+        if (_shouldWriteOutputFile(databaseStrand, reverseMatches))
+        {
+            // output reverseMatches on negative database strand
+            _writeAllQueryMatchesToFile(reverseMatches, queryIDs, databaseStrand, options.outputFormat, outputFile);
+        }
+
+        outputStatistics.mergeIn(_computeOutputStatistics(reverseMatches));
     }
     std::cout << std::endl;
 
