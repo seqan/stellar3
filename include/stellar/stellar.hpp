@@ -33,6 +33,7 @@
 #include <stellar/stellar_query_segment.hpp>
 #include <stellar/stellar_query_segment.tpp>
 #include <stellar/stellar_index.hpp>
+#include <stellar/utils/stellar_kernel_runtime.hpp>
 #include <stellar/verification/all_local.hpp>
 #include <stellar/verification/banded_global_extend.hpp>
 #include <stellar/verification/banded_global.hpp>
@@ -270,10 +271,20 @@ _stellarKernel(StellarSwiftFinder<TAlphabet> & finder,
                StellarSwiftPattern<TAlphabet> & pattern,
                SwiftHitVerifier<TTag> & swiftVerifier,
                TIsPatternDisabledFn && isPatternDisabled,
-               TOnAlignmentResultFn && onAlignmentResult) {
+               TOnAlignmentResultFn && onAlignmentResult,
+               stellar_kernel_runtime & stellar_kernel_runtime) {
     StellarComputeStatistics statistics{};
 
-    while (find(finder, pattern, swiftVerifier.epsilon, swiftVerifier.minLength)) {
+    while (true) {
+
+        bool const has_next = stellar_kernel_runtime.swift_filter_time.measure_time([&]()
+        {
+            return find(finder, pattern, swiftVerifier.epsilon, swiftVerifier.minLength);
+        });
+
+        if (!has_next)
+            break;
+
         StellarDatabaseSegment<TAlphabet> databaseSegment
             = StellarDatabaseSegment<TAlphabet>::fromFinderMatch(infix(finder));
 
@@ -293,10 +304,14 @@ _stellarKernel(StellarSwiftFinder<TAlphabet> & finder,
         //std::cout << endPosition(patternSegment) << std::endl;
 
         // verification
-        swiftVerifier.verify(databaseSegment,
-                             querySegment,
-                             pattern.bucketParams[0].delta + pattern.bucketParams[0].overlap,
-                             onAlignmentResult);
+        stellar_kernel_runtime.verification_time.measure_time([&]()
+        {
+            swiftVerifier.verify(
+                databaseSegment,
+                querySegment,
+                pattern.bucketParams[0].delta + pattern.bucketParams[0].overlap,
+                onAlignmentResult);
+        }); // measure_time
     }
 
     return statistics;
