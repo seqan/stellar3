@@ -322,42 +322,42 @@ _stellarMain(
     {
         stellar_runtime.forward_strand_stellar_time.measure_time([&]()
         {
-        // container for eps-matches
-        StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > forwardMatches;
-        resize(forwardMatches, length(queries));
+            // container for eps-matches
+            StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > forwardMatches;
+            resize(forwardMatches, length(queries));
 
-        constexpr bool databaseStrand = true;
+            constexpr bool databaseStrand = true;
 
-        StellarComputeStatisticsCollection computeStatistics = stellar_runtime.forward_strand_stellar_time.parallel_prefiltered_stellar_time.measure_time([&]()
-        {
-            return _parallelPrefilterStellar(
-                databases,
-                databaseIDs,
-                queries,
-                databaseStrand,
-                options,
-                swiftPattern,
-                forwardMatches);
-        });
-
-        // standard output:
-        _printParallelPrefilterStellarStatistics(options.verbose, databaseStrand, databaseIDs, computeStatistics);
-
-        stellar_runtime.forward_strand_stellar_time.post_process_eps_matches_time.measure_time([&]()
-        {
-        _postproccessQueryMatches(databaseStrand, options, forwardMatches, disabledQueryIDs);
-        }); // measure_time
-
-        if (_shouldWriteOutputFile(databaseStrand, forwardMatches))
-        {
-            stellar_runtime.forward_strand_stellar_time.output_eps_matches_time.measure_time([&]()
+            StellarComputeStatisticsCollection computeStatistics = stellar_runtime.forward_strand_stellar_time.parallel_prefiltered_stellar_time.measure_time([&]()
             {
-            // output forwardMatches on positive database strand
-            _writeAllQueryMatchesToFile(forwardMatches, queryIDs, databaseStrand, options.outputFormat, outputFile);
-            }); // measure_time
-        }
+                return _parallelPrefilterStellar(
+                    databases,
+                    databaseIDs,
+                    queries,
+                    databaseStrand,
+                    options,
+                    swiftPattern,
+                    forwardMatches);
+            });
 
-        outputStatistics = _computeOutputStatistics(forwardMatches);
+            // standard output:
+            _printParallelPrefilterStellarStatistics(options.verbose, databaseStrand, databaseIDs, computeStatistics);
+
+            stellar_runtime.forward_strand_stellar_time.post_process_eps_matches_time.measure_time([&]()
+            {
+                _postproccessQueryMatches(databaseStrand, options, forwardMatches, disabledQueryIDs);
+            }); // measure_time
+
+            if (_shouldWriteOutputFile(databaseStrand, forwardMatches))
+            {
+                stellar_runtime.forward_strand_stellar_time.output_eps_matches_time.measure_time([&]()
+                {
+                    // output forwardMatches on positive database strand
+                    _writeAllQueryMatchesToFile(forwardMatches, queryIDs, databaseStrand, options.outputFormat, outputFile);
+                }); // measure_time
+            }
+
+            outputStatistics = _computeOutputStatistics(forwardMatches);
         }); // measure_time
     }
 
@@ -367,48 +367,48 @@ _stellarMain(
     {
         stellar_runtime.reverse_complement_database_time.measure_time([&]()
         {
-        for (size_t i = 0; i < length(databases); ++i)
-            reverseComplement(databases[i]);
+            for (size_t i = 0; i < length(databases); ++i)
+                reverseComplement(databases[i]);
         }); // measure_time
 
         stellar_runtime.reverse_strand_stellar_time.measure_time([&]()
         {
-        // container for eps-matches
-        StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > reverseMatches;
-        resize(reverseMatches, length(queries));
+            // container for eps-matches
+            StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > reverseMatches;
+            resize(reverseMatches, length(queries));
 
-        constexpr bool databaseStrand = false;
+            constexpr bool databaseStrand = false;
 
-        StellarComputeStatisticsCollection computeStatistics = stellar_runtime.reverse_strand_stellar_time.parallel_prefiltered_stellar_time.measure_time([&]()
-        {
-            return _parallelPrefilterStellar(
-                databases,
-                databaseIDs,
-                queries,
-                databaseStrand,
-                options,
-                swiftPattern,
-                reverseMatches);
-        });
-
-        // standard output:
-        _printParallelPrefilterStellarStatistics(options.verbose, databaseStrand, databaseIDs, computeStatistics);
-
-        stellar_runtime.reverse_strand_stellar_time.post_process_eps_matches_time.measure_time([&]()
-        {
-        _postproccessQueryMatches(databaseStrand, options, reverseMatches, disabledQueryIDs);
-        }); // measure_time
-
-        if (_shouldWriteOutputFile(databaseStrand, reverseMatches))
-        {
-            stellar_runtime.reverse_strand_stellar_time.output_eps_matches_time.measure_time([&]()
+            StellarComputeStatisticsCollection computeStatistics = stellar_runtime.reverse_strand_stellar_time.parallel_prefiltered_stellar_time.measure_time([&]()
             {
-            // output reverseMatches on negative database strand
-            _writeAllQueryMatchesToFile(reverseMatches, queryIDs, databaseStrand, options.outputFormat, outputFile);
-            }); // measure_time
-        }
+                return _parallelPrefilterStellar(
+                    databases,
+                    databaseIDs,
+                    queries,
+                    databaseStrand,
+                    options,
+                    swiftPattern,
+                    reverseMatches);
+            });
 
-        outputStatistics.mergeIn(_computeOutputStatistics(reverseMatches));
+            // standard output:
+            _printParallelPrefilterStellarStatistics(options.verbose, databaseStrand, databaseIDs, computeStatistics);
+
+            stellar_runtime.reverse_strand_stellar_time.post_process_eps_matches_time.measure_time([&]()
+            {
+                _postproccessQueryMatches(databaseStrand, options, reverseMatches, disabledQueryIDs);
+            }); // measure_time
+
+            if (_shouldWriteOutputFile(databaseStrand, reverseMatches))
+            {
+                stellar_runtime.reverse_strand_stellar_time.output_eps_matches_time.measure_time([&]()
+                {
+                    // output reverseMatches on negative database strand
+                    _writeAllQueryMatchesToFile(reverseMatches, queryIDs, databaseStrand, options.outputFormat, outputFile);
+                }); // measure_time
+            }
+
+            outputStatistics.mergeIn(_computeOutputStatistics(reverseMatches));
         }); // measure_time
     }
     std::cout << std::endl;
@@ -418,8 +418,8 @@ _stellarMain(
     {
         stellar_runtime.output_disabled_queries_time.measure_time([&]()
         {
-        // write disabled query file
-        _writeDisabledQueriesToFastaFile(disabledQueryIDs, queryIDs, queries, disabledQueriesFile);
+            // write disabled query file
+            _writeDisabledQueriesToFastaFile(disabledQueryIDs, queryIDs, queries, disabledQueriesFile);
         }); // measure_time
     }
 
