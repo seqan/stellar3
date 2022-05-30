@@ -328,8 +328,9 @@ _stellarMain(
 
         constexpr bool databaseStrand = true;
 
-        StellarComputeStatisticsCollection computeStatistics =
-            _parallelPrefilterStellar(
+        StellarComputeStatisticsCollection computeStatistics = stellar_runtime.forward_strand_stellar_time.parallel_prefiltered_stellar_time.measure_time([&]()
+        {
+            return _parallelPrefilterStellar(
                 databases,
                 databaseIDs,
                 queries,
@@ -337,16 +338,23 @@ _stellarMain(
                 options,
                 swiftPattern,
                 forwardMatches);
+        });
 
         // standard output:
         _printParallelPrefilterStellarStatistics(options.verbose, databaseStrand, databaseIDs, computeStatistics);
 
+        stellar_runtime.forward_strand_stellar_time.post_process_eps_matches_time.measure_time([&]()
+        {
         _postproccessQueryMatches(databaseStrand, options, forwardMatches, disabledQueryIDs);
+        }); // measure_time
 
         if (_shouldWriteOutputFile(databaseStrand, forwardMatches))
         {
+            stellar_runtime.forward_strand_stellar_time.output_eps_matches_time.measure_time([&]()
+            {
             // output forwardMatches on positive database strand
             _writeAllQueryMatchesToFile(forwardMatches, queryIDs, databaseStrand, options.outputFormat, outputFile);
+            }); // measure_time
         }
 
         outputStatistics = _computeOutputStatistics(forwardMatches);
@@ -371,8 +379,9 @@ _stellarMain(
 
         constexpr bool databaseStrand = false;
 
-        StellarComputeStatisticsCollection computeStatistics =
-            _parallelPrefilterStellar(
+        StellarComputeStatisticsCollection computeStatistics = stellar_runtime.reverse_strand_stellar_time.parallel_prefiltered_stellar_time.measure_time([&]()
+        {
+            return _parallelPrefilterStellar(
                 databases,
                 databaseIDs,
                 queries,
@@ -380,16 +389,23 @@ _stellarMain(
                 options,
                 swiftPattern,
                 reverseMatches);
+        });
 
         // standard output:
         _printParallelPrefilterStellarStatistics(options.verbose, databaseStrand, databaseIDs, computeStatistics);
 
+        stellar_runtime.reverse_strand_stellar_time.post_process_eps_matches_time.measure_time([&]()
+        {
         _postproccessQueryMatches(databaseStrand, options, reverseMatches, disabledQueryIDs);
+        }); // measure_time
 
         if (_shouldWriteOutputFile(databaseStrand, reverseMatches))
         {
+            stellar_runtime.reverse_strand_stellar_time.output_eps_matches_time.measure_time([&]()
+            {
             // output reverseMatches on negative database strand
             _writeAllQueryMatchesToFile(reverseMatches, queryIDs, databaseStrand, options.outputFormat, outputFile);
+            }); // measure_time
         }
 
         outputStatistics.mergeIn(_computeOutputStatistics(reverseMatches));
@@ -553,8 +569,16 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
         std::cout << "    + File Input Databases Time: " << stellar_time.input_databases_time.milliseconds() << "ms" << std::endl;
         std::cout << "    + SwiftFilter Construction Time: " << stellar_time.swift_index_construction_time.milliseconds() << "ms" << std::endl;
         std::cout << "    + Stellar Forward Strand Time: " << stellar_time.forward_strand_stellar_time.milliseconds() << "ms" << std::endl;
+        std::cout << "       + Forward Parallel Prefiltered Stellar Time: " << stellar_time.forward_strand_stellar_time.parallel_prefiltered_stellar_time.milliseconds() << "ms" << std::endl;
+        std::cout << "       + Forward Post-Process Eps-Matches Time: " << stellar_time.forward_strand_stellar_time.post_process_eps_matches_time.milliseconds() << "ms" << std::endl;
+        std::cout << "       + Forward File Output Eps-Matches Time: " << stellar_time.forward_strand_stellar_time.output_eps_matches_time.milliseconds() << "ms" << std::endl;
+        std::cout << "       = total time: " << stellar_time.forward_strand_stellar_time.total_time().milliseconds() << "ms" << std::endl;
         std::cout << "    + Database Reverse Complement Time: " << stellar_time.reverse_complement_database_time.milliseconds() << "ms" << std::endl;
         std::cout << "    + Stellar Reverse Strand Time: " << stellar_time.reverse_strand_stellar_time.milliseconds() << "ms" << std::endl;
+        std::cout << "       + Reverse Parallel Prefiltered Stellar Time: " << stellar_time.reverse_strand_stellar_time.parallel_prefiltered_stellar_time.milliseconds() << "ms" << std::endl;
+        std::cout << "       + Reverse Post-Process Eps-Matches Time: " << stellar_time.reverse_strand_stellar_time.post_process_eps_matches_time.milliseconds() << "ms" << std::endl;
+        std::cout << "       + Reverse File Output Eps-Matches Time: " << stellar_time.reverse_strand_stellar_time.output_eps_matches_time.milliseconds() << "ms" << std::endl;
+        std::cout << "       = total time: " << stellar_time.reverse_strand_stellar_time.total_time().milliseconds() << "ms" << std::endl;
         std::cout << "    + File Output Disabled Queries Time: " << stellar_time.output_disabled_queries_time.milliseconds() << "ms" << std::endl;
         std::cout << "    = total time: " << stellar_time.total_time().milliseconds() << "ms" << std::endl;
     }
