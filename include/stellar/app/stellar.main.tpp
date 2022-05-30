@@ -208,6 +208,7 @@ _parallelPrefilterStellar(
 
         StellarOptions localOptions = options;
         StellarComputeStatisticsPartialCollection localPartialStatistics{computeStatistics.size()};
+        stellar::stellar_kernel_runtime local_runtime{};
 
         agent.prefilter([&](TDatabaseSegments const & databaseSegments, TQueryFilter localSwiftPattern)
         {
@@ -263,7 +264,7 @@ _parallelPrefilterStellar(
                             STELLAR_DESIGNATED_INITIALIZER(.xDrop = , localOptions.xDrop)
                         };
 
-                        return _stellarKernel(swiftFinder, localSwiftPattern, swiftVerifier, isPatternDisabled, onAlignmentResult, stellar_kernel_runtime);
+                        return _stellarKernel(swiftFinder, localSwiftPattern, swiftVerifier, isPatternDisabled, onAlignmentResult, local_runtime);
                     });
 
                 localPartialStatistics.updateByRecordID(databaseRecordID, statistics);
@@ -276,6 +277,8 @@ _parallelPrefilterStellar(
             computeStatistics.mergePartialIn(localPartialStatistics);
             // linear in queries count
             _mergeMatchesIntoFirst(matches, localMatches);
+            // constant time
+            stellar_kernel_runtime.mergeIn(local_runtime);
         }
     } // parallel region - end
 
