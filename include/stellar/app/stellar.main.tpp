@@ -290,7 +290,9 @@ _stellarMain(
     StringSet<TId> const & databaseIDs,
     StringSet<String<TAlphabet>> const & queries,
     StringSet<TId> const & queryIDs,
-    StellarOptions & options)
+    StellarOptions & options,
+    std::ofstream & outputFile,
+    std::ofstream & disabledQueriesFile)
 {
     // pattern
     StellarIndex<TAlphabet> stellarIndex{queries, options};
@@ -305,12 +307,6 @@ _stellarMain(
     std::cout << std::endl;
 
     std::cout << "Aligning all query sequences to database sequence..." << std::endl;
-
-    std::ofstream outputFile(toCString(options.outputFile), ::std::ios_base::out | ::std::ios_base::app);
-    if (!outputFile.is_open()) {
-        std::cerr << "Could not open output file." << std::endl;
-        return false;
-    }
 
     std::vector<size_t> disabledQueryIDs{};
 
@@ -388,24 +384,14 @@ _stellarMain(
     }
     std::cout << std::endl;
 
-    bool const writeDisabledQueriesFile = options.disableThresh != std::numeric_limits<unsigned>::max();
-
     // Writes disabled query sequences to disabledFile.
-    if (writeDisabledQueriesFile)
+    if (disabledQueriesFile.is_open())
     {
-        std::ofstream disabledQueriesFile(toCString(options.disabledQueriesFile),
-                                          ::std::ios_base::out | ::std::ios_base::app);
-
-        if (!disabledQueriesFile.is_open()) {
-            std::cerr << "Could not open file for disabled queries." << std::endl;
-            return false;
-        }
-
         // write disabled query file
         _writeDisabledQueriesToFastaFile(disabledQueryIDs, queryIDs, queries, disabledQueriesFile);
     }
 
-    _writeOutputStatistics(outputStatistics, options.verbose, writeDisabledQueriesFile);
+    _writeOutputStatistics(outputStatistics, options.verbose, disabledQueriesFile.is_open());
 
     return true;
 }
@@ -508,31 +494,28 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
     stellar::app::_writeMoreCalculatedParams(options, databases, queries);
 
     // open output files
-    std::ofstream file;
-    file.open(toCString(options.outputFile));
-    if (!file.is_open())
+    std::ofstream outputFile(toCString(options.outputFile), ::std::ios_base::out | ::std::ios_base::app);
+    if (!outputFile.is_open())
     {
         std::cerr << "Could not open output file." << std::endl;
         return 1;
     }
-    file.close();
 
+    std::ofstream disabledQueriesFile;
     if (options.disableThresh != std::numeric_limits<unsigned>::max())
     {
-        std::ofstream daFile;
-        daFile.open(toCString(options.disabledQueriesFile));
-        if (!daFile.is_open())
+        disabledQueriesFile.open(toCString(options.disabledQueriesFile), ::std::ios_base::out | ::std::ios_base::app);
+        if (!disabledQueriesFile.is_open())
         {
             std::cerr << "Could not open file for disabled queries." << std::endl;
             return 1;
         }
-        daFile.close();
     }
 
     // stellar on all databases and queries writing results to file
 
     double startTime = sysTime();
-    if (!_stellarMain(databases, databaseIDs, queries, queryIDs, options))
+    if (!_stellarMain(databases, databaseIDs, queries, queryIDs, options, outputFile, disabledQueriesFile))
         return 1;
 
     if (options.verbose && options.noRT == false)
