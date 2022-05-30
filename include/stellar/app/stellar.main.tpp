@@ -290,7 +290,7 @@ _stellarMain(
     StringSet<TId> const & databaseIDs,
     StringSet<String<TAlphabet>> const & queries,
     StringSet<TId> const & queryIDs,
-    StellarOptions & options,
+    StellarOptions const & options,
     std::ofstream & outputFile,
     std::ofstream & disabledQueriesFile)
 {
