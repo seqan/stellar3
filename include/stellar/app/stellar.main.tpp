@@ -306,17 +306,8 @@ _stellarOnWholeDatabase(StringSet<String<TAlphabet> > const & databases,
     for (size_t i = 0; i < length(databases); ++i)
     {
         CharString const & databaseID = databaseIDs[i];
-        std::cout << "  " << databaseID;
-        if (!databaseStrand)
-            std::cout << ", complement";
-        std::cout << std::flush;
-
-        if (options.verbose)
-        {
-            StellarComputeStatistics const & statistics = computeStatistics[i];
-            _printStellarKernelStatistics(statistics);
-        }
-        std::cout << std::endl;
+        StellarComputeStatistics const & statistics = computeStatistics[i];
+        _printDatabaseIdAndStellarKernelStatistics(options.verbose, databaseStrand, databaseID, statistics);
     }
 
     _postproccessQueryMatches(databaseStrand, options, matches, disabledQueryIDs);

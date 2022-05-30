@@ -105,6 +105,24 @@ void _printStellarKernelStatistics(StellarComputeStatistics const & statistics)
     std::cout << std::endl << "    Avg hit length    : " << statistics.totalLength/statistics.numSwiftHits;
 }
 
+void _printDatabaseIdAndStellarKernelStatistics(
+    bool const verbose,
+    bool const databaseStrand,
+    CharString const & databaseID,
+    StellarComputeStatistics const & statistics)
+{
+    std::cout << "  " << databaseID;
+    if (!databaseStrand)
+        std::cout << ", complement";
+    std::cout << std::flush;
+
+    if (verbose)
+    {
+        _printStellarKernelStatistics(statistics);
+    }
+    std::cout << std::endl;
+}
+
 } // namespace stellar::app
 
 } // namespace stellar

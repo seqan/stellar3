@@ -30,6 +30,12 @@ void _writeOutputStatistics(StellarOutputStatistics const & statistics, bool con
 
 void _printStellarKernelStatistics(StellarComputeStatistics const & statistics);
 
+void _printDatabaseIdAndStellarKernelStatistics(
+    bool const verbose,
+    bool const databaseStrand,
+    CharString const & databaseID,
+    StellarComputeStatistics const & statistics);
+
 } // namespace stellar::app
 
 } // namespace stellar
