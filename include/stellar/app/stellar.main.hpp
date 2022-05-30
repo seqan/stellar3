@@ -10,7 +10,7 @@ namespace app
 {
 
 ///////////////////////////////////////////////////////////////////////////////
-// Parses and outputs parameters, calls _stellarOnAll().
+// Parses and outputs parameters, calls _stellarMain().
 template <typename TAlphabet>
 int mainWithOptions(StellarOptions & options, String<TAlphabet>);
 

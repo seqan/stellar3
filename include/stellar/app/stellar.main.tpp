@@ -43,56 +43,7 @@
 
 namespace stellar
 {
-
 using namespace seqan;
-
-namespace app
-{
-
-///////////////////////////////////////////////////////////////////////////////
-// Initializes a Finder object for a database sequence,
-//  calls stellar, and writes matches to file
-template <typename TAlphabet, typename TIsPatternDisabledFn, typename TOnAlignmentResultFn>
-inline StellarComputeStatistics
-_stellarOnOne(StellarDatabaseSegment<TAlphabet> const & databaseSegment,
-              StellarSwiftPattern<TAlphabet> & swiftPattern,
-              StellarOptions const & options,
-              TIsPatternDisabledFn && isPatternDisabled,
-              TOnAlignmentResultFn && onAlignmentResult)
-{
-    // finder
-    StellarSwiftFinder<TAlphabet> swiftFinder(databaseSegment.asInfixSegment(), options.minRepeatLength, options.maxRepeatPeriod);
-
-    auto _stellar = [&](auto tag) -> StellarComputeStatistics
-    {
-        using TTag = decltype(tag);
-        SwiftHitVerifier<TTag> swiftVerifier
-        {
-            STELLAR_DESIGNATED_INITIALIZER(.epsilon = , options.epsilon),
-            STELLAR_DESIGNATED_INITIALIZER(.minLength = , options.minLength),
-            STELLAR_DESIGNATED_INITIALIZER(.xDrop = , options.xDrop)
-        };
-
-        return _stellarKernel(swiftFinder, swiftPattern, swiftVerifier, isPatternDisabled, onAlignmentResult);
-    };
-
-    StellarComputeStatistics statistics;
-
-    // stellar
-    if (options.verificationMethod == StellarVerificationMethod{AllLocal{}})
-        statistics = _stellar(AllLocal());
-    else if (options.verificationMethod == StellarVerificationMethod{BestLocal{}})
-        statistics = _stellar(BestLocal());
-    else if (options.verificationMethod == StellarVerificationMethod{BandedGlobal{}})
-        statistics = _stellar(BandedGlobal());
-    else if (options.verificationMethod == StellarVerificationMethod{BandedGlobalExtend{}})
-        statistics = _stellar(BandedGlobalExtend());
-
-    return statistics;
-}
-
-} // namespace stellar::app
-
 } // namespace stellar
 
 //////////////////////////////////////////////////////////////////////////////
@@ -174,16 +125,47 @@ void _mergeMatchesIntoFirst(StringSet<QueryMatches<StellarMatch<TSequence const,
 }
 
 template <typename TAlphabet, typename TId>
-inline StellarOutputStatistics
-_stellarOnWholeDatabase(StringSet<String<TAlphabet> > const & databases,
-                        StringSet<TId> const & databaseIDs,
-                        StringSet<String<TAlphabet> > const & queries,
-                        StringSet<TId> const & queryIDs,
-                        bool const databaseStrand,
-                        StellarOptions & options,
-                        StellarSwiftPattern<TAlphabet> & swiftPattern,
-                        std::vector<size_t> & disabledQueryIDs,
-                        std::ofstream & outputFile)
+bool _shouldWriteOutputFile(bool const databaseStrand, StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > const & matches)
+{
+    // if databaseStrand == true always outputs
+    // if databaseStrand == false only outputs if TAlphabet == Dna5 or TAlphabet == Rna5
+    return databaseStrand || IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE;
+}
+
+template <typename TAlphabet, typename TId>
+void _postproccessQueryMatches(bool const databaseStrand, StellarOptions const & options, StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > & matches, std::vector<size_t> & disabledQueryIDs)
+{
+    using TSequence = String<TAlphabet>;
+
+    for (size_t queryID = 0; queryID < length(matches); ++queryID)
+    {
+        QueryMatches<StellarMatch<TSequence const, TId>> & queryMatches = value(matches, queryID);
+
+        queryMatches.removeOverlapsAndCompactMatches(options.disableThresh,
+                                                     /*compactThresh*/ 0,
+                                                     options.minLength,
+                                                     options.numMatches);
+
+        if (queryMatches.disabled)
+            disabledQueryIDs.push_back(queryID);
+    }
+
+    // adjust length for each matches of a single query (only for dna5 and rna5)
+    // TODO: WHY? This seems like an arbitrary restriction
+    if (_shouldWriteOutputFile(databaseStrand, matches))
+        _postproccessLengthAdjustment(matches);
+}
+
+template <typename TAlphabet, typename TId>
+inline StellarComputeStatisticsCollection
+_parallelPrefilterStellar(
+    StringSet<String<TAlphabet> > const & databases,
+    StringSet<TId> const & databaseIDs,
+    StringSet<String<TAlphabet> > const & queries,
+    bool const databaseStrand,
+    StellarOptions const & options,
+    StellarSwiftPattern<TAlphabet> & swiftPattern,
+    StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > & matches)
 {
     using TSequence = String<TAlphabet>;
 
@@ -193,11 +175,22 @@ _stellarOnWholeDatabase(StringSet<String<TAlphabet> > const & databases,
     using TPrefilterAgent = typename TPrefilter::Agent;
     using TDatabaseSegments = typename TPrefilter::TDatabaseSegments;
 
-    TPrefilter prefilter{databases, TQueryFilter{swiftPattern} /*copy pattern*/, TSplitter{}};
+    static constexpr auto _verificationMethodVisit =
+    [](StellarVerificationMethod verificationMethod, auto && visitor_fn)
+        -> StellarComputeStatistics
+    {
+        if (verificationMethod == StellarVerificationMethod{AllLocal{}})
+            return visitor_fn(AllLocal());
+        else if (verificationMethod == StellarVerificationMethod{BestLocal{}})
+            return visitor_fn(BestLocal());
+        else if (verificationMethod == StellarVerificationMethod{BandedGlobal{}})
+            return visitor_fn(BandedGlobal());
+        else if (verificationMethod == StellarVerificationMethod{BandedGlobalExtend{}})
+            return visitor_fn(BandedGlobalExtend());
+        return StellarComputeStatistics{};
+    };
 
-    // container for eps-matches
-    StringSet<QueryMatches<StellarMatch<TSequence const, TId> > > matches;
-    resize(matches, length(queries));
+    TPrefilter prefilter{databases, TQueryFilter{swiftPattern} /*copy pattern*/, TSplitter{}};
 
     StellarComputeStatisticsCollection computeStatistics{length(databases)};
 
@@ -253,8 +246,23 @@ _stellarOnWholeDatabase(StringSet<String<TAlphabet> > const & databases,
                     );
                 };
 
-                StellarComputeStatistics statistics
-                    = _stellarOnOne(databaseSegment, localSwiftPattern, localOptions, isPatternDisabled, onAlignmentResult);
+                // finder
+                StellarSwiftFinder<TAlphabet> swiftFinder(databaseSegment.asInfixSegment(), localOptions.minRepeatLength, localOptions.maxRepeatPeriod);
+
+                StellarComputeStatistics statistics = _verificationMethodVisit(
+                    localOptions.verificationMethod,
+                    [&](auto tag) -> StellarComputeStatistics
+                    {
+                        using TTag = decltype(tag);
+                        SwiftHitVerifier<TTag> swiftVerifier
+                        {
+                            STELLAR_DESIGNATED_INITIALIZER(.epsilon = , localOptions.epsilon),
+                            STELLAR_DESIGNATED_INITIALIZER(.minLength = , localOptions.minLength),
+                            STELLAR_DESIGNATED_INITIALIZER(.xDrop = , localOptions.xDrop)
+                        };
+
+                        return _stellarKernel(swiftFinder, localSwiftPattern, swiftVerifier, isPatternDisabled, onAlignmentResult);
+                    });
 
                 localPartialStatistics.updateByRecordID(databaseRecordID, statistics);
             }
@@ -269,61 +277,22 @@ _stellarOnWholeDatabase(StringSet<String<TAlphabet> > const & databases,
         }
     } // parallel region - end
 
-    // standard output:
-    std::cerr << std::endl; // swift filter output is on same line
-    for (size_t i = 0; i < length(databases); ++i)
-    {
-        CharString const & databaseID = databaseIDs[i];
-        std::cout << "  " << databaseID;
-        if (!databaseStrand)
-            std::cout << ", complement";
-        std::cout << std::flush;
-
-        if (options.verbose)
-        {
-            StellarComputeStatistics const & statistics = computeStatistics[i];
-            _printStellarKernelStatistics(statistics);
-        }
-        std::cout << std::endl;
-    }
-
-    for (size_t queryID = 0; queryID < length(matches); ++queryID)
-    {
-        QueryMatches<StellarMatch<TSequence const, TId>> & queryMatches = value(matches, queryID);
-
-        queryMatches.removeOverlapsAndCompactMatches(options.disableThresh,
-                                                     /*compactThresh*/ 0,
-                                                     options.minLength,
-                                                     options.numMatches);
-
-        if (queryMatches.disabled)
-            disabledQueryIDs.push_back(queryID);
-    }
-
-    // if databaseStrand == true always outputs
-    // if databaseStrand == false only outputs if TAlphabet == Dna5 or TAlphabet == Rna5
-    if (databaseStrand || IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE)
-    {
-        // adjust length for each matches of a single query (only for dna5 and rna5)
-        _postproccessLengthAdjustment(matches);
-
-        // output matches on positive database strand
-        _writeAllQueryMatchesToFile(matches, queryIDs, databaseStrand, options.outputFormat, outputFile);
-    }
-
-    return _computeOutputStatistics(matches);
+    return computeStatistics;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Initializes a Pattern object with the query sequences,
-//  and calls _stellarOnOne for each database sequence
+//  and calls _parallelPrefilterStellar for each database sequence
 template <typename TAlphabet, typename TId>
 inline bool
-_stellarOnAll(StringSet<String<TAlphabet>> & databases,
-              StringSet<TId> const & databaseIDs,
-              StringSet<String<TAlphabet>> const & queries,
-              StringSet<TId> const & queryIDs,
-              StellarOptions & options)
+_stellarMain(
+    StringSet<String<TAlphabet>> & databases,
+    StringSet<TId> const & databaseIDs,
+    StringSet<String<TAlphabet>> const & queries,
+    StringSet<TId> const & queryIDs,
+    StellarOptions const & options,
+    std::ofstream & outputFile,
+    std::ofstream & disabledQueriesFile)
 {
     // pattern
     StellarIndex<TAlphabet> stellarIndex{queries, options};
@@ -339,12 +308,6 @@ _stellarOnAll(StringSet<String<TAlphabet>> & databases,
 
     std::cout << "Aligning all query sequences to database sequence..." << std::endl;
 
-    std::ofstream outputFile(toCString(options.outputFile), ::std::ios_base::out | ::std::ios_base::app);
-    if (!outputFile.is_open()) {
-        std::cerr << "Could not open output file." << std::endl;
-        return false;
-    }
-
     std::vector<size_t> disabledQueryIDs{};
 
     // compute and print output statistics
@@ -353,16 +316,34 @@ _stellarOnAll(StringSet<String<TAlphabet>> & databases,
     // positive database strand
     if (options.forward)
     {
-        outputStatistics
-            = _stellarOnWholeDatabase(databases,
-                                      databaseIDs,
-                                      queries,
-                                      queryIDs,
-                                      true,
-                                      options,
-                                      swiftPattern,
-                                      disabledQueryIDs,
-                                      outputFile);
+        // container for eps-matches
+        StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > forwardMatches;
+        resize(forwardMatches, length(queries));
+
+        constexpr bool databaseStrand = true;
+
+        StellarComputeStatisticsCollection computeStatistics =
+            _parallelPrefilterStellar(
+                databases,
+                databaseIDs,
+                queries,
+                databaseStrand,
+                options,
+                swiftPattern,
+                forwardMatches);
+
+        // standard output:
+        _printParallelPrefilterStellarStatistics(options.verbose, databaseStrand, databaseIDs, computeStatistics);
+
+        _postproccessQueryMatches(databaseStrand, options, forwardMatches, disabledQueryIDs);
+
+        if (_shouldWriteOutputFile(databaseStrand, forwardMatches))
+        {
+            // output forwardMatches on positive database strand
+            _writeAllQueryMatchesToFile(forwardMatches, queryIDs, databaseStrand, options.outputFormat, outputFile);
+        }
+
+        outputStatistics = _computeOutputStatistics(forwardMatches);
     }
 
     // negative (reverse complemented) database strand
@@ -372,39 +353,45 @@ _stellarOnAll(StringSet<String<TAlphabet>> & databases,
         for (size_t i = 0; i < length(databases); ++i)
             reverseComplement(databases[i]);
 
-        StellarOutputStatistics statistics
-            = _stellarOnWholeDatabase(databases,
-                                      databaseIDs,
-                                      queries,
-                                      queryIDs,
-                                      false,
-                                      options,
-                                      swiftPattern,
-                                      disabledQueryIDs,
-                                      outputFile);
+        // container for eps-matches
+        StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > reverseMatches;
+        resize(reverseMatches, length(queries));
 
-        outputStatistics.mergeIn(statistics);
+        constexpr bool databaseStrand = false;
+
+        StellarComputeStatisticsCollection computeStatistics =
+            _parallelPrefilterStellar(
+                databases,
+                databaseIDs,
+                queries,
+                databaseStrand,
+                options,
+                swiftPattern,
+                reverseMatches);
+
+        // standard output:
+        _printParallelPrefilterStellarStatistics(options.verbose, databaseStrand, databaseIDs, computeStatistics);
+
+        _postproccessQueryMatches(databaseStrand, options, reverseMatches, disabledQueryIDs);
+
+        if (_shouldWriteOutputFile(databaseStrand, reverseMatches))
+        {
+            // output reverseMatches on negative database strand
+            _writeAllQueryMatchesToFile(reverseMatches, queryIDs, databaseStrand, options.outputFormat, outputFile);
+        }
+
+        outputStatistics.mergeIn(_computeOutputStatistics(reverseMatches));
     }
     std::cout << std::endl;
 
-    bool const writeDisabledQueriesFile = options.disableThresh != std::numeric_limits<unsigned>::max();
-
     // Writes disabled query sequences to disabledFile.
-    if (writeDisabledQueriesFile)
+    if (disabledQueriesFile.is_open())
     {
-        std::ofstream disabledQueriesFile(toCString(options.disabledQueriesFile),
-                                          ::std::ios_base::out | ::std::ios_base::app);
-
-        if (!disabledQueriesFile.is_open()) {
-            std::cerr << "Could not open file for disabled queries." << std::endl;
-            return false;
-        }
-
         // write disabled query file
         _writeDisabledQueriesToFastaFile(disabledQueryIDs, queryIDs, queries, disabledQueriesFile);
     }
 
-    _writeOutputStatistics(outputStatistics, options.verbose, writeDisabledQueriesFile);
+    _writeOutputStatistics(outputStatistics, options.verbose, disabledQueriesFile.is_open());
 
     return true;
 }
@@ -475,7 +462,7 @@ _importSequences(CharString const & fileName,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Parses and outputs parameters, calls _stellarOnAll().
+// Parses and outputs parameters, calls _stellarMain().
 template <typename TAlphabet>
 int mainWithOptions(StellarOptions & options, String<TAlphabet>)
 {
@@ -507,31 +494,28 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
     stellar::app::_writeMoreCalculatedParams(options, databases, queries);
 
     // open output files
-    std::ofstream file;
-    file.open(toCString(options.outputFile));
-    if (!file.is_open())
+    std::ofstream outputFile(toCString(options.outputFile), ::std::ios_base::out | ::std::ios_base::app);
+    if (!outputFile.is_open())
     {
         std::cerr << "Could not open output file." << std::endl;
         return 1;
     }
-    file.close();
 
+    std::ofstream disabledQueriesFile;
     if (options.disableThresh != std::numeric_limits<unsigned>::max())
     {
-        std::ofstream daFile;
-        daFile.open(toCString(options.disabledQueriesFile));
-        if (!daFile.is_open())
+        disabledQueriesFile.open(toCString(options.disabledQueriesFile), ::std::ios_base::out | ::std::ios_base::app);
+        if (!disabledQueriesFile.is_open())
         {
             std::cerr << "Could not open file for disabled queries." << std::endl;
             return 1;
         }
-        daFile.close();
     }
 
     // stellar on all databases and queries writing results to file
 
     double startTime = sysTime();
-    if (!_stellarOnAll(databases, databaseIDs, queries, queryIDs, options))
+    if (!_stellarMain(databases, databaseIDs, queries, queryIDs, options, outputFile, disabledQueriesFile))
         return 1;
 
     if (options.verbose && options.noRT == false)

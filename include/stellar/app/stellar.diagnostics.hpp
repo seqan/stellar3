@@ -2,6 +2,7 @@
 #pragma once
 
 #include <stellar/stellar_types.hpp>
+#include <stellar/parallel/compute_statistics_collection.hpp>
 
 namespace stellar
 {
@@ -29,6 +30,18 @@ void _writeMoreCalculatedParams(StellarOptions const & options, TStringSet const
 void _writeOutputStatistics(StellarOutputStatistics const & statistics, bool const verbose, bool const writeDisabledQueriesFile);
 
 void _printStellarKernelStatistics(StellarComputeStatistics const & statistics);
+
+void _printDatabaseIdAndStellarKernelStatistics(
+    bool const verbose,
+    bool const databaseStrand,
+    CharString const & databaseID,
+    StellarComputeStatistics const & statistics);
+
+void _printParallelPrefilterStellarStatistics(
+    bool const verbose,
+    bool const databaseStrand,
+    StringSet<CharString> const & databaseIDs,
+    StellarComputeStatisticsCollection const & computeStatistics);
 
 } // namespace stellar::app
 
