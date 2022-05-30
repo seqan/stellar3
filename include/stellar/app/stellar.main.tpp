@@ -43,56 +43,7 @@
 
 namespace stellar
 {
-
 using namespace seqan;
-
-namespace app
-{
-
-///////////////////////////////////////////////////////////////////////////////
-// Initializes a Finder object for a database sequence,
-//  calls stellar, and writes matches to file
-template <typename TAlphabet, typename TIsPatternDisabledFn, typename TOnAlignmentResultFn>
-inline StellarComputeStatistics
-_stellarOnOne(StellarDatabaseSegment<TAlphabet> const & databaseSegment,
-              StellarSwiftPattern<TAlphabet> & swiftPattern,
-              StellarOptions const & options,
-              TIsPatternDisabledFn && isPatternDisabled,
-              TOnAlignmentResultFn && onAlignmentResult)
-{
-    // finder
-    StellarSwiftFinder<TAlphabet> swiftFinder(databaseSegment.asInfixSegment(), options.minRepeatLength, options.maxRepeatPeriod);
-
-    auto _stellar = [&](auto tag) -> StellarComputeStatistics
-    {
-        using TTag = decltype(tag);
-        SwiftHitVerifier<TTag> swiftVerifier
-        {
-            STELLAR_DESIGNATED_INITIALIZER(.epsilon = , options.epsilon),
-            STELLAR_DESIGNATED_INITIALIZER(.minLength = , options.minLength),
-            STELLAR_DESIGNATED_INITIALIZER(.xDrop = , options.xDrop)
-        };
-
-        return _stellarKernel(swiftFinder, swiftPattern, swiftVerifier, isPatternDisabled, onAlignmentResult);
-    };
-
-    StellarComputeStatistics statistics;
-
-    // stellar
-    if (options.verificationMethod == StellarVerificationMethod{AllLocal{}})
-        statistics = _stellar(AllLocal());
-    else if (options.verificationMethod == StellarVerificationMethod{BestLocal{}})
-        statistics = _stellar(BestLocal());
-    else if (options.verificationMethod == StellarVerificationMethod{BandedGlobal{}})
-        statistics = _stellar(BandedGlobal());
-    else if (options.verificationMethod == StellarVerificationMethod{BandedGlobalExtend{}})
-        statistics = _stellar(BandedGlobalExtend());
-
-    return statistics;
-}
-
-} // namespace stellar::app
-
 } // namespace stellar
 
 //////////////////////////////////////////////////////////////////////////////
@@ -224,6 +175,21 @@ _parallelPrefilterStellar(
     using TPrefilterAgent = typename TPrefilter::Agent;
     using TDatabaseSegments = typename TPrefilter::TDatabaseSegments;
 
+    static constexpr auto _verificationMethodVisit =
+    [](StellarVerificationMethod verificationMethod, auto && visitor_fn)
+        -> StellarComputeStatistics
+    {
+        if (verificationMethod == StellarVerificationMethod{AllLocal{}})
+            return visitor_fn(AllLocal());
+        else if (verificationMethod == StellarVerificationMethod{BestLocal{}})
+            return visitor_fn(BestLocal());
+        else if (verificationMethod == StellarVerificationMethod{BandedGlobal{}})
+            return visitor_fn(BandedGlobal());
+        else if (verificationMethod == StellarVerificationMethod{BandedGlobalExtend{}})
+            return visitor_fn(BandedGlobalExtend());
+        return StellarComputeStatistics{};
+    };
+
     TPrefilter prefilter{databases, TQueryFilter{swiftPattern} /*copy pattern*/, TSplitter{}};
 
     StellarComputeStatisticsCollection computeStatistics{length(databases)};
@@ -280,8 +246,23 @@ _parallelPrefilterStellar(
                     );
                 };
 
-                StellarComputeStatistics statistics
-                    = _stellarOnOne(databaseSegment, localSwiftPattern, localOptions, isPatternDisabled, onAlignmentResult);
+                // finder
+                StellarSwiftFinder<TAlphabet> swiftFinder(databaseSegment.asInfixSegment(), localOptions.minRepeatLength, localOptions.maxRepeatPeriod);
+
+                StellarComputeStatistics statistics = _verificationMethodVisit(
+                    localOptions.verificationMethod,
+                    [&](auto tag) -> StellarComputeStatistics
+                    {
+                        using TTag = decltype(tag);
+                        SwiftHitVerifier<TTag> swiftVerifier
+                        {
+                            STELLAR_DESIGNATED_INITIALIZER(.epsilon = , localOptions.epsilon),
+                            STELLAR_DESIGNATED_INITIALIZER(.minLength = , localOptions.minLength),
+                            STELLAR_DESIGNATED_INITIALIZER(.xDrop = , localOptions.xDrop)
+                        };
+
+                        return _stellarKernel(swiftFinder, localSwiftPattern, swiftVerifier, isPatternDisabled, onAlignmentResult);
+                    });
 
                 localPartialStatistics.updateByRecordID(databaseRecordID, statistics);
             }
@@ -301,7 +282,7 @@ _parallelPrefilterStellar(
 
 ///////////////////////////////////////////////////////////////////////////////
 // Initializes a Pattern object with the query sequences,
-//  and calls _stellarOnOne for each database sequence
+//  and calls _parallelPrefilterStellar for each database sequence
 template <typename TAlphabet, typename TId>
 inline bool
 _stellarMain(
