@@ -207,13 +207,14 @@ void _postproccessQueryMatches(bool const databaseStrand, StellarOptions const &
 
 template <typename TAlphabet, typename TId>
 inline StellarComputeStatisticsCollection
-_stellarOnWholeDatabase(StringSet<String<TAlphabet> > const & databases,
-                        StringSet<TId> const & databaseIDs,
-                        StringSet<String<TAlphabet> > const & queries,
-                        bool const databaseStrand,
-                        StellarOptions const & options,
-                        StellarSwiftPattern<TAlphabet> & swiftPattern,
-                        StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > & matches)
+_parallelPrefilterStellar(
+    StringSet<String<TAlphabet> > const & databases,
+    StringSet<TId> const & databaseIDs,
+    StringSet<String<TAlphabet> > const & queries,
+    bool const databaseStrand,
+    StellarOptions const & options,
+    StellarSwiftPattern<TAlphabet> & swiftPattern,
+    StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > & matches)
 {
     using TSequence = String<TAlphabet>;
 
@@ -303,11 +304,12 @@ _stellarOnWholeDatabase(StringSet<String<TAlphabet> > const & databases,
 //  and calls _stellarOnOne for each database sequence
 template <typename TAlphabet, typename TId>
 inline bool
-_stellarOnAll(StringSet<String<TAlphabet>> & databases,
-              StringSet<TId> const & databaseIDs,
-              StringSet<String<TAlphabet>> const & queries,
-              StringSet<TId> const & queryIDs,
-              StellarOptions & options)
+_stellarMain(
+    StringSet<String<TAlphabet>> & databases,
+    StringSet<TId> const & databaseIDs,
+    StringSet<String<TAlphabet>> const & queries,
+    StringSet<TId> const & queryIDs,
+    StellarOptions & options)
 {
     // pattern
     StellarIndex<TAlphabet> stellarIndex{queries, options};
@@ -344,7 +346,7 @@ _stellarOnAll(StringSet<String<TAlphabet>> & databases,
         constexpr bool databaseStrand = true;
 
         StellarComputeStatisticsCollection computeStatistics =
-            _stellarOnWholeDatabase(
+            _parallelPrefilterStellar(
                 databases,
                 databaseIDs,
                 queries,
@@ -381,7 +383,7 @@ _stellarOnAll(StringSet<String<TAlphabet>> & databases,
         constexpr bool databaseStrand = false;
 
         StellarComputeStatisticsCollection computeStatistics =
-            _stellarOnWholeDatabase(
+            _parallelPrefilterStellar(
                 databases,
                 databaseIDs,
                 queries,
@@ -493,7 +495,7 @@ _importSequences(CharString const & fileName,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Parses and outputs parameters, calls _stellarOnAll().
+// Parses and outputs parameters, calls _stellarMain().
 template <typename TAlphabet>
 int mainWithOptions(StellarOptions & options, String<TAlphabet>)
 {
@@ -549,7 +551,7 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
     // stellar on all databases and queries writing results to file
 
     double startTime = sysTime();
-    if (!_stellarOnAll(databases, databaseIDs, queries, queryIDs, options))
+    if (!_stellarMain(databases, databaseIDs, queries, queryIDs, options))
         return 1;
 
     if (options.verbose && options.noRT == false)
