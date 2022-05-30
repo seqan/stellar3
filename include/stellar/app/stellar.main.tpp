@@ -174,6 +174,38 @@ void _mergeMatchesIntoFirst(StringSet<QueryMatches<StellarMatch<TSequence const,
 }
 
 template <typename TAlphabet, typename TId>
+bool _shouldWriteOutputFile(bool const databaseStrand, StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > const & matches)
+{
+    // if databaseStrand == true always outputs
+    // if databaseStrand == false only outputs if TAlphabet == Dna5 or TAlphabet == Rna5
+    return databaseStrand || IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE;
+}
+
+template <typename TAlphabet, typename TId>
+void _postproccessQueryMatches(bool const databaseStrand, StellarOptions const & options, StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > & matches, std::vector<size_t> & disabledQueryIDs)
+{
+    using TSequence = String<TAlphabet>;
+
+    for (size_t queryID = 0; queryID < length(matches); ++queryID)
+    {
+        QueryMatches<StellarMatch<TSequence const, TId>> & queryMatches = value(matches, queryID);
+
+        queryMatches.removeOverlapsAndCompactMatches(options.disableThresh,
+                                                     /*compactThresh*/ 0,
+                                                     options.minLength,
+                                                     options.numMatches);
+
+        if (queryMatches.disabled)
+            disabledQueryIDs.push_back(queryID);
+    }
+
+    // adjust length for each matches of a single query (only for dna5 and rna5)
+    // TODO: WHY? This seems like an arbitrary restriction
+    if (_shouldWriteOutputFile(databaseStrand, matches))
+        _postproccessLengthAdjustment(matches);
+}
+
+template <typename TAlphabet, typename TId>
 inline StellarOutputStatistics
 _stellarOnWholeDatabase(StringSet<String<TAlphabet> > const & databases,
                         StringSet<TId> const & databaseIDs,
@@ -287,26 +319,10 @@ _stellarOnWholeDatabase(StringSet<String<TAlphabet> > const & databases,
         std::cout << std::endl;
     }
 
-    for (size_t queryID = 0; queryID < length(matches); ++queryID)
+    _postproccessQueryMatches(databaseStrand, options, matches, disabledQueryIDs);
+
+    if (_shouldWriteOutputFile(databaseStrand, matches))
     {
-        QueryMatches<StellarMatch<TSequence const, TId>> & queryMatches = value(matches, queryID);
-
-        queryMatches.removeOverlapsAndCompactMatches(options.disableThresh,
-                                                     /*compactThresh*/ 0,
-                                                     options.minLength,
-                                                     options.numMatches);
-
-        if (queryMatches.disabled)
-            disabledQueryIDs.push_back(queryID);
-    }
-
-    // if databaseStrand == true always outputs
-    // if databaseStrand == false only outputs if TAlphabet == Dna5 or TAlphabet == Rna5
-    if (databaseStrand || IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE)
-    {
-        // adjust length for each matches of a single query (only for dna5 and rna5)
-        _postproccessLengthAdjustment(matches);
-
         // output matches on positive database strand
         _writeAllQueryMatchesToFile(matches, queryIDs, databaseStrand, options.outputFormat, outputFile);
     }
