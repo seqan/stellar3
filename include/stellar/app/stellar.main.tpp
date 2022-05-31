@@ -577,6 +577,8 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
                 = strand_runtime.parallel_prefiltered_stellar_time.verification_time;
             stellar_extension_time const & extension_time
                 = verification_time.extension_time;
+            stellar_best_extension_time const & best_extension_time
+                = extension_time.best_extension_time;
 
             std::cout << "       + Parallel Prefiltered Stellar Time (" << strandDirection << "): " << parallel_prefiltered_stellar_time.milliseconds() << "ms" << std::endl;
             std::cout << "          + Swift Filter Time (" << strandDirection << "): " << parallel_prefiltered_stellar_time.swift_filter_time.milliseconds() << "ms" << std::endl;
@@ -585,7 +587,13 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
             std::cout << "             + Split At X-Drops Time (" << strandDirection << "): " << verification_time.split_at_x_drops_time.milliseconds() << "ms" << std::endl;
             std::cout << "             + Extension Time (" << strandDirection << "): " << extension_time.milliseconds() << "ms" << std::endl;
             std::cout << "                + Extend Seed Time (" << strandDirection << "): " << extension_time.extend_seed_time.milliseconds() << "ms" << std::endl;
-            std::cout << "                + Best Extension Time (" << strandDirection << "): " << extension_time.best_extension_time.milliseconds() << "ms" << std::endl;
+            std::cout << "                + Best Extension Time (" << strandDirection << "): " << best_extension_time.milliseconds() << "ms" << std::endl;
+            std::cout << "                   + Banded Needleman-Wunsch Time (" << strandDirection << "): " << best_extension_time.banded_needleman_wunsch_time.milliseconds() << "ms" << std::endl;
+            std::cout << "                      + Banded Needleman-Wunsch (Left Extension) Time (" << strandDirection << "): " << best_extension_time.banded_needleman_wunsch_left_time.milliseconds() << "ms" << std::endl;
+            std::cout << "                      + Banded Needleman-Wunsch (Right Extension) Time (" << strandDirection << "): " << best_extension_time.banded_needleman_wunsch_right_time.milliseconds() << "ms" << std::endl;
+            std::cout << "                   + Longest EPS Match Time (" << strandDirection << "): " << best_extension_time.longest_eps_match_time.milliseconds() << "ms" << std::endl;
+            std::cout << "                   + Construct Alignment Time (" << strandDirection << "): " << best_extension_time.construct_seed_alignment_time.milliseconds() << "ms" << std::endl;
+            std::cout << "                   = total time: " << best_extension_time.total_time().milliseconds() << "ms" << std::endl;
             std::cout << "                = total time: " << extension_time.total_time().milliseconds() << "ms" << std::endl;
             std::cout << "             = total time: " << verification_time.total_time().milliseconds() << "ms" << std::endl;
             std::cout << "          = total time: " << parallel_prefiltered_stellar_time.total_time().milliseconds() << "ms" << std::endl;
