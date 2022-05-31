@@ -12,6 +12,7 @@ TEST(AllLocal, empty)
     using TAlphabet = seqan::Dna5;
     seqan::String<TAlphabet> database{};
     seqan::String<TAlphabet> query{};
+    stellar::stellar_verification_time verification_runtime{};
 
     stellar::StellarDatabaseSegment<TAlphabet> databaseSegment{database, 0u, 0u};
     stellar::StellarQuerySegment<TAlphabet> querySegment{query, 0u, 0u};
@@ -36,6 +37,7 @@ TEST(AllLocal, empty)
             ADD_FAILURE() << "Empty sequences should not have any alignment." << std::endl;
             return true;
         },
+        verification_runtime,
         stellar::AllLocal{}
     );
 }
@@ -47,6 +49,7 @@ TEST(AllLocal, validSeedWithExactMatches)
     TSequence database{"CAACGGACTGCTGTCTAGAC" "TAACCGCAGAACACG" "A" "CTCCTCTACCTTACCGCGT"};
     // original
     TSequence query{"CTCGAGGGTTTACGCATATCTGG" "TAACCGCAGAACACG" "A" "AGAGCCTGAGA"};
+    stellar::stellar_verification_time verification_runtime{};
 
     stellar::StellarDatabaseSegment<TAlphabet> databaseSegment{database, 20u, 20u + 16u};
     stellar::StellarQuerySegment<TAlphabet> querySegment{query, 14u, 14u + 6u + 3u + 16u + 11u};
@@ -74,6 +77,7 @@ TEST(AllLocal, validSeedWithExactMatches)
             alignments.push_back(alignment);
             return true;
         },
+        verification_runtime,
         stellar::AllLocal{}
     );
 
@@ -98,6 +102,7 @@ TEST(AllLocal, oneErrorInsertion)
     TSequence database{"CAACGGACTGCTGTCTAGAC" "TAACCGC"/* */"AGAACACG" "A" "CTCCTCTACCTTACCGCGT"};
     // 1 error, insert in query sequence
     TSequence query{"CTCGAGGGTTTACGCATATCTGG" "TAACCGC" "A" "AGAACACG" "A" "AGAGCCTGAGA"};
+    stellar::stellar_verification_time verification_runtime{};
 
     stellar::StellarDatabaseSegment<TAlphabet> databaseSegment{database, 20u, 20u + 16u};
     stellar::StellarQuerySegment<TAlphabet> querySegment{query, 14u, 14u + 9u + 17u + 11u};
@@ -125,6 +130,7 @@ TEST(AllLocal, oneErrorInsertion)
             alignments.push_back(alignment);
             return true;
         },
+        verification_runtime,
         stellar::AllLocal{}
     );
 
@@ -162,6 +168,7 @@ TEST(AllLocal, oneErrorDeletion)
     TSequence database{"CAACGGACTGCTGTCTAGAC" "TAACCG" "C" "AGAACACG" "A" "CTCCTCTACCTTACCGCGT"};
     // 1 error, delete in query sequence
     TSequence query{"CTCGAGGGTTTACGCATATCTGG" "TAACCG"/*C*/"AGAACACG" "A" "AGAGCCTGAGA"};
+    stellar::stellar_verification_time verification_runtime{};
 
     stellar::StellarDatabaseSegment<TAlphabet> databaseSegment{database, 27u, 27u + 9u};
     stellar::StellarQuerySegment<TAlphabet> querySegment{query, 21u, 21u + 6u + 2u + 9u + 11u};
@@ -189,6 +196,7 @@ TEST(AllLocal, oneErrorDeletion)
             alignments.push_back(alignment);
             return true;
         },
+        verification_runtime,
         stellar::AllLocal{}
     );
 
@@ -213,6 +221,7 @@ TEST(AllLocal, oneErrorSubstitution)
     TSequence database{"CAACGGACTGCTGTCTAGAC" "TAACCG" "C" "AGAACACG" "A" "CTCCTCTACCTTACCGCGT"};
     // 1 error, substitution in query sequence
     TSequence query{"CTCGAGGGTTTACGCATATCTGG" "TAACCG" "G" "AGAACACG" "A" "AGAGCCTGAGA"};
+    stellar::stellar_verification_time verification_runtime{};
 
     stellar::StellarDatabaseSegment<TAlphabet> databaseSegment{database, 27u, 27u + 9u};
     stellar::StellarQuerySegment<TAlphabet> querySegment{query, 21u, 21u + 6u + 3u + 9u + 11u};
@@ -240,6 +249,7 @@ TEST(AllLocal, oneErrorSubstitution)
             alignments.push_back(alignment);
             return true;
         },
+        verification_runtime,
         stellar::AllLocal{}
     );
 

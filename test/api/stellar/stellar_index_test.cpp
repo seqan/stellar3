@@ -109,7 +109,8 @@ struct SwiftHitVerifier<TVerifyPassthroughSeed>
     void verify(StellarDatabaseSegment<TAlphabet> const & databaseSegment,
                 StellarQuerySegment<TAlphabet> const & querySegment,
                 TDelta const delta,
-                TOnAlignmentResultFn && onAlignmentResult)
+                TOnAlignmentResultFn && onAlignmentResult,
+                [[maybe_unused]] stellar_verification_time & verification_runtime)
     {
         onAlignmentResult(databaseSegment, querySegment, delta);
     }
@@ -176,6 +177,8 @@ results<TAlphabet> stellar_kernel_swift_seeds(
     };
     auto isPatternDisabled = [](...){ return false; };
 
+    stellar::stellar_kernel_runtime kernel_runtime{};
+
     results.statistics = stellar::_stellarKernel(
         swiftFinder,
         swiftPattern,
@@ -191,7 +194,7 @@ results<TAlphabet> stellar_kernel_swift_seeds(
         results.verify_deltas.emplace_back(delta);
         // different for each invocation
         results.alignments.emplace_back(databaseSegment, querySegment);
-    });
+    }, kernel_runtime);
 
     // sort alignments by query and not database
     std::sort(results.alignments.begin(), results.alignments.end(), [&](auto const & v1, auto const & v2)

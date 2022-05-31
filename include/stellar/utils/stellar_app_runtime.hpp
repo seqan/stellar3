@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include <stellar/utils/stellar_kernel_runtime.hpp>
 #include <stellar/utils/stellar_runtime.hpp>
 
 namespace stellar
@@ -8,7 +9,7 @@ namespace stellar
 
 struct stellar_strand_time : public stellar_runtime
 {
-    stellar_runtime parallel_prefiltered_stellar_time{};
+    stellar_kernel_runtime parallel_prefiltered_stellar_time{};
     stellar_runtime post_process_eps_matches_time{};
     stellar_runtime output_eps_matches_time{};
 

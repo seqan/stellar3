@@ -27,6 +27,7 @@
 #include <stellar/extension/align_banded_nw_best_ends.hpp>
 #include <stellar/extension/extension_end_position.hpp>
 #include <stellar/extension/longest_eps_match.hpp>
+#include <stellar/utils/stellar_kernel_runtime.hpp>
 
 #include <seqan/seeds.h>
 
@@ -446,7 +447,8 @@ _bestExtension(Segment<TSequence const, InfixSegment> const & infH,
                TDir const direction,
                TSize const minLength,
                TEps const eps,
-               TAlign & align)
+               TAlign & align,
+               stellar_best_extension_time & best_extension_runtime)
 {
     typedef String<TraceBack>                               TAlignmentMatrix;
     typedef ExtensionEndPosition<TPos>                      TEndInfo;
@@ -482,8 +484,12 @@ _bestExtension(Segment<TSequence const, InfixSegment> const & infH,
     TDiagonal const diagLowerRight = upperDiagonal(seedOld) - upperDiagonal(seed);
     TDiagonal const diagUpperRight = upperDiagonal(seedOld) - lowerDiagonal(seed);
 
+    best_extension_runtime.banded_needleman_wunsch_time.measure_time([&]()
+    {
     // fill banded matrix and gaps string for ...
     if (direction == EXTEND_BOTH || direction == EXTEND_LEFT) { // ... extension to the left
+        best_extension_runtime.banded_needleman_wunsch_left_time.measure_time([&]()
+        {
         // prepare copy segment...
         reserve(sequenceCopyLeftH, beginPositionH(seedOld) - beginPositionH(seed));
         reserve(sequenceCopyLeftV, beginPositionV(seedOld) - beginPositionV(seed));
@@ -502,17 +508,25 @@ _bestExtension(Segment<TSequence const, InfixSegment> const & infH,
 
         _fillMatrixBestEndsLeft(matrixLeft, possibleEndsLeft, sequencesLeft, diagLowerLeft, diagUpperLeft, scoreMatrix);
         SEQAN_ASSERT_NOT(empty(possibleEndsLeft));
+        }); // measure_time
     } else appendValue(possibleEndsLeft, TEndInfo());
     if (direction == EXTEND_BOTH || direction == EXTEND_RIGHT) { // ... extension to the right
+        best_extension_runtime.banded_needleman_wunsch_right_time.measure_time([&]()
+        {
         appendValue(sequencesRight, infix(host(infH), endPositionH(seedOld), endPositionH(seed)));
         appendValue(sequencesRight, infix(host(infV), endPositionV(seedOld), endPositionV(seed)));
 
         _fillMatrixBestEndsRight(matrixRight, possibleEndsRight, sequencesRight, diagLowerRight, diagUpperRight, scoreMatrix);
         SEQAN_ASSERT_NOT(empty(possibleEndsRight));
+        }); // measure_time
     } else appendValue(possibleEndsRight, TEndInfo());
+    }); // measure_time
 
     // longest eps match on poss ends string
-    Pair<TEndIterator> endPair = longestEpsMatch(possibleEndsLeft, possibleEndsRight, alignLen, alignErr, minLength, eps);
+    Pair<TEndIterator> endPair = best_extension_runtime.longest_eps_match_time.measure_time([&]()
+    {
+        return longestEpsMatch(possibleEndsLeft, possibleEndsRight, alignLen, alignErr, minLength, eps);
+    });
 
     if (endPair == Pair<TEndIterator>(0, 0)) { // no eps-match found
         return false;
@@ -548,6 +562,8 @@ _bestExtension(Segment<TSequence const, InfixSegment> const & infH,
     // setClippedEndPosition(row(align, 0), endPositionH(seedOld) + endRightH);
     // setClippedEndPosition(row(align, 1), endPositionV(seedOld) + endRightV);
 
+    best_extension_runtime.construct_seed_alignment_time.measure_time([&]()
+    {
     // traceback through matrix from begin/end pos on ...
     if((*endPair.i1).length != 0) { // ... extension to the left
         assert(direction == EXTEND_BOTH || direction == EXTEND_LEFT);
@@ -580,6 +596,7 @@ _bestExtension(Segment<TSequence const, InfixSegment> const & infH,
                         align);
     }
     SEQAN_ASSERT_EQ(length(row(align, 0)), length(row(align, 1)));
+    }); // measure_time
 
     return true;
 }
@@ -619,7 +636,8 @@ _extendAndExtract(Align<Segment<Segment<TSequence const, InfixSegment>, InfixSeg
                   ExtensionDirection const direction,
                   TSize const minLength,
                   TEps const eps,
-                  TAlign & align) {
+                  TAlign & align,
+                  stellar_extension_time & extension_runtime) {
     typedef typename Position<TSequence>::Type TPos;
     typedef Seed<Simple> TSeed;
 
@@ -656,7 +674,11 @@ _extendAndExtract(Align<Segment<Segment<TSequence const, InfixSegment>, InfixSeg
                       "infH is a nested InfixSegment: Segment<Segment<TSequence const, InfixSegment>, InfixSegment>");
         Segment<TSequence const, InfixSegment> infixSequenceH = host(infH); // inner nested Segment
         Segment<TSequence const, InfixSegment> infixSequenceV = host(infV); // inner nested Segment
-        extendSeed(seed, infixSequenceH, infixSequenceV, direction, scoreMatrix, scoreDropOff, GappedXDrop());
+
+        extension_runtime.extend_seed_time.measure_time([&]()
+        {
+            extendSeed(seed, infixSequenceH, infixSequenceV, direction, scoreMatrix, scoreDropOff, GappedXDrop());
+        });
 
         if (static_cast<int64_t>(seedSize(seed)) < minLength - (int)floor(minLength*eps))
             return false;
@@ -681,7 +703,12 @@ _extendAndExtract(Align<Segment<Segment<TSequence const, InfixSegment>, InfixSeg
         // determine best extension lengths and write the trace into align
         Segment<TSequence const, InfixSegment> infixH = infix(infixSequenceH, beginPosition(infH), endPosition(infH));
         Segment<TSequence const, InfixSegment> infixV = infix(infixSequenceV, beginPosition(infV), endPosition(infV));
-        if (!_bestExtension(infixH, infixV, seed, seedOld, alignLen, alignErr, scoreMatrix, direction, minLength, eps, align))
+
+        bool const found_extension = extension_runtime.best_extension_time.measure_time([&]()
+        {
+            return _bestExtension(infixH, infixV, seed, seedOld, alignLen, alignErr, scoreMatrix, direction, minLength, eps, align, extension_runtime.best_extension_time);
+        });
+        if (!found_extension)
             return false;
         SEQAN_ASSERT_EQ(length(row(align, 0)), length(row(align, 1)));
     }

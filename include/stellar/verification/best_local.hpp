@@ -19,10 +19,11 @@ verifySwiftHit(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> con
                /*double*/ TDrop const xDrop,
                /*unsigned_integral*/ TDelta const delta,
                TOnAlignmentResultFn && onAlignmentResult,
+               stellar_verification_time & verification_runtime,
                BestLocal) {
 
     // true == best local match
-    allOrBestLocal(infH, infV, eps, minLength, xDrop, delta, onAlignmentResult, std::true_type{});
+    allOrBestLocal(infH, infV, eps, minLength, xDrop, delta, onAlignmentResult, verification_runtime, std::true_type{});
 }
 
 } // namespace stellar
