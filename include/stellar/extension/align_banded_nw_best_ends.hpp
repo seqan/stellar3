@@ -23,6 +23,7 @@ _align_banded_nw_best_ends(TTrace& trace,
     typedef typename Value<TScore>::Type TScoreValue;
     typedef typename Value<TStringSet>::Type TString;
     typedef typename Size<TTrace>::Type TSize;
+    using TAlphabet = typename Value<TString>::Type;
 
     SEQAN_ASSERT_GEQ(diagU, diagL);
 
@@ -61,14 +62,10 @@ _align_banded_nw_best_ends(TTrace& trace,
     // Classical DP with affine gap costs
     typedef typename Iterator<TRow, Standard>::Type TRowIter;
     typedef typename Iterator<TTrace, Standard>::Type TTraceIter;
-    TSize actualCol = 0;
-    TSize actualRow = 0;
-    TScoreValue verti_val = 0;
-    TScoreValue hori_val = 0;
-    TScoreValue hori_len = len1+len2+1;
+
     TSize errors;
 
-    using TAlphabet [[maybe_unused]] = typename Value<TString>::Type;
+    assert(scoreMatch(sc) == 1u);
     assert(scoreGap(sc) == scoreGapExtendHorizontal(sc, TAlphabet{}, TAlphabet{}));
     assert(scoreGap(sc) == scoreGapExtendVertical(sc, TAlphabet{}, TAlphabet{}));
     assert(scoreMismatch(sc) == scoreGap(sc));
@@ -77,16 +74,18 @@ _align_banded_nw_best_ends(TTrace& trace,
     TScoreValue const gapScore = scoreGap(sc);
 
     for(TSize row = 0; row < height; ++row) {
-        actualRow = row + lo_row;
+        TSize actualRow = row + lo_row;
         if (lo_diag > 0) --lo_diag;
         if ((TDiagonal)actualRow >= (TDiagonal)len1 - diagU) --hi_diag;
         TTraceIter traceIt = begin(trace, Standard()) + row * diagonalWidth + lo_diag;
-        TRowIter matIt = begin(mat, Standard()) + lo_diag;
-        TRowIter lenIt = begin(len, Standard()) + lo_diag;
-        hori_val = std::numeric_limits<TScoreValue>::min();
-        hori_len = len1+len2+1;
-        for(TSize col = lo_diag; col<hi_diag; ++col, ++matIt, ++traceIt, ++lenIt) {
-            actualCol = col + diagL + actualRow;
+        TRowIter current_score_rowise_it = begin(mat, Standard()) + lo_diag;
+        TRowIter alignment_length_it = begin(len, Standard()) + lo_diag;
+
+        TScoreValue score_left = std::numeric_limits<TScoreValue>::min();
+        TScoreValue alignment_length_left = len1+len2+1;
+
+        for(TSize col = lo_diag; col<hi_diag; ++col, ++current_score_rowise_it, ++traceIt, ++alignment_length_it) {
+            TSize actualCol = col + diagL + actualRow;
             if (actualCol >= len1) break;
 
             if ((actualRow != 0) && (actualCol != 0)) {
@@ -94,50 +93,51 @@ _align_banded_nw_best_ends(TTrace& trace,
                 TAlphabet const str2entry = sequenceEntryForScore(sc, str2, ((int) actualRow - 1));
 
                 // Get the new maximum for mat
-                *matIt += score(sc, str1entry, str2entry);
+                *current_score_rowise_it += score(sc, str1entry, str2entry);
                 *traceIt = Diagonal;
-                ++(*lenIt);
+                ++(*alignment_length_it);
 
-                verti_val =
+                TScoreValue score_up =
                     (col < diagonalWidth - 1) ?
-                    *(matIt+1) + gapScore :
+                    *(current_score_rowise_it+1) + gapScore :
                     std::numeric_limits<TScoreValue>::min();
 
-                if (verti_val > *matIt)
+                if (score_up > *current_score_rowise_it)
                 {
-                    *matIt = verti_val;
+                    *current_score_rowise_it = score_up;
                     *traceIt = Vertical;
-                    *lenIt = *(lenIt+1) + 1;
+                    *alignment_length_it = *(alignment_length_it+1) + 1;
                 }
 
-                hori_val =
+                score_left =
                     (col > 0) ?
-                    hori_val + gapScore :
+                    score_left + gapScore :
                     std::numeric_limits<TScoreValue>::min();
-                if (hori_val > *matIt)
+                if (score_left > *current_score_rowise_it)
                 {
-                    *matIt = hori_val;
+                    *current_score_rowise_it = score_left;
                     *traceIt = Horizontal;
-                    *lenIt = hori_len + 1;
+                    *alignment_length_it = alignment_length_left + 1;
                 }
-                hori_val = *matIt;
-                hori_len = *lenIt;
+                score_left = *current_score_rowise_it;
+                alignment_length_left = *alignment_length_it;
             } else {
                 // Usual initialization for first row and column
                 if (actualRow == 0) {
-                    *matIt = actualCol * gapScore;
-                    *lenIt = actualCol;
+                    *current_score_rowise_it = actualCol * gapScore;
+                    *alignment_length_it = actualCol;
                 }
                 else {
-                    *matIt = actualRow * gapScore;
-                    *lenIt = actualRow;
-                    hori_val = *matIt;
-                    hori_len = actualRow;
+                    assert(actualCol == 0);
+                    *current_score_rowise_it = actualRow * gapScore;
+                    *alignment_length_it = actualRow;
+                    score_left = *current_score_rowise_it;
+                    alignment_length_left = actualRow;
                 }
             }
 
-            // *matIt: the alignment_score
-            // *lenIt: the alignment_length (basically length of best trace path of the current cell)
+            // *current_score_rowise_it: the alignment_score
+            // *alignment_length_it: the alignment_length (basically length of best trace path of the current cell)
             // alignment_length = |matches| + |mismatches| + |gaps|
             //
             // alignment_score
@@ -152,13 +152,13 @@ _align_banded_nw_best_ends(TTrace& trace,
             // Thus
             //   (alignment_score - alignment_length * match_score) / (gapScore - matchScore)
             // = |mismatches| + |gaps| = errors
-            errors = (*matIt - (*lenIt * matchScore)) / (gapScore - matchScore);
+            errors = (*current_score_rowise_it - (*alignment_length_it * matchScore)) / (gapScore - matchScore);
             SEQAN_ASSERT_LEQ(errors, length(bestEnds));
             if (errors == length(bestEnds)) {
-                appendValue(bestEnds, TEnd(*lenIt, row, col));
-            } else if (*lenIt > static_cast<TScoreValue>(value(bestEnds, errors).length))
-                value(bestEnds, errors) = TEnd(*lenIt, row, col);
-            //std::cerr << row << ',' << col << ':' << *matIt << std::endl;
+                appendValue(bestEnds, TEnd(*alignment_length_it, row, col));
+            } else if (*alignment_length_it > static_cast<TScoreValue>(value(bestEnds, errors).length))
+                value(bestEnds, errors) = TEnd(*alignment_length_it, row, col);
+            //std::cerr << row << ',' << col << ':' << *current_score_rowise_it << std::endl;
         }
     }
     TSize newLength = length(bestEnds) - 1;
