@@ -54,7 +54,7 @@ verifySwiftHit(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> con
 
     // extend alignment and obtain longest contained eps-match
     // TODO: something is wrong here, e.g. extract around seed, but also something else
-    if (!_extendAndExtract(bandedAlign, scoreDropOff, scoreMatrix, infH, infV, EXTEND_BOTH, minLength, eps, align))
+    if (!_extendAndExtract(bandedAlign, scoreDropOff, scoreMatrix, infH, infV, EXTEND_BOTH, minLength, eps, align, verification_runtime.extension_time))
         return;
 
     // insert eps-match in matches string

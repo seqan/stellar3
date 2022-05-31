@@ -6,11 +6,35 @@
 namespace stellar
 {
 
+struct stellar_extension_time : public stellar_runtime
+{
+    stellar_runtime extend_seed_time;
+    stellar_runtime best_extension_time;
+
+    stellar_runtime total_time() const
+    {
+        stellar_runtime total{};
+        total.manual_timing(
+            extend_seed_time._runtime +
+            best_extension_time._runtime);
+
+        return total;
+    }
+
+    void mergeIn(stellar_extension_time const & other)
+    {
+        _runtime += other._runtime;
+
+        extend_seed_time._runtime += other.extend_seed_time._runtime;
+        best_extension_time._runtime += other.best_extension_time._runtime;
+    }
+};
+
 struct stellar_verification_time : public stellar_runtime
 {
     stellar_runtime next_local_alignment_time;
     stellar_runtime split_at_x_drops_time;
-    stellar_runtime extension_time;
+    stellar_extension_time extension_time;
 
     stellar_runtime total_time() const
     {
@@ -29,7 +53,7 @@ struct stellar_verification_time : public stellar_runtime
 
         next_local_alignment_time._runtime += other.next_local_alignment_time._runtime;
         split_at_x_drops_time._runtime += other.split_at_x_drops_time._runtime;
-        extension_time._runtime += other.extension_time._runtime;
+        extension_time.mergeIn(other.extension_time);
     }
 };
 

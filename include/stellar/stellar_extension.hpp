@@ -27,6 +27,7 @@
 #include <stellar/extension/align_banded_nw_best_ends.hpp>
 #include <stellar/extension/extension_end_position.hpp>
 #include <stellar/extension/longest_eps_match.hpp>
+#include <stellar/utils/stellar_kernel_runtime.hpp>
 
 #include <seqan/seeds.h>
 
@@ -619,7 +620,8 @@ _extendAndExtract(Align<Segment<Segment<TSequence const, InfixSegment>, InfixSeg
                   ExtensionDirection const direction,
                   TSize const minLength,
                   TEps const eps,
-                  TAlign & align) {
+                  TAlign & align,
+                  stellar_extension_time & extension_runtime) {
     typedef typename Position<TSequence>::Type TPos;
     typedef Seed<Simple> TSeed;
 
@@ -656,7 +658,11 @@ _extendAndExtract(Align<Segment<Segment<TSequence const, InfixSegment>, InfixSeg
                       "infH is a nested InfixSegment: Segment<Segment<TSequence const, InfixSegment>, InfixSegment>");
         Segment<TSequence const, InfixSegment> infixSequenceH = host(infH); // inner nested Segment
         Segment<TSequence const, InfixSegment> infixSequenceV = host(infV); // inner nested Segment
-        extendSeed(seed, infixSequenceH, infixSequenceV, direction, scoreMatrix, scoreDropOff, GappedXDrop());
+
+        extension_runtime.extend_seed_time.measure_time([&]()
+        {
+            extendSeed(seed, infixSequenceH, infixSequenceV, direction, scoreMatrix, scoreDropOff, GappedXDrop());
+        });
 
         if (static_cast<int64_t>(seedSize(seed)) < minLength - (int)floor(minLength*eps))
             return false;
@@ -681,7 +687,12 @@ _extendAndExtract(Align<Segment<Segment<TSequence const, InfixSegment>, InfixSeg
         // determine best extension lengths and write the trace into align
         Segment<TSequence const, InfixSegment> infixH = infix(infixSequenceH, beginPosition(infH), endPosition(infH));
         Segment<TSequence const, InfixSegment> infixV = infix(infixSequenceV, beginPosition(infV), endPosition(infV));
-        if (!_bestExtension(infixH, infixV, seed, seedOld, alignLen, alignErr, scoreMatrix, direction, minLength, eps, align))
+
+        bool const found_extension = extension_runtime.best_extension_time.measure_time([&]()
+        {
+            return _bestExtension(infixH, infixV, seed, seedOld, alignLen, alignErr, scoreMatrix, direction, minLength, eps, align);
+        });
+        if (!found_extension)
             return false;
         SEQAN_ASSERT_EQ(length(row(align, 0)), length(row(align, 1)));
     }

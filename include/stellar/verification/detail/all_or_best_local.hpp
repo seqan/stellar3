@@ -273,7 +273,7 @@ allOrBestLocal(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> con
 
             bool const extension_succeeded = verification_runtime.extension_time.measure_time([&]()
             {
-                return _extendAndExtract(*aliIt, scoreDropOff, scoreMatrix, infH, infV, direction, minLength, eps, align);
+                return _extendAndExtract(*aliIt, scoreDropOff, scoreMatrix, infH, infV, direction, minLength, eps, align, verification_runtime.extension_time);
             });
 
             // extend alignment and obtain longest contained eps-match
