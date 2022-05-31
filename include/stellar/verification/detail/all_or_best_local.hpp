@@ -5,6 +5,7 @@
 
 #include <stellar/stellar_extension.hpp>
 #include <stellar/stellar_types.hpp>
+#include <stellar/utils/stellar_kernel_runtime.hpp>
 
 namespace stellar
 {
@@ -187,6 +188,7 @@ allOrBestLocal(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> con
                TDrop const xDrop,
                TDelta const delta,
                TOnAlignmentResultFn && onAlignmentResult,
+               stellar_verification_time & verification_runtime,
                std::integral_constant<bool, bestLocalMethod>) {
     using TInfix = Segment<TSequence const, InfixSegment>;
     typedef Segment<TInfix, InfixSegment> TSegment;
@@ -233,14 +235,25 @@ allOrBestLocal(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> con
     assignSource(row(localAlign, 0), infH);
     assignSource(row(localAlign, 1), infV);
 
-    while (nextLocalAlignment(localAlign, enumerator)) {
+    while (true) {
+        bool const has_next = verification_runtime.next_local_alignment_time.measure_time([&]()
+        {
+            return nextLocalAlignment(localAlign, enumerator);
+        });
+
+        if (!has_next)
+            break;
+
     // while (localAlignment(localAlign, finder, scoreMatrix, minScore, lowerDiag, upperDiag, BandedWatermanEggert())) {
 
         // std::cerr << "localAlign == \n" << localAlign << "\n";
 
         // split local alignments containing an X-drop
         String<Align<TSegment> > seedAlignments;
-        _splitAtXDrops(localAlign, scoreMatrix, scoreDropOff, minScore, seedAlignments);
+        verification_runtime.split_at_x_drops_time.measure_time([&]()
+        {
+            _splitAtXDrops(localAlign, scoreMatrix, scoreDropOff, minScore, seedAlignments);
+        });
 
         typename Iterator<String<Align<TSegment> > >::Type aliIt = begin(seedAlignments);
         while (aliIt != end(seedAlignments)) {
@@ -258,8 +271,13 @@ allOrBestLocal(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> con
             else if (aliIt == end(seedAlignments)-1) direction = EXTEND_LEFT;
             else direction = EXTEND_NONE;
 
+            bool const extension_succeeded = verification_runtime.extension_time.measure_time([&]()
+            {
+                return _extendAndExtract(*aliIt, scoreDropOff, scoreMatrix, infH, infV, direction, minLength, eps, align);
+            });
+
             // extend alignment and obtain longest contained eps-match
-            if (!_extendAndExtract(*aliIt, scoreDropOff, scoreMatrix, infH, infV, direction, minLength, eps, align)) {
+            if (!extension_succeeded) {
                 aliIt++;
                 continue;
             }

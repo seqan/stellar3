@@ -2,6 +2,7 @@
 #pragma once
 
 #include <stellar/stellar_types.hpp>
+#include <stellar/utils/stellar_kernel_runtime.hpp>
 
 namespace stellar
 {
@@ -18,6 +19,7 @@ verifySwiftHit(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> con
                TDrop /*xDrop*/,
                TDelta const delta,
                TOnAlignmentResultFn && onAlignmentResult,
+               stellar_verification_time & verification_runtime,
                BandedGlobal) {
     using TInfix = Segment<TSequence const, InfixSegment>;
     typedef Segment<TInfix, InfixSegment> TSegment;

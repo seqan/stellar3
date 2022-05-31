@@ -109,7 +109,8 @@ struct SwiftHitVerifier<TVerifyPassthroughSeed>
     void verify(StellarDatabaseSegment<TAlphabet> const & databaseSegment,
                 StellarQuerySegment<TAlphabet> const & querySegment,
                 TDelta const delta,
-                TOnAlignmentResultFn && onAlignmentResult)
+                TOnAlignmentResultFn && onAlignmentResult,
+                [[maybe_unused]] stellar_verification_time & verification_runtime)
     {
         onAlignmentResult(databaseSegment, querySegment, delta);
     }

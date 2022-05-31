@@ -3,6 +3,7 @@
 
 #include <stellar/stellar_extension.hpp>
 #include <stellar/stellar_types.hpp>
+#include <stellar/utils/stellar_kernel_runtime.hpp>
 
 namespace stellar
 {
@@ -19,6 +20,7 @@ verifySwiftHit(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> con
                TDrop const xDrop,
                TDelta const delta,
                TOnAlignmentResultFn && onAlignmentResult,
+               stellar_verification_time & verification_runtime,
                BandedGlobalExtend) {
     using TInfix = Segment<TSequence const, InfixSegment>;
     typedef Segment<TInfix, InfixSegment> TSegment;

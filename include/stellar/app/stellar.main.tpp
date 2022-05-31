@@ -573,10 +573,16 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
         {
             stellar_kernel_runtime const & parallel_prefiltered_stellar_time
                 = strand_runtime.parallel_prefiltered_stellar_time;
+            stellar_verification_time const & verification_time
+                = strand_runtime.parallel_prefiltered_stellar_time.verification_time;
 
             std::cout << "       + Parallel Prefiltered Stellar Time (" << strandDirection << "): " << parallel_prefiltered_stellar_time.milliseconds() << "ms" << std::endl;
             std::cout << "          + Swift Filter Time (" << strandDirection << "): " << parallel_prefiltered_stellar_time.swift_filter_time.milliseconds() << "ms" << std::endl;
-            std::cout << "          + Seed Verification Time (" << strandDirection << "): " << parallel_prefiltered_stellar_time.verification_time.milliseconds() << "ms" << std::endl;
+            std::cout << "          + Seed Verification Time (" << strandDirection << "): " << verification_time.milliseconds() << "ms" << std::endl;
+            std::cout << "             + Find Next Local Alignment Time (" << strandDirection << "): " << verification_time.next_local_alignment_time.milliseconds() << "ms" << std::endl;
+            std::cout << "             + Split At X-Drops Time (" << strandDirection << "): " << verification_time.split_at_x_drops_time.milliseconds() << "ms" << std::endl;
+            std::cout << "             + Extension Time (" << strandDirection << "): " << verification_time.extension_time.milliseconds() << "ms" << std::endl;
+            std::cout << "             = total time: " << verification_time.total_time().milliseconds() << "ms" << std::endl;
             std::cout << "          = total time: " << parallel_prefiltered_stellar_time.total_time().milliseconds() << "ms" << std::endl;
             std::cout << "       + Post-Process Eps-Matches Time (" << strandDirection << "): " << strand_runtime.post_process_eps_matches_time.milliseconds() << "ms" << std::endl;
             std::cout << "       + File Output Eps-Matches Time (" << strandDirection << "): " << strand_runtime.output_eps_matches_time.milliseconds() << "ms" << std::endl;
