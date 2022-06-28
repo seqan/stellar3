@@ -34,8 +34,11 @@ namespace stellar
 {
 using namespace seqan;
 
+template <typename TAlphabet, typename TString = String<TAlphabet>, typename TInfixSegment = seqan::Segment<TString const, seqan::InfixSegment>>
+using StellarQGramStringSet = StringSet<TInfixSegment, Owner<> >;
+
 template <typename TAlphabet>
-using StellarQGramIndex = Index<StringSet<String<TAlphabet>, Dependent<> > const, IndexQGram<SimpleShape, OpenAddressing> >;
+using StellarQGramIndex = Index<StellarQGramStringSet<TAlphabet> const, IndexQGram<SimpleShape, OpenAddressing> >;
 
 template <typename TAlphabet>
 using StellarSwiftPattern = Pattern<StellarQGramIndex<TAlphabet>, Swift<SwiftLocal> >;
@@ -48,17 +51,15 @@ struct StellarIndex
 {
     using TSequence = seqan::String<TAlphabet>;
     using TInfixSegment = seqan::Segment<seqan::String<TAlphabet> const, seqan::InfixSegment>;
+    using TQGramStringSet = StellarQGramStringSet<TAlphabet>;
 
     template <typename TSpec>
     StellarIndex(StringSet<TSequence, TSpec> const & queries, StellarOptions const & options)
-        : dependentQueries{queries}, qgramIndex{dependentQueries}
-    {
-        resize(indexShape(qgramIndex), options.qGram);
-        cargo(qgramIndex).abundanceCut = options.qgramAbundanceCut;
-    }
+        : StellarIndex{convertImplStringSet(queries), options}
+    {}
 
     StellarIndex(std::span<TInfixSegment> const & queries, StellarOptions const & options)
-        : StellarIndex{convertImpl(queries), options}
+        : StellarIndex{convertImplSpan(queries), options}
     {}
 
     void construct()
@@ -71,15 +72,33 @@ struct StellarIndex
         return {qgramIndex};
     }
 
-    StringSet<String<TAlphabet>, Dependent<> > const dependentQueries;
+    StellarQGramStringSet<TAlphabet> const dependentQueries;
     StellarQGramIndex<TAlphabet> qgramIndex;
 
 private:
-    static StringSet<TSequence, Dependent<> > convertImpl(std::span<TInfixSegment> const & queries)
+    template <typename TOtherQGramStringSet, typename = std::enable_if_t<std::is_same_v<TOtherQGramStringSet, TQGramStringSet>>>
+    StellarIndex(TOtherQGramStringSet && queries, StellarOptions const & options)
+        : dependentQueries{std::forward<TOtherQGramStringSet>(queries)}, qgramIndex{dependentQueries}
     {
-        StringSet<TSequence, Dependent<> > dependentQueries;
+        resize(indexShape(qgramIndex), options.qGram);
+        cargo(qgramIndex).abundanceCut = options.qgramAbundanceCut;
+    }
+
+    template <typename TSpec>
+    static StellarQGramStringSet<TAlphabet> convertImplStringSet(StringSet<TSequence, TSpec> const & queries)
+    {
+        StellarQGramStringSet<TAlphabet> dependentQueries;
+        for (TSequence const & query: queries)
+            seqan::appendValue(dependentQueries, seqan::infix(query, 0, seqan::length(query)));
+
+        return dependentQueries;
+    }
+
+    static StellarQGramStringSet<TAlphabet> convertImplSpan(std::span<TInfixSegment> const & queries)
+    {
+        StellarQGramStringSet<TAlphabet> dependentQueries;
         for (TInfixSegment const & query: queries)
-            seqan::appendValue(dependentQueries, seqan::host(query));
+            seqan::appendValue(dependentQueries, query);
 
         return dependentQueries;
     }

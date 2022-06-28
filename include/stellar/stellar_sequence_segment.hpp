@@ -9,11 +9,16 @@ namespace stellar
 template <typename TAlphabet>
 struct StellarSequenceSegment
 {
-    using TInfixSegment = seqan::Segment<seqan::String<TAlphabet> const, seqan::InfixSegment>;
+    using TString = seqan::String<TAlphabet>;
+    using TInfixSegment = seqan::Segment<TString const, seqan::InfixSegment>;
 
     StellarSequenceSegment() = default;
 
-    StellarSequenceSegment(seqan::String<TAlphabet> const & sequence, size_t const beginPosition, size_t const endPosition)
+    template <typename TOtherString, typename = std::enable_if_t< std::is_same_v<TString, TOtherString> > >
+    StellarSequenceSegment(
+        TOtherString const & sequence,
+        size_t const beginPosition,
+        size_t const endPosition)
         : _sequenceSegment{sequence, beginPosition, endPosition}
     {}
 

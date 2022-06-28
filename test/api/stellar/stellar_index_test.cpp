@@ -180,9 +180,12 @@ results<TAlphabet> stellar_kernel_swift_seeds(
     }
 
     // make sure that dependentQueries are reference to the actual queries (have same pointer address)
+    EXPECT_GT(length(dependentQueries), 0u);
     EXPECT_EQ(std::addressof(self.factory.underlyingSequence(dependentQueries[0])), std::addressof(queries[0]));
-    EXPECT_EQ(std::addressof(self.factory.underlyingSequence(dependentQueries[1])), std::addressof(queries[1]));
-    EXPECT_EQ(std::addressof(self.factory.underlyingSequence(dependentQueries[2])), std::addressof(queries[2]));
+    for (size_t i = 0; i < length(dependentQueries); ++i)
+    {
+        EXPECT_EQ(std::addressof(self.factory.underlyingSequence(dependentQueries[i])), std::addressof(queries[i]));
+    }
 
     stellar::StellarIndex<TAlphabet> index{dependentQueries, options};
     index.construct();

@@ -15,12 +15,14 @@ template <typename TSwiftPattern>
 StellarQuerySegment<TAlphabet>
 StellarQuerySegment<TAlphabet>::fromPatternMatch(TSwiftPattern const & swiftPattern)
 {
-    using TSequence = seqan::String<TAlphabet>;
-
     size_t const queryID = swiftPattern.curSeqNo;
-    TSequence const & query = seqan::getSequenceByNo(queryID, seqan::indexText(seqan::needle(swiftPattern)));
-    TInfixSegment const queryInfix = seqan::infix(swiftPattern, query);
-    return {query, seqan::beginPosition(queryInfix), seqan::endPosition(queryInfix)};
+    auto const & queryInfix = seqan::getSequenceByNo(queryID, seqan::indexText(seqan::needle(swiftPattern)));
+    static_assert(std::is_same_v<decltype(queryInfix), TInfixSegment const &>);
+    auto const & underlyingQuery = host(queryInfix);
+    static_assert(std::is_same_v<decltype(underlyingQuery), seqan::String<TAlphabet> const &>);
+    auto const queryInfixInfix = seqan::infix(swiftPattern, queryInfix);
+
+    return {underlyingQuery, seqan::beginPosition(queryInfixInfix), seqan::endPosition(queryInfixInfix)};
 }
 
 } // namespace stellar
