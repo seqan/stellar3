@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <stellar/stellar_index.hpp>
 #include <stellar/prefilter/no_query_prefilter.hpp>
 #include <stellar/prefilter/whole_database_agent_splitter.hpp>
 #include <stellar/prefilter/nsegment_database_agent_splitter.hpp>
@@ -7,7 +8,7 @@
 TEST(NoQueryPrefilter, WholeDatabaseAgentSplitter)
 {
     using TAlphabet = seqan::Dna5;
-    using TQueryFilter = seqan::StringSet<seqan::String<TAlphabet> > const &;
+    using TQuerySwiftFilter = stellar::StellarSwiftPattern<TAlphabet>;
     using TAgentSplitter = stellar::WholeDatabaseAgentSplitter;
 
     seqan::StringSet<seqan::String<TAlphabet> > databases{};
@@ -21,33 +22,38 @@ TEST(NoQueryPrefilter, WholeDatabaseAgentSplitter)
     appendValue(queries, "GGGG");
     appendValue(queries, "TTTT");
 
-    // Note: TQueryFilter are the queries themselve to check whith which queries the actual filter would have been
-    //       constructed.
-    using TPrefilter = stellar::NoQueryPrefilter<TAlphabet, TQueryFilter, TAgentSplitter>;
-    using TPrefilterAgent = TPrefilter::Agent;
+    using TPrefilter = stellar::NoQueryPrefilter<TAlphabet, TQuerySwiftFilter, TAgentSplitter>;
+    using TPrefilterAgent = typename TPrefilter::Agent;
 
-    size_t const agentCount = 2u;
-    size_t const minLength = 2u;
+    stellar::StellarOptions options{};
+    options.minLength = 2u;
+    options.threadCount = 3u;
+    options.epsilon = {0, 1}; // 0.0
+
+    stellar::StellarIndex<TAlphabet> index{queries, options};
+
     TAgentSplitter const splitter{};
-    TPrefilter prefilter{databases, queries};
+    TPrefilter prefilter{databases, index.createSwiftPattern(), splitter};
 
     using TDatabaseSegment = stellar::StellarDatabaseSegment<TAlphabet>;
     std::vector<TDatabaseSegment> seenDatabases{};
-    std::vector<TDatabaseSegment> expectedSeenDatabases = splitter.split(databases, minLength);
+    std::vector<TDatabaseSegment> expectedSeenDatabases = splitter.split(databases, options.minLength);
 
-    for (TPrefilterAgent prefilterAgent: prefilter.agents(agentCount, minLength))
+    // implicit conversion to base class
+    for (TPrefilterAgent & prefilterAgent: prefilter.agents(options.threadCount, options.minLength))
     {
         using TDatabaseSegments = typename TPrefilter::TDatabaseSegments;
-        using TQueryFilter = typename TPrefilter::TQueryFilter;
 
-        prefilterAgent.prefilter([&](TDatabaseSegments databaseSegments, TQueryFilter queryFilter)
+        prefilterAgent.prefilter([&](TDatabaseSegments databaseSegments, TQuerySwiftFilter & queryFilter)
         {
             // collect all seen databases
             for (TDatabaseSegment const & databaseSegment : databaseSegments)
                 seenDatabases.push_back(databaseSegment);
 
-            // This ensures that the queryFilter would have been constructed with ALL queries
-            EXPECT_EQ(queryFilter, queries);
+            // This ensures that the queryFilter is been constructed with ALL queries
+            auto && querySegments = stellar::StellarIndex<TAlphabet>::sequencesFromPattern(queryFilter);
+            static_assert(std::is_same_v<decltype(querySegments), stellar::StellarQGramStringSet<TAlphabet> const &>);
+            EXPECT_EQ(queries, querySegments);
         });
     }
 
@@ -60,7 +66,7 @@ TEST(NoQueryPrefilter, WholeDatabaseAgentSplitter)
 TEST(NoQueryPrefilter, NSegmentDatabaseAgentSplitter)
 {
     using TAlphabet = seqan::Dna5;
-    using TQueryFilter = seqan::StringSet<seqan::String<TAlphabet> > const &;
+    using TQuerySwiftFilter = stellar::StellarSwiftPattern<TAlphabet>;
     using TAgentSplitter = stellar::NSegmentDatabaseAgentSplitter;
 
     seqan::StringSet<seqan::String<TAlphabet> > databases{};
@@ -74,33 +80,38 @@ TEST(NoQueryPrefilter, NSegmentDatabaseAgentSplitter)
     appendValue(queries, "GGGG");
     appendValue(queries, "TTTT");
 
-    // Note: TQueryFilter are the queries themselve to check whith which queries the actual filter would have been
-    //       constructed.
-    using TPrefilter = stellar::NoQueryPrefilter<TAlphabet, TQueryFilter, TAgentSplitter>;
-    using TPrefilterAgent = TPrefilter::Agent;
+    using TPrefilter = stellar::NoQueryPrefilter<TAlphabet, TQuerySwiftFilter, TAgentSplitter>;
+    using TPrefilterAgent = typename TPrefilter::Agent;
 
-    size_t const agentCount = 3u;
-    size_t const minLength = 2u;
+    stellar::StellarOptions options{};
+    options.minLength = 2u;
+    options.threadCount = 3u;
+    options.epsilon = {0, 1}; // 0.0
+
+    stellar::StellarIndex<TAlphabet> index{queries, options};
+
     TAgentSplitter const splitter{4u};
-    TPrefilter prefilter{databases, queries, splitter};
+    TPrefilter prefilter{databases, index.createSwiftPattern(), splitter};
 
     using TDatabaseSegment = stellar::StellarDatabaseSegment<TAlphabet>;
     std::vector<TDatabaseSegment> seenDatabases{};
-    std::vector<TDatabaseSegment> expectedSeenDatabases = splitter.split(databases, minLength);
+    std::vector<TDatabaseSegment> expectedSeenDatabases = splitter.split(databases, options.minLength);
 
-    for (TPrefilterAgent prefilterAgent: prefilter.agents(agentCount, minLength))
+    // implicit conversion to base class
+    for (TPrefilterAgent & prefilterAgent: prefilter.agents(options.threadCount, options.minLength))
     {
         using TDatabaseSegments = typename TPrefilter::TDatabaseSegments;
-        using TQueryFilter = typename TPrefilter::TQueryFilter;
 
-        prefilterAgent.prefilter([&](TDatabaseSegments databaseSegments, TQueryFilter queryFilter)
+        prefilterAgent.prefilter([&](TDatabaseSegments databaseSegments, TQuerySwiftFilter & queryFilter)
         {
             // collect all seen databases
             for (TDatabaseSegment const & databaseSegment : databaseSegments)
                 seenDatabases.push_back(databaseSegment);
 
-            // This ensures that the queryFilter would have been constructed with ALL queries
-            EXPECT_EQ(queryFilter, queries);
+            // This ensures that the queryFilter is been constructed with ALL queries
+            auto && querySegments = stellar::StellarIndex<TAlphabet>::sequencesFromPattern(queryFilter);
+            static_assert(std::is_same_v<decltype(querySegments), stellar::StellarQGramStringSet<TAlphabet> const &>);
+            EXPECT_EQ(queries, querySegments);
         });
     }
 
