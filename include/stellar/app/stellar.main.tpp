@@ -50,48 +50,6 @@ using namespace seqan;
 //////////////////////////////////////////////////////////////////////////////
 namespace seqan {
 
-template <typename TAlphabet>
-struct Cargo<::stellar::StellarQGramIndex<TAlphabet>>
-{
-    typedef struct
-    {
-        double      abundanceCut;
-    } Type;
-};
-
-//////////////////////////////////////////////////////////////////////////////
-// Repeat masker
-template <typename TAlphabet>
-inline bool _qgramDisableBuckets(::stellar::StellarQGramIndex<TAlphabet> & index)
-{
-    using TIndex = ::stellar::StellarQGramIndex<TAlphabet>;
-    using TDir = typename Fibre<TIndex, QGramDir>::Type;
-    using TDirIterator = typename Iterator<TDir, Standard>::Type;
-    using TSize = typename Value<TDir>::Type;
-
-    TDir & dir   = indexDir(index);
-    bool result  = false;
-    unsigned counter = 0;
-    TSize thresh = (TSize)(length(index) * cargo(index).abundanceCut);
-    if (thresh < 100)
-        thresh = 100;
-
-    TDirIterator it = begin(dir, Standard());
-    TDirIterator itEnd = end(dir, Standard());
-    for (; it != itEnd; ++it)
-        if (*it > thresh)
-        {
-            *it = (TSize) - 1;
-            result = true;
-            ++counter;
-        }
-
-    if (counter > 0)
-        std::cerr << "Removed " << counter << " k-mers" << ::std::endl;
-
-    return result;
-}
-
 template <>
 struct FunctorComplement<AminoAcid>:
     public::std::function<AminoAcid(AminoAcid)>
