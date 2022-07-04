@@ -62,6 +62,12 @@ struct StellarIndex
         : StellarIndex{convertImplSpan(queries), options}
     {}
 
+    StellarIndex() = delete;
+    StellarIndex(StellarIndex &&) = delete;
+    StellarIndex(StellarIndex const &) = delete;
+    StellarIndex & operator=(StellarIndex &&) = delete;
+    StellarIndex & operator=(StellarIndex const &) = delete;
+
     void construct()
     {
         indexRequire(qgramIndex, QGramSADir());
