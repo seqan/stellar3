@@ -213,7 +213,7 @@ struct StellarApp
     {
         using TQueryFilter = StellarSwiftPattern<TAlphabet>;
         using TSplitter = WholeDatabaseAgentSplitter;
-        using TPrefilter = NoQueryPrefilter<TAlphabet, TQueryFilter, TSplitter>;
+        using TPrefilter = NoQueryPrefilter<TAlphabet, TSplitter>;
 
         return TPrefilter{databases, TQueryFilter{swiftPattern} /*copy pattern*/, TSplitter{}};
     }

@@ -15,7 +15,6 @@ TYPED_TEST_SUITE(NoQueryPrefilterTest, AgentSplitter);
 TYPED_TEST(NoQueryPrefilterTest, prefilter)
 {
     using TAlphabet = seqan::Dna5;
-    using TQuerySwiftFilter = stellar::StellarSwiftPattern<TAlphabet>;
     using TAgentSplitter = TypeParam;
 
     seqan::StringSet<seqan::String<TAlphabet> > databases{};
@@ -29,7 +28,7 @@ TYPED_TEST(NoQueryPrefilterTest, prefilter)
     appendValue(queries, "GGGG");
     appendValue(queries, "TTTT");
 
-    using TPrefilter = stellar::NoQueryPrefilter<TAlphabet, TQuerySwiftFilter, TAgentSplitter>;
+    using TPrefilter = stellar::NoQueryPrefilter<TAlphabet, TAgentSplitter>;
     using TPrefilterAgent = typename TPrefilter::Agent;
 
     stellar::StellarOptions options{};
@@ -59,6 +58,7 @@ TYPED_TEST(NoQueryPrefilterTest, prefilter)
     for (TPrefilterAgent & prefilterAgent: prefilter.agents(options.threadCount, options.minLength))
     {
         using TDatabaseSegments = typename TPrefilter::TDatabaseSegments;
+        using TQuerySwiftFilter = typename TPrefilter::TQueryFilter;
 
         prefilterAgent.prefilter([&](TDatabaseSegments databaseSegments, TQuerySwiftFilter & queryFilter)
         {

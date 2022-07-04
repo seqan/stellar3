@@ -12,7 +12,7 @@ namespace stellar
 
 // Prefilter: filters out the queries for each database sequence.
 // In this case it does not filter out any queries and only builds a single query filter
-template <typename TAlphabet, typename TQueryFilter_, typename TAgentSplitter>
+template <typename TAlphabet, typename TAgentSplitter, typename TQueryFilter_ = stellar::StellarSwiftPattern<TAlphabet>>
 struct NoQueryPrefilter
 {
     using TQueryFilter = TQueryFilter_;
