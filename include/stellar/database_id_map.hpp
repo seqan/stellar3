@@ -9,11 +9,21 @@ namespace stellar
 template <typename TAlphabet, typename TId = seqan::CharString>
 struct DatabaseIDMap
 {
+    size_t recordID(StellarDatabaseSegment<TAlphabet> const & databaseSegment) const
+    {
+        return recordID(databaseSegment.underlyingDatabase());
+    }
+
     size_t recordID(seqan::String<TAlphabet> const & database) const
     {
         seqan::String<TAlphabet> const * begin = &databases[0];
         seqan::String<TAlphabet> const * current = std::addressof(database);
         return current - begin;
+    }
+
+    TId const & databaseID(size_t const recordID) const
+    {
+        return databaseIDs[recordID];
     }
 
     TId const & databaseID(seqan::String<TAlphabet> const & database) const
