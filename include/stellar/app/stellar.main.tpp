@@ -203,6 +203,21 @@ struct StellarApp
         return computeStatistics;
     }
 
+    static auto select_prefilter
+    (
+        stellar::StellarOptions const & /*options*/,
+        StringSet<String<TAlphabet> > const & databases,
+        StringSet<String<TAlphabet> > const & /*queries*/,
+        StellarSwiftPattern<TAlphabet> & swiftPattern // TODO: don't require this -> move that out
+    )
+    {
+        using TQueryFilter = StellarSwiftPattern<TAlphabet>;
+        using TSplitter = WholeDatabaseAgentSplitter;
+        using TPrefilter = NoQueryPrefilter<TAlphabet, TQueryFilter, TSplitter>;
+
+        return TPrefilter{databases, TQueryFilter{swiftPattern} /*copy pattern*/, TSplitter{}};
+    }
+
     static StellarComputeStatistics
     search_and_verify(
         StellarDatabaseSegment<TAlphabet> const databaseSegment,
@@ -280,11 +295,8 @@ _parallelPrefilterStellar(
     StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > & matches,
     stellar_kernel_runtime & stellar_kernel_runtime)
 {
-    using TQueryFilter = StellarSwiftPattern<TAlphabet>;
-    using TSplitter = WholeDatabaseAgentSplitter;
-    using TPrefilter = NoQueryPrefilter<TAlphabet, TQueryFilter, TSplitter>;
-
-    TPrefilter prefilter{databases, TQueryFilter{swiftPattern} /*copy pattern*/, TSplitter{}};
+    auto prefilter
+        = StellarApp<TAlphabet>::select_prefilter(options, databases, queries, swiftPattern);
 
     DatabaseIDMap<TAlphabet> databaseIDMap{databases, databaseIDs};
 
