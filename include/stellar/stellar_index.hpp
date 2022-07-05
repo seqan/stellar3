@@ -28,7 +28,7 @@
 
 #include <seqan3/std/span>
 
-#include <stellar/stellar_types.hpp> // StellarOptions
+#include <stellar/options/index_options.hpp>
 
 namespace stellar
 {
@@ -54,11 +54,11 @@ struct StellarIndex
     using TQGramStringSet = StellarQGramStringSet<TAlphabet>;
 
     template <typename TSpec>
-    StellarIndex(StringSet<TSequence, TSpec> const & queries, StellarOptions const & options)
+    StellarIndex(StringSet<TSequence, TSpec> const & queries, IndexOptions const & options)
         : StellarIndex{convertImplStringSet(queries), options}
     {}
 
-    StellarIndex(std::span<TInfixSegment> const & queries, StellarOptions const & options)
+    StellarIndex(std::span<TInfixSegment> const & queries, IndexOptions const & options)
         : StellarIndex{convertImplSpan(queries), options}
     {}
 
@@ -83,7 +83,7 @@ struct StellarIndex
 
 private:
     template <typename TOtherQGramStringSet, typename = std::enable_if_t<std::is_same_v<TOtherQGramStringSet, TQGramStringSet>>>
-    StellarIndex(TOtherQGramStringSet && queries, StellarOptions const & options)
+    StellarIndex(TOtherQGramStringSet && queries, IndexOptions const & options)
         : dependentQueries{std::forward<TOtherQGramStringSet>(queries)}, qgramIndex{dependentQueries}
     {
         resize(indexShape(qgramIndex), options.qGram);
