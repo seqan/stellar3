@@ -26,6 +26,7 @@
 
 #include <seqan/align.h>
 
+#include <stellar/options/index_options.hpp>
 #include <stellar/utils/fraction.hpp>
 
 #if __cpp_designated_initializers || __GNUC__ >= 8
@@ -84,7 +85,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 // Options for Stellar
-struct StellarOptions {
+struct StellarOptions : public IndexOptions {
     // i/o options
     CharString databaseFile;        // name of database file
     CharString queryFile;           // name of query file
@@ -95,7 +96,6 @@ struct StellarOptions {
     bool noRT;                      // suppress printing of running time if set to true
 
     // main options
-    unsigned qGram;             // length of the q-grams
     stellar::utils::fraction epsilon{5, 100}; // maximal error rate
     int minLength;              // minimal length of an epsilon-match
     double xDrop;               // maximal x-drop
@@ -111,7 +111,6 @@ struct StellarOptions {
     unsigned numMatches;        // maximal number of matches per query and database
     unsigned maxRepeatPeriod;   // maximal period of low complexity repeats to be filtered
     unsigned minRepeatLength;   // minimal length of low complexity repeats to be filtered
-    double qgramAbundanceCut;
     bool verbose;               // verbose mode
 
 
@@ -122,7 +121,6 @@ struct StellarOptions {
         alphabet = "dna5";
         noRT = false;
 
-        qGram = std::numeric_limits<unsigned>::max();
         minLength = 100;
         xDrop = 5;
 
@@ -133,7 +131,6 @@ struct StellarOptions {
         numMatches = 50;
         maxRepeatPeriod = 1;
         minRepeatLength = 1000;
-        qgramAbundanceCut = 1;
         verbose = false;
     }
 
