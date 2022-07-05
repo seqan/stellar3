@@ -115,6 +115,91 @@ void _postproccessQueryMatches(bool const databaseStrand, StellarOptions const &
         _postproccessLengthAdjustment(matches);
 }
 
+template <typename TAlphabet, typename TId = CharString>
+struct StellarApp
+{
+    template <typename visitor_fn_t>
+    static constexpr StellarComputeStatistics _verificationMethodVisit(
+        StellarVerificationMethod verificationMethod,
+        visitor_fn_t && visitor_fn
+    )
+    {
+        if (verificationMethod == StellarVerificationMethod{AllLocal{}})
+            return visitor_fn(AllLocal());
+        else if (verificationMethod == StellarVerificationMethod{BestLocal{}})
+            return visitor_fn(BestLocal());
+        else if (verificationMethod == StellarVerificationMethod{BandedGlobal{}})
+            return visitor_fn(BandedGlobal());
+        else if (verificationMethod == StellarVerificationMethod{BandedGlobalExtend{}})
+            return visitor_fn(BandedGlobalExtend());
+        return StellarComputeStatistics{};
+    };
+
+    static StellarComputeStatistics
+    search_and_verify(
+        StellarDatabaseSegment<TAlphabet> const databaseSegment,
+        TId const & databaseID,
+        bool const databaseStrand,
+        StellarOptions & localOptions, // localOptions.compactThresh is out-param
+        StellarSwiftPattern<TAlphabet> & localSwiftPattern,
+        stellar::stellar_kernel_runtime & local_runtime,
+        StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > & localMatches
+    )
+    {
+        using TSequence = String<TAlphabet>;
+
+        auto getQueryMatches = [&](auto const & pattern) -> QueryMatches<StellarMatch<TSequence const, TId> > &
+        {
+            return value(localMatches, pattern.curSeqNo);
+        };
+
+        auto isPatternDisabled = [&](StellarSwiftPattern<TAlphabet> & pattern) -> bool {
+            QueryMatches<StellarMatch<TSequence const, TId> > & queryMatches = getQueryMatches(pattern);
+            return queryMatches.disabled;
+        };
+
+        auto onAlignmentResult = [&](auto & alignment) -> bool {
+            QueryMatches<StellarMatch<TSequence const, TId> > & queryMatches = getQueryMatches(localSwiftPattern);
+
+            StellarMatch<TSequence const, TId> match(alignment, databaseID, databaseStrand);
+            length(match);  // DEBUG: Contains assertion on clipping.
+
+            // success
+            return _insertMatch(
+                queryMatches,
+                match,
+                localOptions.minLength,
+                localOptions.disableThresh,
+                // compactThresh is basically an output-parameter; will be updated in kernel and propagated back
+                // outside of this function, the reason why StellarOptions can't be passed as const to this function.
+                // TODO: We might want to make this tied to the QueryMatches itself, as it should know then to consolidate
+                // the matches
+                localOptions.compactThresh,
+                localOptions.numMatches
+            );
+        };
+
+        // finder
+        StellarSwiftFinder<TAlphabet> swiftFinder(databaseSegment.asInfixSegment(), localOptions.minRepeatLength, localOptions.maxRepeatPeriod);
+
+        StellarComputeStatistics statistics = _verificationMethodVisit(
+            localOptions.verificationMethod,
+            [&](auto tag) -> StellarComputeStatistics
+            {
+                using TTag = decltype(tag);
+                SwiftHitVerifier<TTag> swiftVerifier
+                {
+                    STELLAR_DESIGNATED_INITIALIZER(.eps_match_options = , localOptions),
+                    STELLAR_DESIGNATED_INITIALIZER(.verifier_options = , localOptions),
+                };
+
+                return _stellarKernel(swiftFinder, localSwiftPattern, swiftVerifier, isPatternDisabled, onAlignmentResult, local_runtime);
+            });
+
+        return statistics;
+    }
+};
+
 template <typename TAlphabet, typename TId>
 inline StellarComputeStatisticsCollection
 _parallelPrefilterStellar(
@@ -134,21 +219,6 @@ _parallelPrefilterStellar(
     using TPrefilter = NoQueryPrefilter<TAlphabet, TQueryFilter, TSplitter>;
     using TPrefilterAgent = typename TPrefilter::Agent;
     using TDatabaseSegments = typename TPrefilter::TDatabaseSegments;
-
-    static constexpr auto _verificationMethodVisit =
-    [](StellarVerificationMethod verificationMethod, auto && visitor_fn)
-        -> StellarComputeStatistics
-    {
-        if (verificationMethod == StellarVerificationMethod{AllLocal{}})
-            return visitor_fn(AllLocal());
-        else if (verificationMethod == StellarVerificationMethod{BestLocal{}})
-            return visitor_fn(BestLocal());
-        else if (verificationMethod == StellarVerificationMethod{BandedGlobal{}})
-            return visitor_fn(BandedGlobal());
-        else if (verificationMethod == StellarVerificationMethod{BandedGlobalExtend{}})
-            return visitor_fn(BandedGlobalExtend());
-        return StellarComputeStatistics{};
-    };
 
     TPrefilter prefilter{databases, TQueryFilter{swiftPattern} /*copy pattern*/, TSplitter{}};
 
@@ -174,55 +244,18 @@ _parallelPrefilterStellar(
             {
                 String<TAlphabet> const & database = databaseSegment.underlyingDatabase();
                 size_t const databaseRecordID = databaseIDMap.recordID(database);
+                TId const & databaseID = databaseIDMap.databaseIDs[databaseRecordID];
 
-                auto getQueryMatches = [&](auto const & pattern) -> QueryMatches<StellarMatch<TSequence const, TId> > &
-                {
-                    return value(localMatches, pattern.curSeqNo);
-                };
-
-                auto isPatternDisabled = [&](StellarSwiftPattern<TAlphabet> & pattern) -> bool {
-                    QueryMatches<StellarMatch<TSequence const, TId> > & queryMatches = getQueryMatches(pattern);
-                    return queryMatches.disabled;
-                };
-
-                auto onAlignmentResult = [&](auto & alignment) -> bool {
-                    QueryMatches<StellarMatch<TSequence const, TId> > & queryMatches = getQueryMatches(localSwiftPattern);
-
-                    TId const & databaseID = databaseIDMap.databaseIDs[databaseRecordID];
-                    StellarMatch<TSequence const, TId> match(alignment, databaseID, databaseStrand);
-                    length(match);  // DEBUG: Contains assertion on clipping.
-
-                    // success
-                    return _insertMatch(
-                        queryMatches,
-                        match,
-                        localOptions.minLength,
-                        localOptions.disableThresh,
-                        // compactThresh is basically an output-parameter; will be updated in kernel and propagated back
-                        // outside of this function, the reason why StellarOptions can't be passed as const to this function.
-                        // TODO: We might want to make this tied to the QueryMatches itself, as it should know then to consolidate
-                        // the matches
-                        localOptions.compactThresh,
-                        localOptions.numMatches
-                    );
-                };
-
-                // finder
-                StellarSwiftFinder<TAlphabet> swiftFinder(databaseSegment.asInfixSegment(), localOptions.minRepeatLength, localOptions.maxRepeatPeriod);
-
-                StellarComputeStatistics statistics = _verificationMethodVisit(
-                    localOptions.verificationMethod,
-                    [&](auto tag) -> StellarComputeStatistics
-                    {
-                        using TTag = decltype(tag);
-                        SwiftHitVerifier<TTag> swiftVerifier
-                        {
-                            STELLAR_DESIGNATED_INITIALIZER(.eps_match_options = , localOptions),
-                            STELLAR_DESIGNATED_INITIALIZER(.verifier_options = , localOptions),
-                        };
-
-                        return _stellarKernel(swiftFinder, localSwiftPattern, swiftVerifier, isPatternDisabled, onAlignmentResult, local_runtime);
-                    });
+                StellarComputeStatistics statistics = StellarApp<TAlphabet>::search_and_verify
+                (
+                    databaseSegment,
+                    databaseID,
+                    databaseStrand,
+                    localOptions,
+                    localSwiftPattern,
+                    local_runtime,
+                    localMatches
+                );
 
                 localPartialStatistics.updateByRecordID(databaseRecordID, statistics);
             }
