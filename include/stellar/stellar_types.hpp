@@ -26,8 +26,8 @@
 
 #include <seqan/align.h>
 
+#include <stellar/options/eps_match_options.hpp>
 #include <stellar/options/index_options.hpp>
-#include <stellar/utils/fraction.hpp>
 
 #if __cpp_designated_initializers || __GNUC__ >= 8
 #   define STELLAR_DESIGNATED_INITIALIZER(designator, value) designator value
@@ -85,7 +85,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 // Options for Stellar
-struct StellarOptions : public IndexOptions {
+struct StellarOptions : public EPSMatchOptions, public IndexOptions {
     // i/o options
     CharString databaseFile;        // name of database file
     CharString queryFile;           // name of query file
@@ -96,8 +96,6 @@ struct StellarOptions : public IndexOptions {
     bool noRT;                      // suppress printing of running time if set to true
 
     // main options
-    stellar::utils::fraction epsilon{5, 100}; // maximal error rate
-    int minLength;              // minimal length of an epsilon-match
     double xDrop;               // maximal x-drop
 
     // more options
@@ -121,7 +119,6 @@ struct StellarOptions : public IndexOptions {
         alphabet = "dna5";
         noRT = false;
 
-        minLength = 100;
         xDrop = 5;
 
         forward = true;
