@@ -123,9 +123,8 @@ struct TVerifyPassthroughSeed{};
 template <>
 struct SwiftHitVerifier<TVerifyPassthroughSeed>
 {
-    stellar::utils::fraction const epsilon;
-    int const minLength;
-    double const xDrop;
+    EPSMatchOptions eps_match_options;
+    VerifierOptions verifier_options;
 
     template <typename TAlphabet, typename TDelta, typename TOnAlignmentResultFn>
     void verify(StellarDatabaseSegment<TAlphabet> const & databaseSegment,
@@ -208,9 +207,8 @@ results<TAlphabet> stellar_kernel_swift_seeds(
 
     stellar::SwiftHitVerifier<stellar::TVerifyPassthroughSeed> verifier
     {
-        STELLAR_DESIGNATED_INITIALIZER(.epsilon =, options.epsilon),
-        STELLAR_DESIGNATED_INITIALIZER(.minLength =, options.minLength),
-        STELLAR_DESIGNATED_INITIALIZER(.xDrop =, options.xDrop)
+        STELLAR_DESIGNATED_INITIALIZER(.eps_match_options =, options),
+        STELLAR_DESIGNATED_INITIALIZER(.verifier_options =, options),
     };
     auto isPatternDisabled = [](...){ return false; };
 

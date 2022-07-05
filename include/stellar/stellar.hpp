@@ -279,7 +279,7 @@ _stellarKernel(StellarSwiftFinder<TAlphabet> & finder,
 
         bool const has_next = stellar_kernel_runtime.swift_filter_time.measure_time([&]()
         {
-            return find(finder, pattern, swiftVerifier.epsilon, swiftVerifier.minLength);
+            return find(finder, pattern, swiftVerifier.eps_match_options.epsilon, swiftVerifier.eps_match_options.minLength);
         });
 
         if (!has_next)
