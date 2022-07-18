@@ -135,6 +135,74 @@ struct StellarApp
         return StellarComputeStatistics{};
     };
 
+    template <typename TPrefilter>
+    static StellarComputeStatisticsCollection
+    parallel_prefilter
+    (
+        TPrefilter & prefilter,
+        DatabaseIDMap<TAlphabet> const & databaseIDMap,
+        bool const databaseStrand,
+        StellarOptions const & options,
+        stellar_kernel_runtime & stellar_kernel_runtime,
+        StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > & matches
+    )
+    {
+        using TPrefilterAgent = typename TPrefilter::Agent;
+        using TDatabaseSegments = typename TPrefilter::TDatabaseSegments;
+        using TQueryFilter = StellarSwiftPattern<TAlphabet>;
+        using TSequence = String<TAlphabet>;
+
+        StellarComputeStatisticsCollection computeStatistics{length(databaseIDMap.databases)};
+
+        std::vector<TPrefilterAgent> prefilterAgents = prefilter.agents(options.threadCount, options.minLength);
+
+        #pragma omp parallel for num_threads(prefilterAgents.size()) default(none) firstprivate(databaseStrand) shared(std::cout, prefilterAgents, options, matches, databaseIDMap, computeStatistics, stellar_kernel_runtime)
+        for (TPrefilterAgent & agent: prefilterAgents)
+        {
+            StringSet<QueryMatches<StellarMatch<TSequence const, TId> > > localMatches;
+            resize(localMatches, length(matches));
+
+            StellarOptions localOptions = options;
+            StellarComputeStatisticsPartialCollection localPartialStatistics{computeStatistics.size()};
+            stellar::stellar_kernel_runtime local_runtime{};
+
+            agent.prefilter([&](TDatabaseSegments const & databaseSegments, TQueryFilter localSwiftPattern)
+            {
+                for (StellarDatabaseSegment<TAlphabet> const & databaseSegment : databaseSegments)
+                {
+                    String<TAlphabet> const & database = databaseSegment.underlyingDatabase();
+                    size_t const databaseRecordID = databaseIDMap.recordID(database);
+                    TId const & databaseID = databaseIDMap.databaseIDs[databaseRecordID];
+
+                    StellarComputeStatistics statistics = StellarApp<TAlphabet>::search_and_verify
+                    (
+                        databaseSegment,
+                        databaseID,
+                        databaseStrand,
+                        localOptions,
+                        localSwiftPattern,
+                        local_runtime,
+                        localMatches
+                    );
+
+                    localPartialStatistics.updateByRecordID(databaseRecordID, statistics);
+                }
+            });
+
+            #pragma omp critical
+            {
+                // linear in database count
+                computeStatistics.mergePartialIn(localPartialStatistics);
+                // linear in queries count
+                _mergeMatchesIntoFirst(matches, localMatches);
+                // constant time
+                stellar_kernel_runtime.mergeIn(local_runtime);
+            }
+        } // parallel region - end
+
+        return computeStatistics;
+    }
+
     static StellarComputeStatistics
     search_and_verify(
         StellarDatabaseSegment<TAlphabet> const databaseSegment,
@@ -212,67 +280,23 @@ _parallelPrefilterStellar(
     StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > & matches,
     stellar_kernel_runtime & stellar_kernel_runtime)
 {
-    using TSequence = String<TAlphabet>;
-
     using TQueryFilter = StellarSwiftPattern<TAlphabet>;
     using TSplitter = WholeDatabaseAgentSplitter;
     using TPrefilter = NoQueryPrefilter<TAlphabet, TQueryFilter, TSplitter>;
-    using TPrefilterAgent = typename TPrefilter::Agent;
-    using TDatabaseSegments = typename TPrefilter::TDatabaseSegments;
 
     TPrefilter prefilter{databases, TQueryFilter{swiftPattern} /*copy pattern*/, TSplitter{}};
 
-    StellarComputeStatisticsCollection computeStatistics{length(databases)};
-
     DatabaseIDMap<TAlphabet> databaseIDMap{databases, databaseIDs};
 
-    std::vector<TPrefilterAgent> prefilterAgents = prefilter.agents(options.threadCount, options.minLength);
-
-    #pragma omp parallel for num_threads(prefilterAgents.size()) default(none) firstprivate(databaseStrand) shared(std::cout, prefilterAgents, options, matches, databaseIDMap, computeStatistics, stellar_kernel_runtime)
-    for (TPrefilterAgent & agent: prefilterAgents)
-    {
-        StringSet<QueryMatches<StellarMatch<TSequence const, TId> > > localMatches;
-        resize(localMatches, length(matches));
-
-        StellarOptions localOptions = options;
-        StellarComputeStatisticsPartialCollection localPartialStatistics{computeStatistics.size()};
-        stellar::stellar_kernel_runtime local_runtime{};
-
-        agent.prefilter([&](TDatabaseSegments const & databaseSegments, TQueryFilter localSwiftPattern)
-        {
-            for (StellarDatabaseSegment<TAlphabet> const & databaseSegment : databaseSegments)
-            {
-                String<TAlphabet> const & database = databaseSegment.underlyingDatabase();
-                size_t const databaseRecordID = databaseIDMap.recordID(database);
-                TId const & databaseID = databaseIDMap.databaseIDs[databaseRecordID];
-
-                StellarComputeStatistics statistics = StellarApp<TAlphabet>::search_and_verify
-                (
-                    databaseSegment,
-                    databaseID,
-                    databaseStrand,
-                    localOptions,
-                    localSwiftPattern,
-                    local_runtime,
-                    localMatches
-                );
-
-                localPartialStatistics.updateByRecordID(databaseRecordID, statistics);
-            }
-        });
-
-        #pragma omp critical
-        {
-            // linear in database count
-            computeStatistics.mergePartialIn(localPartialStatistics);
-            // linear in queries count
-            _mergeMatchesIntoFirst(matches, localMatches);
-            // constant time
-            stellar_kernel_runtime.mergeIn(local_runtime);
-        }
-    } // parallel region - end
-
-    return computeStatistics;
+    return StellarApp<TAlphabet>::parallel_prefilter
+    (
+        prefilter,
+        databaseIDMap,
+        databaseStrand,
+        options,
+        stellar_kernel_runtime,
+        matches
+    );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
