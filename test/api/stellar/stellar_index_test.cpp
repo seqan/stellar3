@@ -2,19 +2,6 @@
 
 #include <stellar/stellar.hpp>
 
-namespace seqan {
-
-template <typename TAlphabet>
-struct Cargo<::stellar::StellarQGramIndex<TAlphabet>>
-{
-    typedef struct
-    {
-        double      abundanceCut;
-    } Type;
-};
-
-} // namespace seqan
-
 struct StringSetOwnerFactory
 {
     template <typename TAlphabet>
