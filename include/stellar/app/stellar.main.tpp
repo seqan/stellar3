@@ -169,9 +169,8 @@ struct StellarApp
             {
                 for (StellarDatabaseSegment<TAlphabet> const & databaseSegment : databaseSegments)
                 {
-                    String<TAlphabet> const & database = databaseSegment.underlyingDatabase();
-                    size_t const databaseRecordID = databaseIDMap.recordID(database);
-                    TId const & databaseID = databaseIDMap.databaseIDs[databaseRecordID];
+                    size_t const databaseRecordID = databaseIDMap.recordID(databaseSegment);
+                    TId const & databaseID = databaseIDMap.databaseID(databaseRecordID);
 
                     StellarComputeStatistics statistics = StellarApp<TAlphabet>::search_and_verify
                     (
