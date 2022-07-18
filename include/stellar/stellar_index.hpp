@@ -78,7 +78,22 @@ struct StellarIndex
         return {qgramIndex};
     }
 
-    StellarQGramStringSet<TAlphabet> const dependentQueries;
+    static StellarQGramIndex<TAlphabet> & qgramIndexFromPattern(StellarSwiftPattern<TAlphabet> & pattern)
+    {
+        return host(pattern);
+    }
+
+    static TQGramStringSet const & sequencesFromPattern(StellarSwiftPattern<TAlphabet> & pattern)
+    {
+        return sequencesFromQGramIndex(qgramIndexFromPattern(pattern));
+    }
+
+    static TQGramStringSet const & sequencesFromQGramIndex(StellarQGramIndex<TAlphabet> & index)
+    {
+        return indexText(index);
+    }
+
+    TQGramStringSet const dependentQueries;
     StellarQGramIndex<TAlphabet> qgramIndex;
 
 private:

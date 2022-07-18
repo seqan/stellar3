@@ -188,6 +188,18 @@ results<TAlphabet> stellar_kernel_swift_seeds(
     static_assert(std::is_same<decltype(swiftPattern.bucketParams[0].delta), unsigned>::value, "");
     static_assert(std::is_same<decltype(swiftPattern.bucketParams[0].overlap), unsigned>::value, "");
 
+    EXPECT_EQ(
+        std::addressof(stellar::StellarIndex<TAlphabet>::qgramIndexFromPattern(swiftPattern)),
+        std::addressof(index.qgramIndex));
+
+    EXPECT_EQ(
+        std::addressof(stellar::StellarIndex<TAlphabet>::sequencesFromQGramIndex(index.qgramIndex)),
+        std::addressof(index.dependentQueries));
+
+    EXPECT_EQ(
+        std::addressof(stellar::StellarIndex<TAlphabet>::sequencesFromPattern(swiftPattern)),
+        std::addressof(index.dependentQueries));
+
     using TResults = results<TAlphabet>;
     using TDatabaseSegment = typename TResults::TDatabaseSegment;
     using TQuerySegment = typename TResults::TQuerySegment;
