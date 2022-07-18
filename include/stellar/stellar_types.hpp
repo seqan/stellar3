@@ -26,7 +26,9 @@
 
 #include <seqan/align.h>
 
-#include <stellar/utils/fraction.hpp>
+#include <stellar/options/eps_match_options.hpp>
+#include <stellar/options/index_options.hpp>
+#include <stellar/options/verifier_options.hpp>
 
 #if __cpp_designated_initializers || __GNUC__ >= 8
 #   define STELLAR_DESIGNATED_INITIALIZER(designator, value) designator value
@@ -39,52 +41,9 @@ namespace stellar
 
 using namespace seqan;
 
-struct VerifyAllLocal_;
-typedef Tag<VerifyAllLocal_> const AllLocal;
-
-struct VerifyBestLocal_;
-typedef Tag<VerifyBestLocal_> const BestLocal;
-
-struct VerifyBandedGlobal_;
-typedef Tag<VerifyBandedGlobal_> const BandedGlobal;
-
-struct VerifyBandedGlobalExtend_;
-typedef Tag<VerifyBandedGlobalExtend_> const BandedGlobalExtend;
-
-// basically a std::variant<AllLocal, BestLocal, BandedGlobal, BandedGlobalExtend>
-struct StellarVerificationMethod
-{
-    StellarVerificationMethod(AllLocal) : _index{0} {}
-    StellarVerificationMethod(BestLocal) : _index{1} {}
-    StellarVerificationMethod(BandedGlobal) : _index{2} {}
-    StellarVerificationMethod(BandedGlobalExtend) : _index{3} {}
-
-    constexpr std::size_t index() const noexcept
-    {
-        return _index;
-    }
-
-    friend constexpr bool operator==(
-        StellarVerificationMethod const & m1,
-        StellarVerificationMethod const & m2)
-    {
-        return m1.index() == m2.index();
-    }
-
-    friend inline std::string to_string(StellarVerificationMethod method)
-    {
-        using cstring_t = char const * const;
-        cstring_t method_names[] = {"exact", "bestLocal", "bandedGlobal", "bandedGlobalExtend"};
-        return method_names[method.index()];
-    }
-
-private:
-    std::size_t _index{~std::size_t{0u}};
-};
-
 ///////////////////////////////////////////////////////////////////////////////
 // Options for Stellar
-struct StellarOptions {
+struct StellarOptions : public EPSMatchOptions, public IndexOptions, public VerifierOptions {
     // i/o options
     CharString databaseFile;        // name of database file
     CharString queryFile;           // name of query file
@@ -94,24 +53,16 @@ struct StellarOptions {
     CharString alphabet;            // Possible values: dna, rna, protein, char
     bool noRT;                      // suppress printing of running time if set to true
 
-    // main options
-    unsigned qGram;             // length of the q-grams
-    stellar::utils::fraction epsilon{5, 100}; // maximal error rate
-    int minLength;              // minimal length of an epsilon-match
-    double xDrop;               // maximal x-drop
-
     // more options
     unsigned threadCount{1u};   // The maximum number of threads
     bool forward;               // compute matches to forward strand of database
     bool reverse;               // compute matches to reverse complemented database
-    // verification strategy: exact, bestLocal, bandedGlobal
-    StellarVerificationMethod verificationMethod{AllLocal{}};
+
     unsigned disableThresh;     // maximal number of matches allowed per query before disabling verification of hits for that query
     unsigned compactThresh;     // number of matches after which removal of overlaps and duplicates is started
     unsigned numMatches;        // maximal number of matches per query and database
     unsigned maxRepeatPeriod;   // maximal period of low complexity repeats to be filtered
     unsigned minRepeatLength;   // minimal length of low complexity repeats to be filtered
-    double qgramAbundanceCut;
     bool verbose;               // verbose mode
 
 
@@ -122,10 +73,6 @@ struct StellarOptions {
         alphabet = "dna5";
         noRT = false;
 
-        qGram = std::numeric_limits<unsigned>::max();
-        minLength = 100;
-        xDrop = 5;
-
         forward = true;
         reverse = true;
         disableThresh = std::numeric_limits<unsigned>::max();
@@ -133,7 +80,6 @@ struct StellarOptions {
         numMatches = 50;
         maxRepeatPeriod = 1;
         minRepeatLength = 1000;
-        qgramAbundanceCut = 1;
         verbose = false;
     }
 
