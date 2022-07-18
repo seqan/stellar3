@@ -3,6 +3,8 @@
 
 #include <stellar/stellar_database_segment.hpp>
 #include <stellar/stellar_query_segment.hpp>
+#include <stellar/options/eps_match_options.hpp>
+#include <stellar/options/verifier_options.hpp>
 #include <stellar/utils/stellar_kernel_runtime.hpp>
 
 namespace stellar {
@@ -10,13 +12,8 @@ namespace stellar {
 template <typename TVerifierTag>
 struct SwiftHitVerifier
 {
-    using TEpsilon = double; // decltype(StellarOptions{}.epsilon)
-    using TSize = int; // decltype(StellarOptions{}.minLength)
-    using TDrop = double; // decltype(StellarOptions{}.xDrop)
-
-    TEpsilon const epsilon;
-    TSize const minLength;
-    TDrop const xDrop;
+    EPSMatchOptions eps_match_options;
+    VerifierOptions verifier_options;
 
     template <typename TAlphabet, typename TDelta, typename TOnAlignmentResultFn>
     void verify(StellarDatabaseSegment<TAlphabet> const & databaseSegment,
@@ -25,12 +22,18 @@ struct SwiftHitVerifier
                 TOnAlignmentResultFn && onAlignmentResult,
                 stellar_verification_time & verification_runtime)
     {
-        static_assert(std::is_signed<TSize>::value, "TDelta must be signed integral.");
-        static_assert(std::is_floating_point<TDrop>::value, "TDrop must be floating point.");
         static_assert(std::is_unsigned<TDelta>::value, "TDelta must be unsigned integral.");
 
-        verifySwiftHit(databaseSegment.asFinderSegment(), querySegment.asPatternSegment(), epsilon, minLength, xDrop,
-                       delta, onAlignmentResult, verification_runtime, TVerifierTag{});
+        verifySwiftHit(
+            databaseSegment.asFinderSegment(),
+            querySegment.asPatternSegment(),
+            (double)eps_match_options.epsilon,
+            eps_match_options.minLength,
+            verifier_options.xDrop,
+            delta,
+            onAlignmentResult,
+            verification_runtime,
+            TVerifierTag{});
     }
 };
 

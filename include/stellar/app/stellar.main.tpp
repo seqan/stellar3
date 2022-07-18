@@ -217,9 +217,8 @@ _parallelPrefilterStellar(
                         using TTag = decltype(tag);
                         SwiftHitVerifier<TTag> swiftVerifier
                         {
-                            STELLAR_DESIGNATED_INITIALIZER(.epsilon = , localOptions.epsilon),
-                            STELLAR_DESIGNATED_INITIALIZER(.minLength = , localOptions.minLength),
-                            STELLAR_DESIGNATED_INITIALIZER(.xDrop = , localOptions.xDrop)
+                            STELLAR_DESIGNATED_INITIALIZER(.eps_match_options = , localOptions),
+                            STELLAR_DESIGNATED_INITIALIZER(.verifier_options = , localOptions),
                         };
 
                         return _stellarKernel(swiftFinder, localSwiftPattern, swiftVerifier, isPatternDisabled, onAlignmentResult, local_runtime);
