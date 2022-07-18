@@ -6,16 +6,19 @@
 #include <stellar/stellar_types.hpp>
 
 #include <stellar/prefilter/database_agent_distributer.hpp>
+#include <stellar/prefilter/prefilter.hpp>
+#include <stellar/prefilter/prefilter_agent.hpp>
+#include <stellar/prefilter/prefilter_agents.hpp>
 
 namespace stellar
 {
 
 // Prefilter: filters out the queries for each database sequence.
 // In this case it does not filter out any queries and only builds a single query filter
-template <typename TAlphabet, typename TQueryFilter_, typename TAgentSplitter>
-struct NoQueryPrefilter
+template <typename TAlphabet, typename TAgentSplitter>
+struct NoQueryPrefilter : stellar::prefilter<TAlphabet>
 {
-    using TQueryFilter = TQueryFilter_;
+    using TQueryFilter = stellar::StellarSwiftPattern<TAlphabet>;
 
     NoQueryPrefilter() = delete;
 
@@ -42,17 +45,17 @@ struct NoQueryPrefilter
 
     class Agent;
 
-    std::vector<Agent> agents(size_t const agentCount, size_t const minLength)
+    virtual stellar::prefilter_agents<TAlphabet> agents(size_t const agentCount, stellar::EPSMatchOptions const epsMatchOptions) override
     {
         assert(_databaseSegments.size() == 0u); // calling agents twice is forbidden
 
-        _databaseSegments = _splitter.split(_databases, minLength);
+        _databaseSegments = _splitter.split(_databases, epsMatchOptions.minLength);
 
-        std::vector<Agent> agents{};
+        stellar::prefilter_agents<TAlphabet> agents{};
         agents.reserve(agentCount);
 
         for (TDatabaseSegments & segments: DatabaseAgentDistributer::distribute(_databaseSegments, agentCount))
-            agents.emplace_back(*this, std::move(segments));
+            agents.template emplace_back<Agent>(*this, std::move(segments));
 
         return agents;
     }
@@ -64,20 +67,23 @@ private:
     TAgentSplitter _splitter{};
 };
 
-template <typename TAlphabet, typename TQueryFilter, typename TAgentSplitter>
-struct NoQueryPrefilter<TAlphabet, TQueryFilter, TAgentSplitter>::Agent
+template <typename TAlphabet, typename TAgentSplitter>
+struct NoQueryPrefilter<TAlphabet, TAgentSplitter>::Agent : public prefilter_agent<TAlphabet>
 {
     friend NoQueryPrefilter;
 
     Agent(NoQueryPrefilter & prefilter, TDatabaseSegments databaseSegments)
         : _prefilter_ptr{&prefilter}, _databaseSegments{std::move(databaseSegments)}
     {}
+
+    using TBase = prefilter_agent<TAlphabet>;
 public:
 
-    template <typename functor_t>
-    void prefilter(functor_t && functor)
+    using TPrefilterCallback = typename TBase::TPrefilterCallback;
+
+    virtual void prefilter(TPrefilterCallback callback) override
     {
-        functor(_databaseSegments, _prefilter_ptr->_queryFilter);
+        callback(_databaseSegments, _prefilter_ptr->_queryFilter);
     }
 
 private:
