@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include <variant>
+
 #include <stellar/app/stellar.main.hpp>
 
 #include <seqan/seq_io.h>
@@ -37,9 +39,12 @@
 #include <stellar/parallel/compute_statistics_collection.hpp>
 
 #include <stellar/prefilter/no_query_prefilter.hpp>
+#include <stellar/prefilter/nsegment_database_agent_splitter.hpp>
 #include <stellar/prefilter/whole_database_agent_splitter.hpp>
 
 #include <stellar/app/stellar.diagnostics.hpp>
+#include <stellar/app/prefilter/create_prefilter.hpp>
+#include <stellar/app/prefilter/create_no_query_prefilter.hpp>
 
 #include <stellar/app/stellar.diagnostics.tpp>
 
@@ -206,17 +211,39 @@ struct StellarApp
 
     static std::unique_ptr<stellar::prefilter<TAlphabet>> select_prefilter
     (
-        stellar::StellarOptions const & /*options*/,
+        stellar::StellarOptions const & options,
         StringSet<String<TAlphabet> > const & databases,
-        StringSet<String<TAlphabet> > const & /*queries*/,
+        StringSet<String<TAlphabet> > const & queries,
         StellarSwiftPattern<TAlphabet> & swiftPattern // TODO: don't require this -> move that out
     )
     {
-        using TQueryFilter = StellarSwiftPattern<TAlphabet>;
-        using TSplitter = WholeDatabaseAgentSplitter;
-        using TPrefilter = NoQueryPrefilter<TAlphabet, TSplitter>;
+        using NoQueryPrefilterWithWholeDatabaseAgentSplitterTag
+            = std::type_identity<stellar::NoQueryPrefilter<TAlphabet, WholeDatabaseAgentSplitter>>;
+        using NoQueryPrefilterWithNSegmentDatabaseAgentSplitterTag
+            = std::type_identity<stellar::NoQueryPrefilter<TAlphabet, NSegmentDatabaseAgentSplitter>>;
 
-        return std::make_unique<TPrefilter>(databases, TQueryFilter{swiftPattern} /*copy pattern*/, TSplitter{});
+        std::variant<
+            NoQueryPrefilterWithWholeDatabaseAgentSplitterTag,
+            NoQueryPrefilterWithNSegmentDatabaseAgentSplitterTag
+        > selected_prefilter;
+
+        selected_prefilter = NoQueryPrefilterWithWholeDatabaseAgentSplitterTag{};
+
+        if (options.splitDatabase && options.splitNSegments > 1u)
+        {
+            selected_prefilter = NoQueryPrefilterWithNSegmentDatabaseAgentSplitterTag{};
+        }
+
+        std::unique_ptr<stellar::prefilter<TAlphabet>> prefilter
+            = std::visit([&](auto tag) -> std::unique_ptr<stellar::prefilter<TAlphabet>>
+        {
+            using TTag = decltype(tag);
+            using TPrefilter = typename TTag::type;
+
+            return CreatePrefilter<TPrefilter>::create(options, databases, queries, swiftPattern);
+        }, selected_prefilter);
+
+        return prefilter;
     }
 
     static StellarComputeStatistics

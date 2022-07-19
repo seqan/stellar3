@@ -45,6 +45,15 @@ _parseOptions(ArgumentParser const & parser, StellarOptions & options)
     if (!isSet(parser, "forward") && isSet(parser, "reverse"))
         options.forward = false;
 
+    // Parallel Options
+    if (isSet(parser, "splitNSegments"))
+    {
+        options.splitDatabase = true;
+        getOptionValue(options.splitNSegments, parser, "splitNSegments");
+    }
+
+    // Verification Options
+
     CharString verificationMethod;
     getOptionValue(verificationMethod, parser, "verification");
 
@@ -133,6 +142,10 @@ void _setParser(ArgumentParser & parser)
                                      ArgParseArgument::STRING));
     setValidValues(parser, "a", "dna dna5 rna rna5 protein char");
     addOption(parser, ArgParseOption("v", "verbose", "Set verbosity mode."));
+
+    addSection(parser, "Parallel Options");
+
+    addOption(parser, ArgParseOption("", "splitNSegments", "Split each database sequence into N segments.", ArgParseArgument::INTEGER));
 
     addSection(parser, "Filtering Options");
 

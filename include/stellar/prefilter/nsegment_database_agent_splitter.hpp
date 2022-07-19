@@ -7,8 +7,7 @@
 namespace stellar
 {
 
-// keeps a single database as it is and does not split it any finer.
-// multiple agents get work over a single
+// Splits each database sequence into `segmentCount` many segments.
 struct NSegmentDatabaseAgentSplitter
 {
     template <typename TAlphabet>
