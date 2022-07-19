@@ -31,6 +31,7 @@
 #include <stellar/stellar_index.hpp>
 #include <stellar/stellar_output.hpp>
 #include <stellar/database_id_map.hpp>
+#include <stellar/query_id_map.hpp>
 #include <stellar/utils/stellar_app_runtime.hpp>
 
 #include <stellar/parallel/compute_statistics_collection.hpp>
@@ -140,6 +141,7 @@ struct StellarApp
     (
         stellar::prefilter<TAlphabet> & prefilter,
         DatabaseIDMap<TAlphabet> const & databaseIDMap,
+        QueryIDMap<TAlphabet> const & queryIDMap,
         bool const databaseStrand,
         StellarOptions const & options,
         stellar_kernel_runtime & stellar_kernel_runtime,
@@ -155,7 +157,7 @@ struct StellarApp
 
         stellar::prefilter_agents<TAlphabet> prefilterAgents = prefilter.agents(options.threadCount, options);
 
-        #pragma omp parallel for num_threads(prefilterAgents.size()) default(none) firstprivate(databaseStrand) shared(std::cout, prefilterAgents, options, matches, databaseIDMap, computeStatistics, stellar_kernel_runtime)
+        #pragma omp parallel for num_threads(prefilterAgents.size()) default(none) firstprivate(databaseStrand) shared(std::cout, prefilterAgents, options, matches, databaseIDMap, queryIDMap, computeStatistics, stellar_kernel_runtime)
         for (TPrefilterAgent & agent: prefilterAgents)
         {
             StringSet<QueryMatches<StellarMatch<TSequence const, TId> > > localMatches;
@@ -176,6 +178,7 @@ struct StellarApp
                     (
                         databaseSegment,
                         databaseID,
+                        queryIDMap,
                         databaseStrand,
                         localOptions,
                         localSwiftPattern,
@@ -220,6 +223,7 @@ struct StellarApp
     search_and_verify(
         StellarDatabaseSegment<TAlphabet> const databaseSegment,
         TId const & databaseID,
+        QueryIDMap<TAlphabet> const & queryIDMap,
         bool const databaseStrand,
         StellarOptions & localOptions, // localOptions.compactThresh is out-param
         StellarSwiftPattern<TAlphabet> & localSwiftPattern,
@@ -231,7 +235,11 @@ struct StellarApp
 
         auto getQueryMatches = [&](auto const & pattern) -> QueryMatches<StellarMatch<TSequence const, TId> > &
         {
-            return value(localMatches, pattern.curSeqNo);
+            // Note: Index is normally build over all queries [query0, query1, query2, ...],
+            // but in LocalQueryPrefilter case it can just be build over [query0].
+            // We need to translate that position to a "record" ID
+            size_t const queryRecordID = queryIDMap.recordID(pattern);
+            return value(localMatches, queryRecordID);
         };
 
         auto isPatternDisabled = [&](StellarSwiftPattern<TAlphabet> & pattern) -> bool {
@@ -297,11 +305,13 @@ _parallelPrefilterStellar(
         = StellarApp<TAlphabet>::select_prefilter(options, databases, queries, swiftPattern);
 
     DatabaseIDMap<TAlphabet> databaseIDMap{databases, databaseIDs};
+    QueryIDMap<TAlphabet> queryIDMap{queries};
 
     return StellarApp<TAlphabet>::parallel_prefilter
     (
         *prefilter,
         databaseIDMap,
+        queryIDMap,
         databaseStrand,
         options,
         stellar_kernel_runtime,
