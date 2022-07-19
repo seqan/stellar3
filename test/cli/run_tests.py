@@ -101,7 +101,18 @@ testsConfig = {
         '--sortThresh', '10000',
         '--verbose',
         '--suppress-runtime-printing', # for stable output
-    ]
+    ],
+    '5e-2_100kbsplit_minLen20_split2segments' : [
+        '--epsilon', '0.05',
+        '--minLength', '20',
+        '--xDrop', '10',
+        '--kmer', '7',
+        '--numMatches', '5000',
+        '--sortThresh', '10000',
+        '--verbose',
+        '--suppress-runtime-printing', # for stable output
+        '--splitNSegments', '2',
+    ],
 }
 
 class StellarTestSuite():
@@ -277,6 +288,10 @@ def main(source_base, binary_base, alphabets, database_strands, output_extension
 
                 # Minimal length: 20, Error rate 0.05: but the original sequence is split after every 100kb.
                 testSuite.addTest('stellar', errorRate = '5e-2_100kbsplit', testName = '5e-2_minLen20_100kbsplit', alphabet = alphabet, databaseStrand = databaseStrand, outputExt = outputExt)
+
+                # Minimal length: 20, Error rate 0.05: but the original sequence is split after every 100kb.
+                # Stellar will split each database sequence in 2.
+                testSuite.addTest('stellar', errorRate = '5e-2_100kbsplit', testName = '5e-2_100kbsplit_minLen20_split2segments', alphabet = alphabet, databaseStrand = databaseStrand, outputExt = outputExt)
 
     # Compute and return return code.
     return testSuite.runTests()
