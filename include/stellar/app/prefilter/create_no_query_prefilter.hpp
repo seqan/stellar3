@@ -26,7 +26,7 @@ struct CreatePrefilter<NoQueryPrefilter<TAlphabet, NSegmentDatabaseAgentSplitter
         using TSplitter = NSegmentDatabaseAgentSplitter;
         using TPrefilter = NoQueryPrefilter<TAlphabet, TSplitter>;
 
-        TSplitter splitter{2u};
+        TSplitter splitter{options.splitNSegments};
         return std::make_unique<TPrefilter>(databases, swiftPattern /*copy pattern*/, splitter);
     }
 };

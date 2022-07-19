@@ -229,6 +229,11 @@ struct StellarApp
 
         selected_prefilter = NoQueryPrefilterWithWholeDatabaseAgentSplitterTag{};
 
+        if (options.splitDatabase && options.splitNSegments > 1u)
+        {
+            selected_prefilter = NoQueryPrefilterWithNSegmentDatabaseAgentSplitterTag{};
+        }
+
         std::unique_ptr<stellar::prefilter<TAlphabet>> prefilter
             = std::visit([&](auto tag) -> std::unique_ptr<stellar::prefilter<TAlphabet>>
         {
