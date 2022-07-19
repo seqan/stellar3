@@ -201,7 +201,7 @@ struct StellarApp
         return computeStatistics;
     }
 
-    static auto select_prefilter
+    static std::unique_ptr<stellar::prefilter<TAlphabet>> select_prefilter
     (
         stellar::StellarOptions const & /*options*/,
         StringSet<String<TAlphabet> > const & databases,
@@ -213,7 +213,7 @@ struct StellarApp
         using TSplitter = WholeDatabaseAgentSplitter;
         using TPrefilter = NoQueryPrefilter<TAlphabet, TSplitter>;
 
-        return TPrefilter{databases, TQueryFilter{swiftPattern} /*copy pattern*/, TSplitter{}};
+        return std::make_unique<TPrefilter>(databases, TQueryFilter{swiftPattern} /*copy pattern*/, TSplitter{});
     }
 
     static StellarComputeStatistics
@@ -293,14 +293,14 @@ _parallelPrefilterStellar(
     StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > & matches,
     stellar_kernel_runtime & stellar_kernel_runtime)
 {
-    auto prefilter
+    std::unique_ptr<stellar::prefilter<TAlphabet>> prefilter
         = StellarApp<TAlphabet>::select_prefilter(options, databases, queries, swiftPattern);
 
     DatabaseIDMap<TAlphabet> databaseIDMap{databases, databaseIDs};
 
     return StellarApp<TAlphabet>::parallel_prefilter
     (
-        prefilter,
+        *prefilter,
         databaseIDMap,
         databaseStrand,
         options,
