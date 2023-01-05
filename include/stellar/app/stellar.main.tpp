@@ -70,6 +70,34 @@ namespace stellar
 namespace app
 {
 
+template <typename TAlphabet, typename TStorage>
+TStorage _getDatabaseSegments(StringSet<String<TAlphabet>> & databases, StellarOptions const & options, bool const reverse = false)
+{
+    TStorage databaseSegments{};
+    if (options.prefilteredSearch)
+    {
+        if (options.segmentEnd <= options.segmentBegin ||
+            options.segmentEnd - options.segmentBegin < options.minLength ||
+            length(databases[options.sequenceOfInterest]) < options.segmentEnd)
+            throw std::runtime_error{"Incorrect segment definition"};
+
+        if (reverse)
+            reverseComplement(databases[options.sequenceOfInterest]);
+        databaseSegments.emplace_back(databases[options.sequenceOfInterest], options.segmentBegin, options.segmentEnd);
+    }
+    else
+        for (auto & database : databases)
+        {
+            if (reverse)
+                reverseComplement(database);
+
+            if (length(database) >= options.minLength)
+                databaseSegments.emplace_back(database, 0u, length(database));
+        }
+
+    return databaseSegments;
+}
+
 template <typename TSequence, typename TId>
 void _mergeMatchesIntoFirst(StringSet<QueryMatches<StellarMatch<TSequence const, TId> > > & matches1,
                             StringSet<QueryMatches<StellarMatch<TSequence const, TId> > > & matches2)
@@ -245,9 +273,13 @@ _stellarMain(
     // compute and print output statistics
     StellarOutputStatistics outputStatistics{};
 
+    using TDatabaseSegment = stellar::StellarDatabaseSegment<TAlphabet>;
+    using TStorage = std::vector<TDatabaseSegment>;
+
     // positive database strand
     if (options.forward)
     {
+        TStorage databaseSegments = _getDatabaseSegments<TAlphabet, TStorage>(databases, options);
         stellar_runtime.forward_strand_stellar_time.measure_time([&]()
         {
             // container for eps-matches
@@ -266,30 +298,27 @@ _stellarMain(
             StellarComputeStatisticsPartialCollection localPartialStatistics{computeStatistics.size()};
             stellar::stellar_kernel_runtime local_runtime{};
 
-            using TDatabaseSegment = stellar::StellarDatabaseSegment<TAlphabet>;
+            for (StellarDatabaseSegment<TAlphabet> const & databaseSegment : databaseSegments)
+            {
+                size_t const databaseRecordID = databaseIDMap.recordID(databaseSegment);
+                TId const & databaseID = databaseIDMap.databaseID(databaseRecordID);
 
-            //!TODO: create database segment
-            // get member with index from seqan::StringSet
-            TDatabaseSegment databaseSegment(databases[options.sequenceOfInterest], options.segmentBegin, options.segmentEnd);
+                StellarComputeStatistics statistics = StellarApp<TAlphabet>::search_and_verify
+                (
+                    databaseSegment,
+                    databaseID,
+                    queryIDMap,
+                    databaseStrand,
+                    localOptions,
+                    swiftPattern,
+                    local_runtime,
+                    forwardMatches
+                );
 
-            size_t const databaseRecordID = databaseIDMap.recordID(databaseSegment);
-            TId const & databaseID = databaseIDMap.databaseID(databaseRecordID);
-
-            StellarComputeStatistics statistics = StellarApp<TAlphabet>::search_and_verify
-            (
-                databaseSegment,
-                databaseID,
-                queryIDMap,
-                databaseStrand,
-                localOptions,
-                swiftPattern,
-                local_runtime,
-                forwardMatches
-            );
-
-            localPartialStatistics.updateByRecordID(databaseRecordID, statistics);
-            //!TODO: do not need to merge when single segment
-            computeStatistics.mergePartialIn(localPartialStatistics);
+                localPartialStatistics.updateByRecordID(databaseRecordID, statistics);
+                //!TODO: do not need to merge when single segment
+                computeStatistics.mergePartialIn(localPartialStatistics);
+            }
 
             stellar_runtime.forward_strand_stellar_time.post_process_eps_matches_time.measure_time([&]()
             {
@@ -315,11 +344,11 @@ _stellarMain(
     bool const reverse = options.reverse && options.alphabet != "protein" && options.alphabet != "char";
     if (reverse)
     {
-        //!TODO: only convert the database of interest
+        TStorage databaseSegments{};
+        //!TODO: measure time for reverse complement + finding segments
         stellar_runtime.reverse_complement_database_time.measure_time([&]()
         {
-            for (size_t i = 0; i < length(databases); ++i)
-                reverseComplement(databases[i]);
+            databaseSegments = _getDatabaseSegments<TAlphabet, TStorage>(databases, options, reverse);
         }); // measure_time
 
         stellar_runtime.reverse_strand_stellar_time.measure_time([&]()
@@ -340,30 +369,27 @@ _stellarMain(
             StellarComputeStatisticsPartialCollection localPartialStatistics{computeStatistics.size()};
             stellar::stellar_kernel_runtime local_runtime{};
 
-            using TDatabaseSegment = stellar::StellarDatabaseSegment<TAlphabet>;
+            for (StellarDatabaseSegment<TAlphabet> const & databaseSegment : databaseSegments)
+            {
+                size_t const databaseRecordID = databaseIDMap.recordID(databaseSegment);
+                TId const & databaseID = databaseIDMap.databaseID(databaseRecordID);
 
-            //!TODO: create database segment
-            // get member with index from seqan::StringSet
-            TDatabaseSegment databaseSegment(databases[options.sequenceOfInterest], options.segmentBegin, options.segmentEnd);
+                StellarComputeStatistics statistics = StellarApp<TAlphabet>::search_and_verify
+                (
+                    databaseSegment,
+                    databaseID,
+                    queryIDMap,
+                    databaseStrand,
+                    localOptions,
+                    swiftPattern,
+                    local_runtime,
+                    reverseMatches
+                );
 
-            size_t const databaseRecordID = databaseIDMap.recordID(databaseSegment);
-            TId const & databaseID = databaseIDMap.databaseID(databaseRecordID);
-
-            StellarComputeStatistics statistics = StellarApp<TAlphabet>::search_and_verify
-            (
-                databaseSegment,
-                databaseID,
-                queryIDMap,
-                databaseStrand,
-                localOptions,
-                swiftPattern,
-                local_runtime,
-                reverseMatches
-            );
-
-            localPartialStatistics.updateByRecordID(databaseRecordID, statistics);
-            //!TODO: do not need to merge when single segment
-            computeStatistics.mergePartialIn(localPartialStatistics);
+                localPartialStatistics.updateByRecordID(databaseRecordID, statistics);
+                //!TODO: do not need to merge when single segment
+                computeStatistics.mergePartialIn(localPartialStatistics);
+            }
 
             stellar_runtime.reverse_strand_stellar_time.post_process_eps_matches_time.measure_time([&]()
             {
