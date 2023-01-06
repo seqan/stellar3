@@ -29,6 +29,8 @@
 
 #include <seqan/seq_io.h>
 
+#include <seqan3/core/debug_stream.hpp>
+
 #include <stellar/stellar.hpp>
 #include <stellar/stellar_index.hpp>
 #include <stellar/stellar_output.hpp>
@@ -36,8 +38,6 @@
 #include <stellar/database_id_map.hpp>
 #include <stellar/query_id_map.hpp>
 #include <stellar/utils/stellar_app_runtime.hpp>
-
-#include <stellar/parallel/compute_statistics_collection.hpp>
 
 #include <stellar/app/stellar.diagnostics.hpp>
 
@@ -77,7 +77,7 @@ TStorage _getDatabaseSegments(StringSet<String<TAlphabet>> & databases, StellarO
     if (options.prefilteredSearch)
     {
         if (options.segmentEnd <= options.segmentBegin ||
-            options.segmentEnd - options.segmentBegin < options.minLength ||
+            options.segmentEnd < options.minLength + options.segmentBegin ||
             length(databases[options.sequenceOfInterest]) < options.segmentEnd)
             throw std::runtime_error{"Incorrect segment definition"};
 
@@ -96,20 +96,6 @@ TStorage _getDatabaseSegments(StringSet<String<TAlphabet>> & databases, StellarO
         }
 
     return databaseSegments;
-}
-
-template <typename TSequence, typename TId>
-void _mergeMatchesIntoFirst(StringSet<QueryMatches<StellarMatch<TSequence const, TId> > > & matches1,
-                            StringSet<QueryMatches<StellarMatch<TSequence const, TId> > > & matches2)
-{
-    // merge matches and reverseMatches
-    if (length(matches1) != length(matches2))
-        throw std::runtime_error{"Matches mismatch"};
-
-    for (size_t i = 0; i < length(matches1); ++i)
-    {
-        matches1[i].mergeIn(matches2[i]);
-    }
 }
 
 template <typename TAlphabet, typename TId>
@@ -291,11 +277,10 @@ _stellarMain(
             DatabaseIDMap<TAlphabet> databaseIDMap{databases, databaseIDs};
             QueryIDMap<TAlphabet> queryIDMap{queries};
 
-            StellarComputeStatisticsCollection computeStatistics{length(databaseIDMap.databases)};
+            StellarComputeStatisticsCollection computeStatistics;
 
             //!TODO: the local stuff is not necessary when working on one thread/segment
             StellarOptions localOptions = options;
-            StellarComputeStatisticsPartialCollection localPartialStatistics{computeStatistics.size()};
             stellar::stellar_kernel_runtime local_runtime{};
 
             for (StellarDatabaseSegment<TAlphabet> const & databaseSegment : databaseSegments)
@@ -315,10 +300,10 @@ _stellarMain(
                     forwardMatches
                 );
 
-                localPartialStatistics.updateByRecordID(databaseRecordID, statistics);
-                //!TODO: do not need to merge when single segment
-                computeStatistics.mergePartialIn(localPartialStatistics);
+                computeStatistics.addStatistics(statistics);
             }
+
+            _printStellarStatistics(options.verbose, databaseStrand, databaseIDs, computeStatistics);
 
             stellar_runtime.forward_strand_stellar_time.post_process_eps_matches_time.measure_time([&]()
             {
@@ -362,11 +347,10 @@ _stellarMain(
             DatabaseIDMap<TAlphabet> databaseIDMap{databases, databaseIDs};
             QueryIDMap<TAlphabet> queryIDMap{queries};
 
-            StellarComputeStatisticsCollection computeStatistics{length(databaseIDMap.databases)};
+            StellarComputeStatisticsCollection computeStatistics;
 
             //!TODO: the local stuff is not necessary when working on one thread/segment
             StellarOptions localOptions = options;
-            StellarComputeStatisticsPartialCollection localPartialStatistics{computeStatistics.size()};
             stellar::stellar_kernel_runtime local_runtime{};
 
             for (StellarDatabaseSegment<TAlphabet> const & databaseSegment : databaseSegments)
@@ -386,10 +370,10 @@ _stellarMain(
                     reverseMatches
                 );
 
-                localPartialStatistics.updateByRecordID(databaseRecordID, statistics);
-                //!TODO: do not need to merge when single segment
-                computeStatistics.mergePartialIn(localPartialStatistics);
+                computeStatistics.addStatistics(statistics);
             }
+
+            _printStellarStatistics(options.verbose, databaseStrand, databaseIDs, computeStatistics);
 
             stellar_runtime.reverse_strand_stellar_time.post_process_eps_matches_time.measure_time([&]()
             {

@@ -202,6 +202,26 @@ struct StellarOutputStatistics
     }
 };
 
+struct StellarComputeStatisticsCollection
+{
+    StellarComputeStatistics const & operator[](size_t const databaseRecordID) const
+    {
+        return _statistics[databaseRecordID];
+    }
+
+    void addStatistics(StellarComputeStatistics const & computeStatistics)
+    {
+        _statistics.push_back(computeStatistics);
+    }
+
+    size_t size() const
+    {
+        return _statistics.size();
+    }
+private:
+    std::vector<StellarComputeStatistics> _statistics; // one per database
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 // Container for storing local alignment matches of one query sequence
 template<typename TMatch_>
