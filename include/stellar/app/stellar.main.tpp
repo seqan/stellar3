@@ -158,7 +158,7 @@ struct StellarApp
         bool const databaseStrand,
         StellarOptions & localOptions, // localOptions.compactThresh is out-param
         StellarSwiftPattern<TAlphabet> & localSwiftPattern,
-        stellar::stellar_kernel_runtime & local_runtime,
+        stellar::stellar_kernel_runtime & strand_runtime,
         StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > & localMatches
     )
     {
@@ -215,7 +215,7 @@ struct StellarApp
                     STELLAR_DESIGNATED_INITIALIZER(.verifier_options = , localOptions),
                 };
 
-                return _stellarKernel(swiftFinder, localSwiftPattern, swiftVerifier, isPatternDisabled, onAlignmentResult, local_runtime);
+                return _stellarKernel(swiftFinder, localSwiftPattern, swiftVerifier, isPatternDisabled, onAlignmentResult, strand_runtime);
             });
 
         return statistics;
@@ -281,7 +281,6 @@ _stellarMain(
 
             //!TODO: the local stuff is not necessary when working on one thread/segment
             StellarOptions localOptions = options;
-            stellar::stellar_kernel_runtime local_runtime{};
 
             for (StellarDatabaseSegment<TAlphabet> const & databaseSegment : databaseSegments)
             {
@@ -296,7 +295,7 @@ _stellarMain(
                     databaseStrand,
                     localOptions,
                     swiftPattern,
-                    local_runtime,
+                    stellar_runtime.forward_strand_stellar_time.prefiltered_stellar_time,
                     forwardMatches
                 );
 
@@ -330,7 +329,6 @@ _stellarMain(
     if (reverse)
     {
         TStorage databaseSegments{};
-        //!TODO: measure time for reverse complement + finding segments
         stellar_runtime.reverse_complement_database_time.measure_time([&]()
         {
             databaseSegments = _getDatabaseSegments<TAlphabet, TStorage>(databases, options, reverse);
@@ -351,7 +349,6 @@ _stellarMain(
 
             //!TODO: the local stuff is not necessary when working on one thread/segment
             StellarOptions localOptions = options;
-            stellar::stellar_kernel_runtime local_runtime{};
 
             for (StellarDatabaseSegment<TAlphabet> const & databaseSegment : databaseSegments)
             {
@@ -366,7 +363,7 @@ _stellarMain(
                     databaseStrand,
                     localOptions,
                     swiftPattern,
-                    local_runtime,
+                    stellar_runtime.reverse_strand_stellar_time.prefiltered_stellar_time,
                     reverseMatches
                 );
 
@@ -546,17 +543,17 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
 
         auto _print_stellar_strand_time = [](stellar_strand_time const & strand_runtime, std::string strandDirection)
         {
-            stellar_kernel_runtime const & parallel_prefiltered_stellar_time
-                = strand_runtime.parallel_prefiltered_stellar_time;
+            stellar_kernel_runtime const & prefiltered_stellar_time
+                = strand_runtime.prefiltered_stellar_time;
             stellar_verification_time const & verification_time
-                = strand_runtime.parallel_prefiltered_stellar_time.verification_time;
+                = strand_runtime.prefiltered_stellar_time.verification_time;
             stellar_extension_time const & extension_time
                 = verification_time.extension_time;
             stellar_best_extension_time const & best_extension_time
                 = extension_time.best_extension_time;
 
-            std::cout << "       + Parallel Prefiltered Stellar Time (" << strandDirection << "): " << parallel_prefiltered_stellar_time.milliseconds() << "ms" << std::endl;
-            std::cout << "          + Swift Filter Time (" << strandDirection << "): " << parallel_prefiltered_stellar_time.swift_filter_time.milliseconds() << "ms" << std::endl;
+            std::cout << "       + Prefiltered Stellar Time (" << strandDirection << "): " << prefiltered_stellar_time.milliseconds() << "ms" << std::endl;
+            std::cout << "          + Swift Filter Time (" << strandDirection << "): " << prefiltered_stellar_time.swift_filter_time.milliseconds() << "ms" << std::endl;
             std::cout << "          + Seed Verification Time (" << strandDirection << "): " << verification_time.milliseconds() << "ms" << std::endl;
             std::cout << "             + Find Next Local Alignment Time (" << strandDirection << "): " << verification_time.next_local_alignment_time.milliseconds() << "ms" << std::endl;
             std::cout << "             + Split At X-Drops Time (" << strandDirection << "): " << verification_time.split_at_x_drops_time.milliseconds() << "ms" << std::endl;
@@ -571,7 +568,7 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
             std::cout << "                   = total time: " << best_extension_time.total_time().milliseconds() << "ms" << std::endl;
             std::cout << "                = total time: " << extension_time.total_time().milliseconds() << "ms" << std::endl;
             std::cout << "             = total time: " << verification_time.total_time().milliseconds() << "ms" << std::endl;
-            std::cout << "          = total time: " << parallel_prefiltered_stellar_time.total_time().milliseconds() << "ms" << std::endl;
+            std::cout << "          = total time: " << prefiltered_stellar_time.total_time().milliseconds() << "ms" << std::endl;
             std::cout << "       + Post-Process Eps-Matches Time (" << strandDirection << "): " << strand_runtime.post_process_eps_matches_time.milliseconds() << "ms" << std::endl;
             std::cout << "       + File Output Eps-Matches Time (" << strandDirection << "): " << strand_runtime.output_eps_matches_time.milliseconds() << "ms" << std::endl;
             std::cout << "       = total time: " << strand_runtime.total_time().milliseconds() << "ms" << std::endl;
