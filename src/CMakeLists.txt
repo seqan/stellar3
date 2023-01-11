@@ -6,7 +6,7 @@
 # CMakeLists.txt file for STELLAR.
 # ===========================================================================
 
-cmake_minimum_required (VERSION 3.10)
+cmake_minimum_required (VERSION 3.16.9)
 message (STATUS "Configuring apps/stellar")
 
 set (SEQAN_APP_VERSION "${PROJECT_VERSION}")

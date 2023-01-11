@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <seqan3/std/span>
+#include <span>
 
 #include <seqan/sequence.h>
 #include <seqan/align/align_traceback.h> // needs seqan/sequence.h
