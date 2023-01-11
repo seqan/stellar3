@@ -2,7 +2,7 @@
 #pragma once
 
 #include <string_view>
-#include <seqan3/std/span>
+#include <span>
 
 #include <stellar/stellar.hpp>
 

@@ -26,7 +26,7 @@
 
 #include <seqan/index.h>
 
-#include <seqan3/std/span>
+#include <span>
 
 #include <stellar/options/index_options.hpp>
 

@@ -495,6 +495,8 @@ _bestExtension(Segment<TSequence const, InfixSegment> const & infH,
         reserve(sequenceCopyLeftV, beginPositionV(seedOld) - beginPositionV(seed));
 
         // ...copy segment...
+        //!TODO: where is this host() from
+        // does it return the complete database for a segment?
         append(sequenceCopyLeftH, infix(host(infH), beginPositionH(seed), beginPositionH(seedOld)));
         append(sequenceCopyLeftV, infix(host(infV), beginPositionV(seed), beginPositionV(seedOld)));
 
@@ -641,6 +643,8 @@ _extendAndExtract(Align<Segment<Segment<TSequence const, InfixSegment>, InfixSeg
     typedef typename Position<TSequence>::Type TPos;
     typedef Seed<Simple> TSeed;
 
+    //!TODO: what are infH and infV segments?
+
     // std::cerr << "LOCAL ALIGN\n" << row(localAlign, 0) << "\n" << row(localAlign, 1) << "\n";
     // std::cerr << "ALIGN\n" << row(align, 0) << "\n" << row(align, 1) << "\n";
     integrateAlign(align, localAlign);
@@ -677,6 +681,7 @@ _extendAndExtract(Align<Segment<Segment<TSequence const, InfixSegment>, InfixSeg
 
         extension_runtime.extend_seed_time.measure_time([&]()
         {
+            //!TODO: The seed extension should take place in the complete sequence not the segment
             extendSeed(seed, infixSequenceH, infixSequenceV, direction, scoreMatrix, scoreDropOff, GappedXDrop());
         });
 

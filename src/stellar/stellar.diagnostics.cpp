@@ -123,7 +123,7 @@ void _printDatabaseIdAndStellarKernelStatistics(
     std::cout << std::endl;
 }
 
-void _printParallelPrefilterStellarStatistics(
+void _printStellarStatistics(
         bool const verbose,
         bool const databaseStrand,
         StringSet<CharString> const & databaseIDs,

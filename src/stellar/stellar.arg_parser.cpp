@@ -45,11 +45,13 @@ _parseOptions(ArgumentParser const & parser, StellarOptions & options)
     if (!isSet(parser, "forward") && isSet(parser, "reverse"))
         options.forward = false;
 
-    // Parallel Options
-    if (isSet(parser, "splitNSegments"))
+    // DREAM Options
+    if (isSet(parser, "sequenceOfInterest"))
     {
-        options.splitDatabase = true;
-        getOptionValue(options.splitNSegments, parser, "splitNSegments");
+        options.prefilteredSearch = true;
+        getOptionValue(options.sequenceOfInterest, parser, "sequenceOfInterest");
+        getOptionValue(options.segmentBegin, parser, "segmentBegin");
+        getOptionValue(options.segmentEnd, parser, "segmentEnd");
     }
 
     // Verification Options
@@ -143,9 +145,16 @@ void _setParser(ArgumentParser & parser)
     setValidValues(parser, "a", "dna dna5 rna rna5 protein char");
     addOption(parser, ArgParseOption("v", "verbose", "Set verbosity mode."));
 
-    addSection(parser, "Parallel Options");
 
-    addOption(parser, ArgParseOption("", "splitNSegments", "Split each database sequence into N segments.", ArgParseArgument::INTEGER));
+    addSection(parser, "DREAM-Stellar Options");
+
+    // Reference database may contain multiple reference sequences (e.g chromosomes)
+    // Each of which may be divided into multiple segments
+    // Valik prefiltering associates each query to a segment
+    // DREAM-Stellar should search a segment for seeds and extend them in a complete reference sequence (not the complete database)
+    addOption(parser, ArgParseOption("", "sequenceOfInterest", "Database sequence that contains segment.", ArgParseArgument::INTEGER));
+    addOption(parser, ArgParseOption("", "segmentBegin", "Segment start in database sequence.", ArgParseArgument::INTEGER));
+    addOption(parser, ArgParseOption("", "segmentEnd", "Segment end in database sequence.", ArgParseArgument::INTEGER));
 
     addSection(parser, "Filtering Options");
 

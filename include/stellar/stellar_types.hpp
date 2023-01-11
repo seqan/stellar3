@@ -26,7 +26,7 @@
 
 #include <seqan/align.h>
 
-#include <stellar/options/database_split_options.hpp>
+#include <stellar/options/dream_options.hpp>
 #include <stellar/options/eps_match_options.hpp>
 #include <stellar/options/index_options.hpp>
 #include <stellar/options/verifier_options.hpp>
@@ -44,7 +44,7 @@ using namespace seqan;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Options for Stellar
-struct StellarOptions : public EPSMatchOptions, public IndexOptions, public VerifierOptions, public DatabaseSplitOptions {
+struct StellarOptions : public EPSMatchOptions, public IndexOptions, public VerifierOptions, public DREAMOptions {
     // i/o options
     CharString databaseFile;        // name of database file
     CharString queryFile;           // name of query file
@@ -200,6 +200,26 @@ struct StellarOutputStatistics
         numMatches = numMatches + statistics.numMatches;
         numDisabled = numDisabled + statistics.numDisabled;
     }
+};
+
+struct StellarComputeStatisticsCollection
+{
+    StellarComputeStatistics const & operator[](size_t const databaseRecordID) const
+    {
+        return _statistics[databaseRecordID];
+    }
+
+    void addStatistics(StellarComputeStatistics const & computeStatistics)
+    {
+        _statistics.push_back(computeStatistics);
+    }
+
+    size_t size() const
+    {
+        return _statistics.size();
+    }
+private:
+    std::vector<StellarComputeStatistics> _statistics; // one per database
 };
 
 ///////////////////////////////////////////////////////////////////////////////
