@@ -9,7 +9,7 @@ namespace stellar
 
 struct stellar_strand_time : public stellar_runtime
 {
-    stellar_kernel_runtime parallel_prefiltered_stellar_time{};
+    stellar_kernel_runtime prefiltered_stellar_time{};
     stellar_runtime post_process_eps_matches_time{};
     stellar_runtime output_eps_matches_time{};
 
@@ -17,7 +17,7 @@ struct stellar_strand_time : public stellar_runtime
     {
         stellar_runtime total{};
         total.manual_timing(
-            parallel_prefiltered_stellar_time._runtime +
+            prefiltered_stellar_time._runtime +
             post_process_eps_matches_time._runtime +
             output_eps_matches_time._runtime);
 
