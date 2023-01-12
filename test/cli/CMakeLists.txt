@@ -45,3 +45,25 @@ set (SEQAN_CTD_EXECUTABLES ${SEQAN_CTD_EXECUTABLES} stellar CACHE INTERNAL "")
 
 #Add test to check correct ctd generation.
 seqan_add_ctd_test (stellar)
+
+# Prefiltered Stellar CLI tests
+macro (add_cli_test test_filename)
+    add_app_test (${test_filename})
+
+    seqan3_test_component (target "${test_filename}" TARGET_NAME)
+    add_dependencies (cli_test ${target})
+    add_dependencies (${target} "${PROJECT_NAME}")
+endmacro ()
+
+add_cli_test (stellar_test.cpp)
+target_use_datasources (stellar_test FILES ref.fasta)
+target_use_datasources (stellar_test FILES multi_seq_ref.fasta)
+target_use_datasources (stellar_test FILES query_e0.05.fasta)
+
+target_use_datasources (stellar_test FILES 0_0_400.gff)
+target_use_datasources (stellar_test FILES 0_200_600.gff)
+target_use_datasources (stellar_test FILES 0_400_700.gff)
+
+target_use_datasources (stellar_test FILES 0_0_400.stdout)
+target_use_datasources (stellar_test FILES 0_200_600.stdout)
+target_use_datasources (stellar_test FILES 0_400_700.stdout)
