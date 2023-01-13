@@ -62,8 +62,14 @@ TStorage _getDatabaseSegments(StringSet<String<TAlphabet>> & databases, StellarO
             throw std::runtime_error{"Segment shorter than minimum match length"};
 
         if (reverse)
+        {
             reverseComplement(databases[options.sequenceOfInterest]);
-        databaseSegments.emplace_back(databases[options.sequenceOfInterest], options.segmentBegin, options.segmentEnd);
+            databaseSegments.emplace_back(databases[options.sequenceOfInterest], length(databases[options.sequenceOfInterest]) - options.segmentEnd, length(databases[options.sequenceOfInterest]) - options.segmentBegin);
+        }
+        else
+            databaseSegments.emplace_back(databases[options.sequenceOfInterest], options.segmentBegin, options.segmentEnd);
+
+        //std::cout << databaseSegments[0].asInfixSegment() << '\n';
     }
     else
         for (auto & database : databases)
