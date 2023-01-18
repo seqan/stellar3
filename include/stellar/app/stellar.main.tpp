@@ -474,6 +474,8 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
     // import database sequence
     StringSet<TSequence> databases;
     StringSet<CharString> databaseIDs;
+
+    //!TODO: only import the sequence of interest
     bool const databasesSuccess = stellar_time.input_databases_time.measure_time([&]()
     {
         return _importSequences(options.databaseFile, "database", databases, databaseIDs);

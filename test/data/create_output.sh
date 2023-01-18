@@ -46,6 +46,9 @@ call_stellar 341 450
 # Extend right
 ############################################################
 
+# From beginning
+call_stellar 0 400
+
 # Stellar	eps-matches	628	813
 # overlap match by 15 (extend right)
 call_stellar 500 643

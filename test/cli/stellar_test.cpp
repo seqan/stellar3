@@ -18,6 +18,7 @@ TEST_P(stellar_search, prefiltered)
                                                 "--segmentEnd ", std::to_string(seg_range.second),
                                                 "--epsilon 0.05",
                                                 "--minLength 50",
+                                                "-k 15",
                                                 "--verbose",
                                                 "--suppress-runtime-printing",
                                                 "> out.stdout");
@@ -42,7 +43,7 @@ TEST_P(stellar_search, prefiltered)
 
 INSTANTIATE_TEST_SUITE_P(stellar_suite,
                          stellar_search,
-                         testing::Combine(testing::Values(0), testing::Values(std::make_pair(0, 400), std::make_pair(200, 600), std::make_pair(400, 700))),
+                         testing::Combine(testing::Values(0), testing::Values(std::make_pair(0, 400), std::make_pair(500, 643), std::make_pair(600, 763))),
                          [] (testing::TestParamInfo<stellar_search::ParamType> const & info)
                          {
                              std::string name = std::to_string(std::get<0>(info.param)) + "_" +

@@ -81,6 +81,7 @@ TStorage _getDatabaseSegments(StringSet<String<TAlphabet>> & databases, StellarO
                 databaseSegments.emplace_back(database, 0u, length(database));
         }
 
+    //!TODO: drop the database after this
     return databaseSegments;
 }
 
