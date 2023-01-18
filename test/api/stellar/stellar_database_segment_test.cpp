@@ -3,7 +3,12 @@
 #include <stellar/stellar.hpp>
 
 using TAlphabet = seqan::Dna5;
+using TDatabaseSegment = stellar::StellarDatabaseSegment<TAlphabet>;
+using TStorage = std::vector<TDatabaseSegment>;
 
+////////////////////////////////////////////////
+//  struct StellarDatabaseSegment
+////////////////////////////////////////////////
 TEST(StellarDatabaseSegment, underlyingDatabase)
 {
     seqan::String<TAlphabet> database{"ACG""TACGTA""CGT"};
@@ -216,5 +221,143 @@ TEST(StellarDatabaseSegment, comparison)
             EXPECT_TRUE(segment1 >= segment2);
             break;
         }
+    }
+}
+
+////////////////////////////////////////////////
+// TStorage _getDatabaseSegments()
+////////////////////////////////////////////////
+seqan::StringSet<seqan::String<TAlphabet>> getDatabases()
+{
+    seqan::StringSet<seqan::String<TAlphabet>> databases;
+    seqan::appendValue(databases, (seqan::String<TAlphabet>) {"AACAGTC"});
+    seqan::appendValue(databases, (seqan::String<TAlphabet>) {"ACGTCG"});
+    seqan::appendValue(databases, (seqan::String<TAlphabet>) {"CCGCTGC"});
+    return databases;
+}
+
+stellar::StellarOptions getPrefilteringOptions(unsigned const seqInt, unsigned const segBegin, unsigned const segEnd)
+{
+    stellar::StellarOptions options;
+    options.minLength = 2;
+    options.prefilteredSearch = true;
+    options.sequenceOfInterest = seqInt;
+    options.segmentBegin = segBegin;
+    options.segmentEnd = segEnd;
+    return options;
+}
+
+TEST(getDatabaseSegment, all_sequences)
+{
+    seqan::StringSet<seqan::String<TAlphabet>> databases = getDatabases();
+    auto options = getPrefilteringOptions(1u, 0u, 2u);
+    options.prefilteredSearch = false;
+
+    TStorage databaseSegments = stellar::_getDatabaseSegments<TAlphabet, TStorage>(databases, options);
+
+    EXPECT_EQ(length(databaseSegments), 3u);
+    EXPECT_EQ(databaseSegments[0].asInfixSegment(), (seqan::String<TAlphabet>) {"AACAGTC"});
+    EXPECT_EQ(databaseSegments[1].asInfixSegment(), (seqan::String<TAlphabet>) {"ACGTCG"});
+    EXPECT_EQ(databaseSegments[2].asInfixSegment(), (seqan::String<TAlphabet>) {"CCGCTGC"});
+}
+
+TEST(getDatabaseSegment, from_begin)
+{
+    seqan::StringSet<seqan::String<TAlphabet>> databases = getDatabases();
+    auto options = getPrefilteringOptions(1u, 0u, 2u);
+
+    TStorage databaseSegments = stellar::_getDatabaseSegments<TAlphabet, TStorage>(databases, options);
+
+    EXPECT_EQ(length(databaseSegments), 1u);
+    EXPECT_EQ(length(databaseSegments[0].asInfixSegment()), 2u);
+    EXPECT_EQ(databaseSegments[0].size(), 2u);
+    EXPECT_EQ(databaseSegments[0].asInfixSegment(), (seqan::String<TAlphabet>) {"AC"});
+}
+
+TEST(getDatabaseSegment, whole_sequence)
+{
+    seqan::StringSet<seqan::String<TAlphabet>> databases = getDatabases();
+    auto options = getPrefilteringOptions(0u, 0u, 7u);
+
+    TStorage databaseSegments = stellar::_getDatabaseSegments<TAlphabet, TStorage>(databases, options);
+
+    EXPECT_EQ(length(databaseSegments), 1u);
+    EXPECT_EQ(length(databaseSegments[0].asInfixSegment()), 7u);
+    EXPECT_EQ(databaseSegments[0].size(), 7u);
+    EXPECT_EQ(databaseSegments[0].asInfixSegment(), (seqan::String<TAlphabet>) {"AACAGTC"});
+}
+
+TEST(getDatabaseSegment, seq_out_of_range)
+{
+    seqan::StringSet<seqan::String<TAlphabet>> databases = getDatabases();
+    auto options = getPrefilteringOptions(3u, 0u, 2u);
+
+    /*!TODO: update gtest to 1.11?
+    EXPECT_THAT(
+        [] () {TStorage databaseSegments = stellar::_getDatabaseSegments<TAlphabet, TStorage>(databases, options);},
+        ThrowsMessageHasSubstr<std::runtime_error>("Incorrect segment definition")
+    );
+    */
+
+    try {
+        TStorage databaseSegments = stellar::_getDatabaseSegments<TAlphabet, TStorage>(databases, options);
+        FAIL() << "Expected std::runtime_error";
+    }
+    catch(std::runtime_error const & err) {
+        EXPECT_EQ(err.what(),std::string("Sequence of interest out of range"));
+    }
+    catch(...) {
+        FAIL() << "Expected std::runtime_error";
+    }
+}
+
+TEST(getDatabaseSegment, index_out_of_range)
+{
+    seqan::StringSet<seqan::String<TAlphabet>> databases = getDatabases();
+    auto options = getPrefilteringOptions(1u, 0u, 8u);
+
+    try {
+        TStorage databaseSegments = stellar::_getDatabaseSegments<TAlphabet, TStorage>(databases, options);
+        FAIL() << "Expected std::runtime_error";
+    }
+    catch(std::runtime_error const & err) {
+        EXPECT_EQ(err.what(),std::string("Segment end out of range"));
+    }
+    catch(...) {
+        FAIL() << "Expected std::runtime_error";
+    }
+}
+
+TEST(getDatabaseSegment, too_short)
+{
+    seqan::StringSet<seqan::String<TAlphabet>> databases = getDatabases();
+    auto options = getPrefilteringOptions(1u, 0u, 1u);
+
+    try {
+        TStorage databaseSegments = stellar::_getDatabaseSegments<TAlphabet, TStorage>(databases, options);
+        FAIL() << "Expected std::runtime_error";
+    }
+    catch(std::runtime_error const & err) {
+        EXPECT_EQ(err.what(),std::string("Segment shorter than minimum match length"));
+    }
+    catch(...) {
+        FAIL() << "Expected std::runtime_error";
+    }
+}
+
+TEST(getDatabaseSegment, incorrect_indices)
+{
+    seqan::StringSet<seqan::String<TAlphabet>> databases = getDatabases();
+    auto options = getPrefilteringOptions(1u, 2u, 0u);
+
+    try {
+        TStorage databaseSegments = stellar::_getDatabaseSegments<TAlphabet, TStorage>(databases, options);
+        FAIL() << "Expected std::runtime_error";
+    }
+    catch(std::runtime_error const & err) {
+        EXPECT_EQ(err.what(),std::string("Incorrect segment definition"));
+    }
+    catch(...) {
+        FAIL() << "Expected std::runtime_error";
     }
 }

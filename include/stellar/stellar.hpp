@@ -267,8 +267,8 @@ _insertMatch(QueryMatches<StellarMatch<TSource const, TId> > & queryMatches,
 // A basic block for stellar
 template<typename TAlphabet, typename TTag, typename TIsPatternDisabledFn, typename TOnAlignmentResultFn>
 StellarComputeStatistics
-_stellarKernel(StellarSwiftFinder<TAlphabet> & finder,
-               StellarSwiftPattern<TAlphabet> & pattern,
+_stellarKernel(StellarSwiftFinder<TAlphabet> & finder,  // iterate over database
+               StellarSwiftPattern<TAlphabet> & pattern,    // holds the query and preprocessing info
                SwiftHitVerifier<TTag> & swiftVerifier,
                TIsPatternDisabledFn && isPatternDisabled,
                TOnAlignmentResultFn && onAlignmentResult,

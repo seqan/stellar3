@@ -253,7 +253,7 @@ def main(source_base, binary_base, alphabets, database_strands, output_extension
     for alphabet in alphabets:
         for databaseStrand in database_strands:
             for outputExt in output_extensions:
-
+                # Search complete database
                 # Error rate 0.1:
                 testSuite.addTest('stellar', errorRate = 'e-1', testName = 'e-1', alphabet = alphabet, databaseStrand = databaseStrand, outputExt = outputExt, flags = testSuite.shortFlags)
 

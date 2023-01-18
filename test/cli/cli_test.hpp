@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <cstdlib>               // system calls
-#include <seqan3/std/filesystem> // test directory creation
+#include <filesystem> // test directory creation
 #include <sstream>               // ostringstream
 #include <string>                // strings
 
@@ -89,3 +89,31 @@ protected:
         }
     }
 };
+
+struct stellar_base : public cli_test
+{
+    static inline std::filesystem::path const out_path(size_t const seq, size_t const begin, size_t const end, std::string const extension) noexcept
+    {
+        std::string name{};
+        name += std::to_string(seq);
+        name += "_";
+        name += std::to_string(begin);
+        name += "_";
+        name += std::to_string(end);
+        name += ".";
+        name += extension;
+        return cli_test::data(name);
+    }
+
+    static inline std::string const string_from_file(std::filesystem::path const & path, std::ios_base::openmode const mode = std::ios_base::in)
+    {
+        std::ifstream file_stream(path, mode);
+        if (!file_stream.is_open())
+            throw std::logic_error{"Cannot open " + path.string()};
+        std::stringstream file_buffer;
+        file_buffer << file_stream.rdbuf();
+        return {file_buffer.str()};
+    }
+};
+
+struct stellar_search : public stellar_base, public testing::WithParamInterface<std::tuple<size_t, std::pair<size_t, size_t>>> {};

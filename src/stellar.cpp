@@ -71,8 +71,6 @@ int main(int argc, const char * argv[])
     stellar::app::_setParser(parser);
     seqan::ArgumentParser::ParseResult res = seqan::parse(parser, argc, argv);
 
-    // options is an in-out arguments
-    // instead of the argument struct common in SeqAn3
     if (res == seqan::ArgumentParser::PARSE_OK)
         res = stellar::app::_parseOptions(parser, options);
 

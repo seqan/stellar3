@@ -70,34 +70,6 @@ namespace stellar
 namespace app
 {
 
-template <typename TAlphabet, typename TStorage>
-TStorage _getDatabaseSegments(StringSet<String<TAlphabet>> & databases, StellarOptions const & options, bool const reverse = false)
-{
-    TStorage databaseSegments{};
-    if (options.prefilteredSearch)
-    {
-        if (options.segmentEnd <= options.segmentBegin ||
-            options.segmentEnd < options.minLength + options.segmentBegin ||
-            length(databases[options.sequenceOfInterest]) < options.segmentEnd)
-            throw std::runtime_error{"Incorrect segment definition"};
-
-        if (reverse)
-            reverseComplement(databases[options.sequenceOfInterest]);
-        databaseSegments.emplace_back(databases[options.sequenceOfInterest], options.segmentBegin, options.segmentEnd);
-    }
-    else
-        for (auto & database : databases)
-        {
-            if (reverse)
-                reverseComplement(database);
-
-            if (length(database) >= options.minLength)
-                databaseSegments.emplace_back(database, 0u, length(database));
-        }
-
-    return databaseSegments;
-}
-
 template <typename TAlphabet, typename TId>
 bool _shouldWriteOutputFile(bool const databaseStrand, StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > const & matches)
 {
@@ -223,9 +195,7 @@ struct StellarApp
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-// Initializes a Pattern object with the query sequences,
-//  and calls _parallelPrefilterStellar for each database sequence
-//!TODO: update what it do
+// Creates database segments and calls search_and_verify on each of them
 template <typename TAlphabet, typename TId>
 inline bool
 _stellarMain(
@@ -504,6 +474,8 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
     // import database sequence
     StringSet<TSequence> databases;
     StringSet<CharString> databaseIDs;
+
+    //!TODO: only import the sequence of interest
     bool const databasesSuccess = stellar_time.input_databases_time.measure_time([&]()
     {
         return _importSequences(options.databaseFile, "database", databases, databaseIDs);
