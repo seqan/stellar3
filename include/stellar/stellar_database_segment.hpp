@@ -49,10 +49,7 @@ TStorage _getDatabaseSegments(StringSet<String<TAlphabet>> & databases, StellarO
     TStorage databaseSegments{};
     if (options.prefilteredSearch)
     {
-        if (options.sequenceOfInterest >= length(databases))
-            throw std::runtime_error{"Sequence of interest out of range"};
-
-        if (length(databases[options.sequenceOfInterest]) < options.segmentEnd)
+        if (length(databases[0]) < options.segmentEnd)
             throw std::runtime_error{"Segment end out of range"};
 
         if (options.segmentEnd <= options.segmentBegin)
@@ -63,13 +60,11 @@ TStorage _getDatabaseSegments(StringSet<String<TAlphabet>> & databases, StellarO
 
         if (reverse)
         {
-            reverseComplement(databases[options.sequenceOfInterest]);
-            databaseSegments.emplace_back(databases[options.sequenceOfInterest], length(databases[options.sequenceOfInterest]) - options.segmentEnd, length(databases[options.sequenceOfInterest]) - options.segmentBegin);
+            reverseComplement(databases[0]);
+            databaseSegments.emplace_back(databases[0], length(databases[0]) - options.segmentEnd, length(databases[0]) - options.segmentBegin);
         }
         else
-            databaseSegments.emplace_back(databases[options.sequenceOfInterest], options.segmentBegin, options.segmentEnd);
-
-        //std::cout << databaseSegments[0].asInfixSegment() << '\n';
+            databaseSegments.emplace_back(databases[0], options.segmentBegin, options.segmentEnd);
     }
     else
         for (auto & database : databases)
@@ -81,7 +76,6 @@ TStorage _getDatabaseSegments(StringSet<String<TAlphabet>> & databases, StellarO
                 databaseSegments.emplace_back(database, 0u, length(database));
         }
 
-    //!TODO: drop the database after this
     return databaseSegments;
 }
 
