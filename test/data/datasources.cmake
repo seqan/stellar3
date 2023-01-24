@@ -4,7 +4,7 @@ include (cmake/app_datasources.cmake)
 
 declare_datasource (FILE multi_seq_ref.fasta
                 URL ${CMAKE_SOURCE_DIR}/test/data/multi_seq_ref.fasta
-                URL_HASH SHA256=485269926182c713586341c0b71a4a5565b36b0e2cacb8b1e0b919389b407d19)
+                URL_HASH SHA256=24d5bf54edf054b7407a0bc4707b72383b9467c051839a6cbd8ec8e2b6bb65f9)
 declare_datasource (FILE query_e0.05.fasta
                 URL ${CMAKE_SOURCE_DIR}/test/data/query_e0.05.fasta
                 URL_HASH SHA256=b107238db9e0c0515b33fff570a787a86126789a0341bd2fdb52c6c607772f8d)

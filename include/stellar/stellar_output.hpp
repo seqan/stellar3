@@ -350,7 +350,7 @@ void _writeMatchesToGffFile(QueryMatches<StellarMatch<TInfix const, TQueryId> > 
         _writeMatchGff(match.id, id, match.orientation, queryMatches.lengthAdjustment,
                        match.row1, match.row2, outputFile);
     }
-};
+}
 
 template <typename TInfix, typename TQueryId>
 void _writeMatchesToTxtFile(QueryMatches<StellarMatch<TInfix const, TQueryId> > const &queryMatches, CharString const & id, bool const orientation, std::ofstream & outputFile)
@@ -362,7 +362,7 @@ void _writeMatchesToTxtFile(QueryMatches<StellarMatch<TInfix const, TQueryId> > 
         _writeMatch(match.id, id, match.orientation, queryMatches.lengthAdjustment,
                     match.row1, match.row2, outputFile);
     }
-};
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Calls _writeMatchGff for each match in String of matches.
@@ -374,7 +374,7 @@ void _writeQueryMatchesToFile(QueryMatches<StellarMatch<TInfix const, TQueryId> 
         _writeMatchesToGffFile(queryMatches, id, orientation, outputFile);
     else
         _writeMatchesToTxtFile(queryMatches, id, orientation, outputFile);
-};
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Calls _writeMatchGff for each match in StringSet of String of matches.
@@ -387,7 +387,7 @@ void _writeAllQueryMatchesToFile(StringSet<QueryMatches<StellarMatch<TInfix cons
 
         _writeQueryMatchesToFile(queryMatches, queryIDs[i], orientation, outputFormat, outputFile);
     }
-};
+}
 
 template <typename TInfix, typename TQueryId>
 StellarOutputStatistics _computeOutputStatistics(StringSet<QueryMatches<StellarMatch<TInfix const, TQueryId> > > const & matches)
