@@ -442,6 +442,48 @@ _importSequences(CharString const & fileName,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// Imports the sequence of interest from a file,
+// stores it in the StringSet seqs and their identifiers in the StringSet ids
+template <typename TSequence, typename TId>
+inline bool
+_importSequenceOfInterest(CharString const & fileName,
+                          unsigned const & sequenceIndex,
+                          StringSet<TSequence> & seqs,
+                          StringSet<TId> & ids)
+{
+    SeqFileIn inSeqs;
+    if (!open(inSeqs, (toCString(fileName))))
+    {
+        std::cerr << "Failed to open database file.\n";
+        return false;
+    }
+
+    TSequence seq;
+    TId id;
+
+    {
+        StringSet<TSequence> _ids;
+        StringSet<TId> _seqs;
+        if (sequenceIndex > 0)  // read a batch of records
+            readRecords(_ids, _seqs, inSeqs, sequenceIndex);
+    }
+
+    if (!atEnd(inSeqs))
+    {
+        readRecord(id, seq, inSeqs);
+        appendValue(seqs, seq, Generous());
+        appendValue(ids, id, Generous());
+
+        std::cout << "Loaded sequence " << id << ".\n";
+        return true;
+    }
+
+    std::cerr << "ERROR: Sequence index " << sequenceIndex << " out of range.\n";
+    return false;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
 // Parses and outputs parameters, calls _stellarMain().
 template <typename TAlphabet>
 int mainWithOptions(StellarOptions & options, String<TAlphabet>)
@@ -475,10 +517,12 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
     StringSet<TSequence> databases;
     StringSet<CharString> databaseIDs;
 
-    //!TODO: only import the sequence of interest
     bool const databasesSuccess = stellar_time.input_databases_time.measure_time([&]()
     {
-        return _importSequences(options.databaseFile, "database", databases, databaseIDs);
+        if (!options.prefilteredSearch)
+            return _importSequences(options.databaseFile, "database", databases, databaseIDs);
+        else
+            return _importSequenceOfInterest(options.databaseFile, options.sequenceOfInterest, databases, databaseIDs);
     });
     if (!databasesSuccess)
         return 1;

@@ -57,13 +57,11 @@ endmacro ()
 
 add_cli_test (stellar_test.cpp)
 target_use_datasources (stellar_test FILES ref.fasta)
-target_use_datasources (stellar_test FILES multi_seq_ref.fasta)
 target_use_datasources (stellar_test FILES query_e0.05.fasta)
 
 target_use_datasources (stellar_test FILES 0_0_400.gff)
 target_use_datasources (stellar_test FILES 0_500_643.gff)
 target_use_datasources (stellar_test FILES 0_600_763.gff)
-
 
 target_use_datasources (stellar_test FILES 0_0_400.stdout)
 target_use_datasources (stellar_test FILES 0_500_643.stdout)
