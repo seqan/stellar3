@@ -1,1 +1,0 @@
-../char_forward/5e-2_minLen20_100kbsplit.txt

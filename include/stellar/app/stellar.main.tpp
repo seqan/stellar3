@@ -79,7 +79,10 @@ bool _shouldWriteOutputFile(bool const databaseStrand, StringSet<QueryMatches<St
 }
 
 template <typename TAlphabet, typename TId>
-void _postproccessQueryMatches(bool const databaseStrand, StellarOptions const & options, StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > & matches, std::vector<size_t> & disabledQueryIDs)
+void _postproccessQueryMatches(bool const databaseStrand, uint64_t const & refLen,
+                               StellarOptions const & options,
+                               StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > & matches,
+                               std::vector<size_t> & disabledQueryIDs)
 {
     using TSequence = String<TAlphabet>;
 
@@ -99,7 +102,7 @@ void _postproccessQueryMatches(bool const databaseStrand, StellarOptions const &
     // adjust length for each matches of a single query (only for dna5 and rna5)
     // TODO: WHY? This seems like an arbitrary restriction
     if (_shouldWriteOutputFile(databaseStrand, matches))
-        _postproccessLengthAdjustment(matches);
+        _postproccessLengthAdjustment(refLen, matches);
 }
 
 template <typename TAlphabet, typename TId = CharString>
@@ -201,6 +204,7 @@ inline bool
 _stellarMain(
     StringSet<String<TAlphabet>> & databases,
     StringSet<TId> const & databaseIDs,
+    uint64_t const & refLen,
     StringSet<String<TAlphabet>> const & queries,
     StringSet<TId> const & queryIDs,
     StellarOptions const & options,
@@ -278,7 +282,7 @@ _stellarMain(
             {
                 // forwardMatches is an in-out parameter
                 // this is the match consolidation
-                _postproccessQueryMatches(databaseStrand, options, forwardMatches, disabledQueryIDs);
+                _postproccessQueryMatches(databaseStrand, refLen, options, forwardMatches, disabledQueryIDs);
             }); // measure_time
 
             if (_shouldWriteOutputFile(databaseStrand, forwardMatches))
@@ -344,7 +348,7 @@ _stellarMain(
 
             stellar_runtime.reverse_strand_stellar_time.post_process_eps_matches_time.measure_time([&]()
             {
-                _postproccessQueryMatches(databaseStrand, options, reverseMatches, disabledQueryIDs);
+                _postproccessQueryMatches(databaseStrand, refLen, options, reverseMatches, disabledQueryIDs);
             }); // measure_time
 
             if (_shouldWriteOutputFile(databaseStrand, reverseMatches))
@@ -405,12 +409,13 @@ _checkUniqueId(std::set<TId> & uniqueIds, TId const & id)
 ///////////////////////////////////////////////////////////////////////////////
 // Imports sequences from a file,
 //  stores them in the StringSet seqs and their identifiers in the StringSet ids
-template <typename TSequence, typename TId>
+template <typename TSequence, typename TId, typename TSize>
 inline bool
 _importSequences(CharString const & fileName,
                  CharString const & name,
                  StringSet<TSequence> & seqs,
-                 StringSet<TId> & ids)
+                 StringSet<TId> & ids,
+                 TSize & seqLen)
 {
     SeqFileIn inSeqs;
     if (!open(inSeqs, (toCString(fileName))))
@@ -429,6 +434,9 @@ _importSequences(CharString const & fileName,
     {
         readRecord(id, seq, inSeqs);
 
+        if (name == "database")
+            seqLen += length(seq);
+
         idsUnique &= _checkUniqueId(uniqueIds, id);
 
         appendValue(seqs, seq, Generous());
@@ -444,12 +452,13 @@ _importSequences(CharString const & fileName,
 ///////////////////////////////////////////////////////////////////////////////
 // Imports the sequence of interest from a file,
 // stores it in the StringSet seqs and their identifiers in the StringSet ids
-template <typename TSequence, typename TId>
+template <typename TSequence, typename TId, typename TSize>
 inline bool
 _importSequenceOfInterest(CharString const & fileName,
                           unsigned const & sequenceIndex,
                           StringSet<TSequence> & seqs,
-                          StringSet<TId> & ids)
+                          StringSet<TId> & ids,
+                          TSize & seqLen)
 {
     SeqFileIn inSeqs;
     if (!open(inSeqs, (toCString(fileName))))
@@ -460,23 +469,24 @@ _importSequenceOfInterest(CharString const & fileName,
 
     TSequence seq;
     TId id;
-
-    {
-        StringSet<TSequence> _ids;
-        StringSet<TId> _seqs;
-        if (sequenceIndex > 0)  // read a batch of records
-            readRecords(_ids, _seqs, inSeqs, sequenceIndex);
-    }
-
-    if (!atEnd(inSeqs))
+    unsigned seqCount = 0;
+    bool foundSeqOfInterest(false);
+    for (; !atEnd(inSeqs); ++seqCount)
     {
         readRecord(id, seq, inSeqs);
-        appendValue(seqs, seq, Generous());
-        appendValue(ids, id, Generous());
+        seqLen += length(seq);
 
-        std::cout << "Loaded sequence " << id << ".\n";
-        return true;
+        if (seqCount == sequenceIndex)
+        {
+            appendValue(seqs, seq, Generous());
+            appendValue(ids, id, Generous());
+            foundSeqOfInterest = true;
+            std::cout << "Loaded sequence " << id << ".\n";
+        }
     }
+
+    if (foundSeqOfInterest)
+        return true;
 
     std::cerr << "ERROR: Sequence index " << sequenceIndex << " out of range.\n";
     return false;
@@ -506,9 +516,13 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
     // import query sequences
     StringSet<TSequence> queries;
     StringSet<CharString> queryIDs;
+
+    using TSize = decltype(length(queries[0]));
+    TSize queryLen{0};   // does not get populated currently
+    //!TODO: split query sequence
     bool const queriesSuccess = stellar_time.input_queries_time.measure_time([&]()
     {
-        return _importSequences(options.queryFile, "query", queries, queryIDs);
+        return _importSequences(options.queryFile, "query", queries, queryIDs, queryLen);
     });
     if (!queriesSuccess)
         return 1;
@@ -517,18 +531,19 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
     StringSet<TSequence> databases;
     StringSet<CharString> databaseIDs;
 
+    TSize refLen{0};
     bool const databasesSuccess = stellar_time.input_databases_time.measure_time([&]()
     {
         if (!options.prefilteredSearch)
-            return _importSequences(options.databaseFile, "database", databases, databaseIDs);
+            return _importSequences(options.databaseFile, "database", databases, databaseIDs, refLen);
         else
-            return _importSequenceOfInterest(options.databaseFile, options.sequenceOfInterest, databases, databaseIDs);
+            return _importSequenceOfInterest(options.databaseFile, options.sequenceOfInterest, databases, databaseIDs, refLen);
     });
     if (!databasesSuccess)
         return 1;
 
     std::cout << std::endl;
-    stellar::app::_writeMoreCalculatedParams(options, databases, queries);
+    stellar::app::_writeMoreCalculatedParams(options, refLen, queries);
 
     // open output files
     std::ofstream outputFile(toCString(options.outputFile), ::std::ios_base::out | ::std::ios_base::app);
@@ -550,7 +565,7 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
     }
 
     // stellar on all databases and queries writing results to file
-    if (!_stellarMain(databases, databaseIDs, queries, queryIDs, options, outputFile, disabledQueriesFile, stellar_time))
+    if (!_stellarMain(databases, databaseIDs, refLen, queries, queryIDs, options, outputFile, disabledQueriesFile, stellar_time))
         return 1;
 
     if (options.verbose && options.noRT == false)
