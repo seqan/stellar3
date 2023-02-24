@@ -153,8 +153,8 @@ void _setParser(ArgumentParser & parser)
     // Valik prefiltering associates each query to a segment
     // DREAM-Stellar should search a segment for seeds and extend them in a complete reference sequence (not the complete database)
     addOption(parser, ArgParseOption("", "sequenceOfInterest", "Database sequence that contains segment (0-based).", ArgParseArgument::INTEGER));
-    addOption(parser, ArgParseOption("", "segmentBegin", "Segment begin in database sequence (included).", ArgParseArgument::INTEGER));
-    addOption(parser, ArgParseOption("", "segmentEnd", "Segment end in database sequence (excluded).", ArgParseArgument::INTEGER));
+    addOption(parser, ArgParseOption("", "segmentBegin", "Segment begin in database sequence (included).", ArgParseArgument::INT64));
+    addOption(parser, ArgParseOption("", "segmentEnd", "Segment end in database sequence (excluded).", ArgParseArgument::INT64));
 
     addSection(parser, "Filtering Options");
 
