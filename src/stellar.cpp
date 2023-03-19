@@ -78,15 +78,17 @@ int main(int argc, const char * argv[])
         return res == seqan::ArgumentParser::PARSE_ERROR;
 
     if (options.alphabet == "dna")
-        stellar::app::mainWithOptions(options, seqan::String<seqan::Dna>());
+        return stellar::app::mainWithOptions(options, seqan::String<seqan::Dna>());
     else if (options.alphabet == "dna5")
-        stellar::app::mainWithOptions(options, seqan::String<seqan::Dna5>());
+        return stellar::app::mainWithOptions(options, seqan::String<seqan::Dna5>());
     else if (options.alphabet == "rna")
-        stellar::app::mainWithOptions(options, seqan::String<seqan::Rna>());
+        return stellar::app::mainWithOptions(options, seqan::String<seqan::Rna>());
     else if (options.alphabet == "rna5")
-        stellar::app::mainWithOptions(options, seqan::String<seqan::Rna5>());
+        return stellar::app::mainWithOptions(options, seqan::String<seqan::Rna5>());
     else if (options.alphabet == "protein")
-        stellar::app::mainWithOptions(options, seqan::String<seqan::AminoAcid>());
+        return stellar::app::mainWithOptions(options, seqan::String<seqan::AminoAcid>());
     else if (options.alphabet == "char")
-        stellar::app::mainWithOptions(options, seqan::String<char>());
+        return stellar::app::mainWithOptions(options, seqan::String<char>());
+    std::cerr << "unknown alphabet: " << options.alphabet << "\n";
+    return 1;
 }
