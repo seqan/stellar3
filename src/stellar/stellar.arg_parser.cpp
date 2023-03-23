@@ -49,6 +49,7 @@ _parseOptions(ArgumentParser const & parser, StellarOptions & options)
     if (isSet(parser, "sequenceOfInterest"))
     {
         options.prefilteredSearch = true;
+        getOptionValue(options.referenceLength, parser, "referenceLength");
         getOptionValue(options.sequenceOfInterest, parser, "sequenceOfInterest");
         getOptionValue(options.segmentBegin, parser, "segmentBegin");
         getOptionValue(options.segmentEnd, parser, "segmentEnd");
@@ -152,6 +153,7 @@ void _setParser(ArgumentParser & parser)
     // Each of which may be divided into multiple segments
     // Valik prefiltering associates each query to a segment
     // DREAM-Stellar should search a segment for seeds and extend them in a complete reference sequence (not the complete database)
+    addOption(parser, ArgParseOption("", "referenceLength", "Reference database length.", ArgParseArgument::INT64));
     addOption(parser, ArgParseOption("", "sequenceOfInterest", "Database sequence that contains segment (0-based).", ArgParseArgument::INTEGER));
     addOption(parser, ArgParseOption("", "segmentBegin", "Segment begin in database sequence (included).", ArgParseArgument::INTEGER));
     addOption(parser, ArgParseOption("", "segmentEnd", "Segment end in database sequence (excluded).", ArgParseArgument::INTEGER));
