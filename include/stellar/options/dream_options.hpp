@@ -8,7 +8,7 @@ struct DREAMOptions
 {
     // Whether only a part of the reference should be searched.
     bool prefilteredSearch{false};
-    uint64_t referenceLength;
+    uint64_t referenceLength{0};
 
     // Specify the segment (and sequence) of interest.
     unsigned sequenceOfInterest;

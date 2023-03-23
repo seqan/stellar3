@@ -13,6 +13,7 @@ TEST_P(stellar_search, prefiltered)
                                                 data("ref.fasta"),
                                                 data("query_e0.05.fasta"),
                                                 "-o out.gff",
+                                                "--referenceLength 1024",
                                                 "--sequenceOfInterest ", std::to_string(seq),
                                                 "--segmentBegin ", std::to_string(seg_range.first),
                                                 "--segmentEnd ", std::to_string(seg_range.second),

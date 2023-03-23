@@ -574,7 +574,7 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
             return _importSequences(options.databaseFile, "database", databases, databaseIDs, refLen);
         else
         {
-            if (options.referenceLength)
+            if (options.referenceLength > 0)
             {
                 refLen = options.referenceLength;
                 return _importSequenceOfInterest(options.databaseFile, options.sequenceOfInterest, databases, databaseIDs);
