@@ -1,6 +1,6 @@
 #!/bin/bash
 
-STELLAR=../../debug/bin/stellar
+STELLAR=../../build/bin/stellar
 
 # ============================================================
 # Varying error rates

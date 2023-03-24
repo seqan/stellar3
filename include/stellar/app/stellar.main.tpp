@@ -409,13 +409,13 @@ _checkUniqueId(std::set<TId> & uniqueIds, TId const & id)
 ///////////////////////////////////////////////////////////////////////////////
 // Imports sequences from a file,
 //  stores them in the StringSet seqs and their identifiers in the StringSet ids
-template <typename TSequence, typename TId, typename TSize>
+template <typename TSequence, typename TId, typename TLen>
 inline bool
 _importSequences(CharString const & fileName,
                  CharString const & name,
                  StringSet<TSequence> & seqs,
                  StringSet<TId> & ids,
-                 TSize & seqLen)
+                 TLen & seqLen)
 {
     SeqFileIn inSeqs;
     if (!open(inSeqs, (toCString(fileName))))
@@ -452,13 +452,13 @@ _importSequences(CharString const & fileName,
 ///////////////////////////////////////////////////////////////////////////////
 // Imports the sequence of interest from a file,
 // stores it in the StringSet seqs and their identifiers in the StringSet ids
-template <typename TSequence, typename TId, typename TSize>
+template <typename TSequence, typename TId, typename TLen>
 inline bool
 _importSequenceOfInterest(CharString const & fileName,
                           unsigned const & sequenceIndex,
                           StringSet<TSequence> & seqs,
                           StringSet<TId> & ids,
-                          TSize & seqLen)
+                          TLen & seqLen)
 {
     SeqFileIn inSeqs;
     if (!open(inSeqs, (toCString(fileName))))
@@ -487,6 +487,42 @@ _importSequenceOfInterest(CharString const & fileName,
 
     if (foundSeqOfInterest)
         return true;
+
+    std::cerr << "ERROR: Sequence index " << sequenceIndex << " out of range.\n";
+    return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Imports the sequence of interest from a file,
+// stores it in the StringSet seqs and their identifiers in the StringSet ids
+template <typename TSequence, typename TId>
+inline bool
+_importSequenceOfInterest(CharString const & fileName,
+                          unsigned const & sequenceIndex,
+                          StringSet<TSequence> & seqs,
+                          StringSet<TId> & ids)
+{
+    SeqFileIn inSeqs;
+    if (!open(inSeqs, (toCString(fileName))))
+    {
+        std::cerr << "Failed to open database file.\n";
+        return false;
+    }
+
+    TSequence seq;
+    TId id;
+    unsigned seqCount = 0;
+    for (; !atEnd(inSeqs); ++seqCount)
+    {
+        readRecord(id, seq, inSeqs);
+        if (seqCount == sequenceIndex)
+        {
+            appendValue(seqs, seq, Generous());
+            appendValue(ids, id, Generous());
+            std::cout << "Loaded sequence " << id << ".\n";
+            return true;
+        }
+    }
 
     std::cerr << "ERROR: Sequence index " << sequenceIndex << " out of range.\n";
     return false;
@@ -537,7 +573,17 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
         if (!options.prefilteredSearch)
             return _importSequences(options.databaseFile, "database", databases, databaseIDs, refLen);
         else
-            return _importSequenceOfInterest(options.databaseFile, options.sequenceOfInterest, databases, databaseIDs, refLen);
+        {
+            if (options.referenceLength > 0)
+            {
+                refLen = options.referenceLength;
+                return _importSequenceOfInterest(options.databaseFile, options.sequenceOfInterest, databases, databaseIDs);
+            }
+            else
+            {
+                return _importSequenceOfInterest(options.databaseFile, options.sequenceOfInterest, databases, databaseIDs, refLen);
+            }
+        }
     });
     if (!databasesSuccess)
         return 1;
