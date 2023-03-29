@@ -159,18 +159,18 @@ void init_parser(sharg::parser & parser, StellarOptions & options)
                                 .description = "Maximal number of verified matches before disabling verification for one query sequence (default infinity).",
                                 .validator = sharg::arithmetic_range_validator{1, 10000}});
     parser.add_option(options.numMatches,
-                sharg::config{.short_id = '\0',
+                sharg::config{.short_id = 'n',
                                 .long_id = "numMatches",
                                 .description = "Maximal number of kept matches per query and database. If STELLAR finds more matches, only the longest ones are kept."});
     parser.add_option(options.compactThresh,
-                sharg::config{.short_id = '\0',
+                sharg::config{.short_id = 's',
                                 .long_id = "sortThresh",
                                 .description = "Number of matches triggering removal of duplicates. Choose a smaller value for saving space."});
 
     // Output options
     parser.add_option(options.outputFile,
                 sharg::config{.short_id = 'o',
-                                .long_id = "output",
+                                .long_id = "out",
                                 .description = "Name of output file.",
                                 .validator = sharg::output_file_validator{sharg::output_file_open_options::open_or_create, {"gff", "txt"}}});
     parser.add_option(options.disabledQueriesFile,
@@ -180,7 +180,7 @@ void init_parser(sharg::parser & parser, StellarOptions & options)
                                 .validator = sharg::output_file_validator{sharg::output_file_open_options::open_or_create, {"fa", "fasta"}}});
     parser.add_flag(options.noRT,
                 sharg::config{.short_id = '\0',
-                                .long_id = "supress-runtime-printing",
+                                .long_id = "suppress-runtime-printing",
                                 .description = "Suppress printing running time."});
 
 }

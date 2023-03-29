@@ -30,7 +30,7 @@ testsConfig = {
         '-n', '5000', # --numMatches
         '-s', '10000', # --sortThresh
         '-v', # --verbose
-        '-no-rt', # --suppress-runtime-printing # for stable output
+        '--suppress-runtime-printing', # for stable output
     ],
     '5e-2' : [
         '--epsilon', '0.05',

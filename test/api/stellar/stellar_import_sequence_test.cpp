@@ -1,3 +1,5 @@
+#include <cstring>
+
 #include <gtest/gtest.h>
 
 #include <stellar/app/stellar.main.tpp>
@@ -11,7 +13,7 @@ TEST(import_sequences, all_sequences)
     seqan::StringSet<seqan::CharString> databaseIDs;
 
     uint64_t refLen{0};
-    stellar::app::_importSequences(databaseFile, "database", databases, databaseIDs, refLen);
+    stellar::app::_importSequences(databaseFile.c_str(), "database", databases, databaseIDs, refLen);
 
     EXPECT_EQ(length(databases), 3u);
     EXPECT_EQ(databases[0], (seqan::String<TAlphabet>) {"GATGACTCAGTCTTGTTGATTAGGCACCTCGGTATGTGGGCATTAGGCACATTGCTCTGTTTCTTGAAGT"
@@ -45,7 +47,7 @@ TEST(import_sequence_of_interest, first)
     seqan::StringSet<seqan::CharString> databaseIDs;
 
     uint64_t refLen{0};
-    stellar::app::_importSequenceOfInterest(databaseFile, 0, databases, databaseIDs, refLen);
+    stellar::app::_importSequenceOfInterest(databaseFile.c_str(), 0, databases, databaseIDs, refLen);
 
     EXPECT_EQ(length(databases), 1u);
     EXPECT_EQ(databases[0], (seqan::String<TAlphabet>) {"GATGACTCAGTCTTGTTGATTAGGCACCTCGGTATGTGGGCATTAGGCACATTGCTCTGTTTCTTGAAGT"
@@ -68,7 +70,7 @@ TEST(import_sequence_of_interest, out_of_range)
 
     testing::internal::CaptureStderr();
     uint64_t refLen{0};
-    stellar::app::_importSequenceOfInterest(databaseFile, sequenceIndex, databases, databaseIDs, refLen);
+    stellar::app::_importSequenceOfInterest(databaseFile.c_str(), sequenceIndex, databases, databaseIDs, refLen);
     std::string err = testing::internal::GetCapturedStderr();
 
     EXPECT_EQ(err,std::string("ERROR: Sequence index " + std::to_string(sequenceIndex) + " out of range.\n"));
