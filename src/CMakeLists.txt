@@ -120,7 +120,7 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SEQAN_CXX_FLAGS}")
 find_package (OpenMP) # requires cmake 3.10
 target_link_libraries ("${PROJECT_NAME}_interface" INTERFACE OpenMP::OpenMP_CXX)
 
-add_library (stellar_main OBJECT
+add_library (stellar_main STATIC
                 stellar/stellar.main.dna.cpp
                 stellar/stellar.main.dna5.cpp
                 stellar/stellar.main.rna.cpp
@@ -128,25 +128,21 @@ add_library (stellar_main OBJECT
                 stellar/stellar.main.aminoacid.cpp
                 stellar/stellar.main.char.cpp)
 
-add_library (stellar_arg_parser OBJECT stellar3.arg_parser.cpp)
-target_link_libraries (stellar_arg_parser PUBLIC "${PROJECT_NAME}_interface")
-
 target_link_libraries (stellar_main PUBLIC "${PROJECT_NAME}_interface")
 
-add_library (stellar_diagnostics OBJECT stellar/stellar.diagnostics.cpp)
-target_link_libraries (stellar_diagnostics PUBLIC "${PROJECT_NAME}_interface")
+add_library (stellar_arg_parser STATIC stellar3.arg_parser.cpp)
+target_link_libraries (stellar_arg_parser PUBLIC "stellar_main")
 
+add_library (stellar_diagnostics STATIC stellar/stellar.diagnostics.cpp)
+target_link_libraries (stellar_diagnostics PUBLIC "stellar_main")
 
-if (STELLAR_PARALLEL_BUILD AND STELLAR_PRECOMPILED_HEADER_BUILD)
+if (STELLAR_PRECOMPILED_HEADER_BUILD)
     target_precompile_headers (stellar_main PRIVATE ../include/stellar/app/stellar.main.tpp)
 endif ()
 
 # Update the list of file names below if you add source files to your application.
 add_executable (stellar stellar.cpp)
-
-if (STELLAR_PARALLEL_BUILD)
-    target_link_libraries (stellar PRIVATE stellar_main stellar_arg_parser stellar_diagnostics)
-endif ()
+target_link_libraries (stellar PRIVATE stellar_main stellar_arg_parser stellar_diagnostics)
 
 # Add dependencies found by find_package (SeqAn).
 target_link_libraries (stellar PUBLIC "${PROJECT_NAME}_interface" ${SEQAN_LIBRARIES})
