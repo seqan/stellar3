@@ -120,24 +120,22 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SEQAN_CXX_FLAGS}")
 find_package (OpenMP) # requires cmake 3.10
 target_link_libraries ("${PROJECT_NAME}_interface" INTERFACE OpenMP::OpenMP_CXX)
 
-if (STELLAR_PARALLEL_BUILD)
-    target_compile_definitions ("${PROJECT_NAME}_interface" INTERFACE -DSTELLAR_PARALLEL_BUILD)
+add_library (stellar_main OBJECT
+                stellar/stellar.main.dna.cpp
+                stellar/stellar.main.dna5.cpp
+                stellar/stellar.main.rna.cpp
+                stellar/stellar.main.rna5.cpp
+                stellar/stellar.main.aminoacid.cpp
+                stellar/stellar.main.char.cpp)
 
-    add_library (stellar_main OBJECT
-                 stellar/stellar.main.dna.cpp
-                 stellar/stellar.main.dna5.cpp
-                 stellar/stellar.main.rna.cpp
-                 stellar/stellar.main.rna5.cpp
-                 stellar/stellar.main.aminoacid.cpp
-                 stellar/stellar.main.char.cpp)
-    target_link_libraries (stellar_main PUBLIC "${PROJECT_NAME}_interface")
+add_library (stellar_arg_parser OBJECT stellar3.arg_parser.cpp)
+target_link_libraries (stellar_arg_parser PUBLIC "${PROJECT_NAME}_interface")
 
-    add_library (stellar_arg_parser OBJECT stellar/stellar.arg_parser.cpp)
-    target_link_libraries (stellar_arg_parser PUBLIC "${PROJECT_NAME}_interface")
+target_link_libraries (stellar_main PUBLIC "${PROJECT_NAME}_interface")
 
-    add_library (stellar_diagnostics OBJECT stellar/stellar.diagnostics.cpp)
-    target_link_libraries (stellar_diagnostics PUBLIC "${PROJECT_NAME}_interface")
-endif ()
+add_library (stellar_diagnostics OBJECT stellar/stellar.diagnostics.cpp)
+target_link_libraries (stellar_diagnostics PUBLIC "${PROJECT_NAME}_interface")
+
 
 if (STELLAR_PARALLEL_BUILD AND STELLAR_PRECOMPILED_HEADER_BUILD)
     target_precompile_headers (stellar_main PRIVATE ../include/stellar/app/stellar.main.tpp)
