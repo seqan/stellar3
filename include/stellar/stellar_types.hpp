@@ -30,6 +30,7 @@
 #include <stellar/options/eps_match_options.hpp>
 #include <stellar/options/index_options.hpp>
 #include <stellar/options/verifier_options.hpp>
+#include <shared.hpp>
 
 #if __cpp_designated_initializers || __GNUC__ >= 8
 #   define STELLAR_DESIGNATED_INITIALIZER(designator, value) designator value
@@ -41,87 +42,6 @@ namespace stellar
 {
 
 using namespace seqan;
-
-///////////////////////////////////////////////////////////////////////////////
-// Options for Stellar
-struct StellarOptions : public EPSMatchOptions, public IndexOptions, public VerifierOptions, public DREAMOptions {
-    // i/o options
-    CharString databaseFile;        // name of database file
-    CharString queryFile;           // name of query file
-    CharString outputFile;          // name of result file
-    CharString disabledQueriesFile; // name of result file containing disabled queries
-    CharString outputFormat;        // Possible formats: gff, text
-    CharString alphabet;            // Possible values: dna, rna, protein, char
-    bool noRT;                      // suppress printing of running time if set to true
-
-    // more options
-    unsigned threadCount{1u};   // The maximum number of threads
-    bool forward;               // compute matches to forward strand of database
-    bool reverse;               // compute matches to reverse complemented database
-
-    unsigned disableThresh;     // maximal number of matches allowed per query before disabling verification of hits for that query
-    unsigned compactThresh;     // number of matches after which removal of overlaps and duplicates is started
-    unsigned numMatches;        // maximal number of matches per query and database
-    unsigned maxRepeatPeriod;   // maximal period of low complexity repeats to be filtered
-    unsigned minRepeatLength;   // minimal length of low complexity repeats to be filtered
-    bool verbose;               // verbose mode
-
-
-    StellarOptions() {
-        outputFile = "stellar.gff";
-        disabledQueriesFile = "stellar.disabled.fasta";
-        outputFormat = "gff";
-        alphabet = "dna5";
-        noRT = false;
-
-        forward = true;
-        reverse = true;
-        disableThresh = std::numeric_limits<unsigned>::max();
-        compactThresh = 500;
-        numMatches = 50;
-        maxRepeatPeriod = 1;
-        minRepeatLength = 1000;
-        verbose = false;
-    }
-
-    static constexpr size_t kmerCount(size_t sequenceLength, size_t kmerSize)
-    {
-        assert(kmerSize > 0u);
-        assert(sequenceLength >= kmerSize - 1u);
-        // number of kmers
-        return sequenceLength + 1u - kmerSize;
-    }
-
-    static constexpr size_t kmerLemma(size_t sequenceLength, size_t kmerSize, size_t errors)
-    {
-        size_t maxAffectedKMers = kmerSize * errors;
-        size_t count = kmerCount(sequenceLength, kmerSize);
-        return std::max(count, maxAffectedKMers) - maxAffectedKMers;
-    }
-
-    static constexpr size_t pigeonholeLemma(size_t sequenceLength, size_t errors)
-    {
-        assert(sequenceLength >= errors);
-        // how many consecutive chars must be error free
-        using difference_t = stellar::utils::fraction::difference_t;
-        return ceil(stellar::utils::fraction{static_cast<difference_t>(sequenceLength - errors), errors + 1});
-    }
-
-    static constexpr size_t minLengthWithExactError(size_t absoluteError, stellar::utils::fraction epsilon)
-    {
-        if (epsilon.numerator() == 0)
-            return std::numeric_limits<size_t>::max();
-
-        using difference_t = stellar::utils::fraction::difference_t;
-        return ceil(stellar::utils::fraction{static_cast<difference_t>(absoluteError), 1} / epsilon);
-    }
-
-    static constexpr size_t absoluteErrors(stellar::utils::fraction epsilon, size_t sequenceLength)
-    {
-        using difference_t = stellar::utils::fraction::difference_t;
-        return floor(stellar::utils::fraction{static_cast<difference_t>(sequenceLength), 1} * epsilon);
-    }
-};
 
 struct StellarStatistics
 {

@@ -11,9 +11,9 @@ struct DREAMOptions
     uint64_t referenceLength{0};
 
     // Specify the segment (and sequence) of interest.
-    unsigned sequenceOfInterest;
-    unsigned segmentBegin;
-    unsigned segmentEnd;
+    size_t sequenceOfInterest;
+    uint32_t segmentBegin;
+    uint32_t segmentEnd;
 };
 
 } // namespace stellar

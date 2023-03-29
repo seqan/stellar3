@@ -411,14 +411,14 @@ _checkUniqueId(std::set<TId> & uniqueIds, TId const & id)
 //  stores them in the StringSet seqs and their identifiers in the StringSet ids
 template <typename TSequence, typename TId, typename TLen>
 inline bool
-_importSequences(CharString const & fileName,
+_importSequences(const char* fileName,
                  CharString const & name,
                  StringSet<TSequence> & seqs,
                  StringSet<TId> & ids,
                  TLen & seqLen)
 {
     SeqFileIn inSeqs;
-    if (!open(inSeqs, (toCString(fileName))))
+    if (!open(inSeqs, (fileName)))
     {
         std::cerr << "Failed to open " << name << " file." << std::endl;
         return false;
@@ -454,14 +454,14 @@ _importSequences(CharString const & fileName,
 // stores it in the StringSet seqs and their identifiers in the StringSet ids
 template <typename TSequence, typename TId, typename TLen>
 inline bool
-_importSequenceOfInterest(CharString const & fileName,
+_importSequenceOfInterest(const char* fileName,
                           unsigned const & sequenceIndex,
                           StringSet<TSequence> & seqs,
                           StringSet<TId> & ids,
                           TLen & seqLen)
 {
     SeqFileIn inSeqs;
-    if (!open(inSeqs, (toCString(fileName))))
+    if (!open(inSeqs, (fileName)))
     {
         std::cerr << "Failed to open database file.\n";
         return false;
@@ -497,13 +497,13 @@ _importSequenceOfInterest(CharString const & fileName,
 // stores it in the StringSet seqs and their identifiers in the StringSet ids
 template <typename TSequence, typename TId>
 inline bool
-_importSequenceOfInterest(CharString const & fileName,
+_importSequenceOfInterest(const char* fileName,
                           unsigned const & sequenceIndex,
                           StringSet<TSequence> & seqs,
                           StringSet<TId> & ids)
 {
     SeqFileIn inSeqs;
-    if (!open(inSeqs, (toCString(fileName))))
+    if (!open(inSeqs, (fileName)))
     {
         std::cerr << "Failed to open database file.\n";
         return false;
@@ -534,13 +534,12 @@ _importSequenceOfInterest(CharString const & fileName,
 template <typename TAlphabet>
 int mainWithOptions(StellarOptions & options, String<TAlphabet>)
 {
+    using namespace seqan;
+
     typedef String<TAlphabet> TSequence;
 
     stellar_app_runtime stellar_time{};
     auto current_time = stellar_time.now();
-
-    // set threads
-    omp_set_num_threads(options.threadCount);
 
     // output file names
     stellar::app::_writeFileNames(options);
@@ -558,7 +557,7 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
     //!TODO: split query sequence
     bool const queriesSuccess = stellar_time.input_queries_time.measure_time([&]()
     {
-        return _importSequences(options.queryFile, "query", queries, queryIDs, queryLen);
+        return _importSequences(options.queryFile.c_str(), "query", queries, queryIDs, queryLen);
     });
     if (!queriesSuccess)
         return 1;
@@ -571,17 +570,17 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
     bool const databasesSuccess = stellar_time.input_databases_time.measure_time([&]()
     {
         if (!options.prefilteredSearch)
-            return _importSequences(options.databaseFile, "database", databases, databaseIDs, refLen);
+            return _importSequences(options.databaseFile.c_str(), "database", databases, databaseIDs, refLen);
         else
         {
             if (options.referenceLength > 0)
             {
                 refLen = options.referenceLength;
-                return _importSequenceOfInterest(options.databaseFile, options.sequenceOfInterest, databases, databaseIDs);
+                return _importSequenceOfInterest(options.databaseFile.c_str(), options.sequenceOfInterest, databases, databaseIDs);
             }
             else
             {
-                return _importSequenceOfInterest(options.databaseFile, options.sequenceOfInterest, databases, databaseIDs, refLen);
+                return _importSequenceOfInterest(options.databaseFile.c_str(), options.sequenceOfInterest, databases, databaseIDs, refLen);
             }
         }
     });
@@ -592,7 +591,7 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
     stellar::app::_writeMoreCalculatedParams(options, refLen, queries);
 
     // open output files
-    std::ofstream outputFile(toCString(options.outputFile), ::std::ios_base::out | ::std::ios_base::app);
+    std::ofstream outputFile(options.outputFile.c_str(), ::std::ios_base::out | ::std::ios_base::app);
     if (!outputFile.is_open())
     {
         std::cerr << "Could not open output file." << std::endl;
@@ -602,7 +601,7 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
     std::ofstream disabledQueriesFile;
     if (options.disableThresh != std::numeric_limits<unsigned>::max())
     {
-        disabledQueriesFile.open(toCString(options.disabledQueriesFile), ::std::ios_base::out | ::std::ios_base::app);
+        disabledQueriesFile.open(options.disabledQueriesFile.c_str(), ::std::ios_base::out | ::std::ios_base::app);
         if (!disabledQueriesFile.is_open())
         {
             std::cerr << "Could not open file for disabled queries." << std::endl;

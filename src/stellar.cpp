@@ -21,6 +21,8 @@
 // Author: Birte Kehr <birte.kehr@fu-berlin.de>
 // ==========================================================================
 
+#include <sharg/all.hpp>
+
 #include <seqan/arg_parse.h>
 #include <seqan/index.h>
 #include <seqan/seq_io.h>
@@ -28,15 +30,11 @@
 #include <stellar/stellar.hpp>
 #include <stellar/stellar_output.hpp>
 
-#include <stellar/app/stellar.arg_parser.hpp>
 #include <stellar/app/stellar.diagnostics.hpp>
 #include <stellar/app/stellar.main.hpp>
 
-#ifndef STELLAR_PARALLEL_BUILD
-#include "stellar/stellar.arg_parser.cpp"
+#include <stellar3.arg_parser.hpp>
 #include "stellar/stellar.diagnostics.cpp"
-#include <stellar/app/stellar.main.tpp>
-#endif // STELLAR_PARALLEL_BUILD
 
 // TODO(holtgrew): Move this into a SeqAn misc module.
 
@@ -65,30 +63,26 @@ int main(int argc, const char * argv[])
     ScientificNotationExponentOutputNormalizer scientificNotationNormalizer;
 
     // command line parsing
-    seqan::ArgumentParser parser("stellar");
+    try
+    {
+        stellar::StellarOptions options{};
+        sharg::parser parser{"stellar3", argc, argv};
+        stellar::app::run_stellar(parser);
+    }
+    catch(sharg::parser_error const & ext)
+    {
+        std::cerr << "[Error] " << ext.what() << "\n";
+    }
+    catch(std::exception const& e)
+    {
+        std::cerr << "[Error] " << e.what() << '\n';
+        std::exit(-1);
+    }
+    catch(...)
+    {
+        std::cerr << "[Error] unknown exception type\n";
+        std::exit(-1);
+    }
 
-    stellar::StellarOptions options{};
-    stellar::app::_setParser(parser);
-    seqan::ArgumentParser::ParseResult res = seqan::parse(parser, argc, argv);
-
-    if (res == seqan::ArgumentParser::PARSE_OK)
-        res = stellar::app::_parseOptions(parser, options);
-
-    if (res != seqan::ArgumentParser::PARSE_OK)
-        return res == seqan::ArgumentParser::PARSE_ERROR;
-
-    if (options.alphabet == "dna")
-        return stellar::app::mainWithOptions(options, seqan::String<seqan::Dna>());
-    else if (options.alphabet == "dna5")
-        return stellar::app::mainWithOptions(options, seqan::String<seqan::Dna5>());
-    else if (options.alphabet == "rna")
-        return stellar::app::mainWithOptions(options, seqan::String<seqan::Rna>());
-    else if (options.alphabet == "rna5")
-        return stellar::app::mainWithOptions(options, seqan::String<seqan::Rna5>());
-    else if (options.alphabet == "protein")
-        return stellar::app::mainWithOptions(options, seqan::String<seqan::AminoAcid>());
-    else if (options.alphabet == "char")
-        return stellar::app::mainWithOptions(options, seqan::String<char>());
-    std::cerr << "unknown alphabet: " << options.alphabet << "\n";
-    return 1;
+    return 0;
 }
