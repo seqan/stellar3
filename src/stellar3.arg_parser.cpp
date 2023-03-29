@@ -191,9 +191,9 @@ void run_stellar(sharg::parser & parser)
     init_parser(parser, options);
     parser.parse();
 
-    if (parser.is_option_set("forward") && !parser.is_option_set("reverse"))
+    if (options.onlyForward && !options.onlyReverse)
         options.reverse = false;
-    if (parser.is_option_set("reverse") && !parser.is_option_set("forward"))
+    if (options.onlyReverse && !options.onlyForward)
         options.forward = false;
 
     if ( options.sequenceOfInterest )
