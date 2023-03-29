@@ -78,11 +78,11 @@ void init_parser(sharg::parser & parser, StellarOptions & options)
                                     .long_id = "minLength",
                                     .description = "Maximal error rate (max 0.25).",
                                     .validator = sharg::arithmetic_range_validator{20, 1000}});
-    parser.add_flag(options.forward,
+    parser.add_flag(options.onlyForward,
                     sharg::config{.short_id = 'f',
                                     .long_id = "forward",
                                     .description = "Search only in forward strand."});
-    parser.add_flag(options.reverse,
+    parser.add_flag(options.onlyReverse,
                     sharg::config{.short_id = 'r',
                                     .long_id = "reverse",
                                     .description = "Search only in reverse strand."});
@@ -178,11 +178,6 @@ void init_parser(sharg::parser & parser, StellarOptions & options)
                                 .long_id = "disabledQueriesFile",
                                 .description = "Name of output file for disabled query sequences.",
                                 .validator = sharg::output_file_validator{sharg::output_file_open_options::open_or_create, {"fa", "fasta"}}});
-    parser.add_option(options.disabledQueriesFile,
-                sharg::config{.short_id = '\0',
-                                .long_id = "disabledQueriesFile",
-                                .description = "Name of output file for disabled query sequences.",
-                                .validator = sharg::output_file_validator{sharg::output_file_open_options::open_or_create, {"fa", "fasta"}}});
     parser.add_flag(options.noRT,
                 sharg::config{.short_id = '\0',
                                 .long_id = "supress-runtime-printing",
@@ -196,9 +191,15 @@ void run_stellar(sharg::parser & parser)
     init_parser(parser, options);
     parser.parse();
 
+    if (parser.is_option_set("forward") && !parser.is_option_set("reverse"))
+        options.reverse = false;
+    if (parser.is_option_set("reverse") && !parser.is_option_set("forward"))
+        options.forward = false;
+
     if ( options.sequenceOfInterest )
         options.prefilteredSearch = true;
 
+    options.outputFormat = options.outputFile.substr(options.outputFile.size() - 3);    // file extension previously validated
     options.epsilon = stellar::utils::fraction::from_double(options.numEpsilon).limit_denominator();
 
     if (options.strVerificationMethod == to_string(StellarVerificationMethod{AllLocal{}}))

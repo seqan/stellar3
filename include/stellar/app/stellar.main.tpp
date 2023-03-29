@@ -599,7 +599,7 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
     }
 
     std::ofstream disabledQueriesFile;
-    if (options.disableThresh != std::numeric_limits<unsigned>::max())
+    if (options.disableThresh != std::numeric_limits<size_t>::max())
     {
         disabledQueriesFile.open(options.disabledQueriesFile.c_str(), ::std::ios_base::out | ::std::ios_base::app);
         if (!disabledQueriesFile.is_open())

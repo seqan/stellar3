@@ -29,7 +29,9 @@ struct StellarOptions : public EPSMatchOptions, public IndexOptions, public Veri
 
     // more options
     bool forward{true};               // compute matches to forward strand of database
+    bool onlyForward{false};
     bool reverse{};               // compute matches to reverse complemented database
+    bool onlyReverse{false};
 
     size_t disableThresh = std::numeric_limits<size_t>::max();     // maximal number of matches allowed per query before disabling verification of hits for that query
     size_t compactThresh = 500;     // number of matches after which removal of overlaps and duplicates is started
