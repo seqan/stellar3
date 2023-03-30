@@ -102,12 +102,13 @@ void init_parser(sharg::parser & parser, StellarOptions & options)
                 sharg::config{.short_id = '\0',
                                 .long_id = "referenceLength",
                                 .description = "Reference database length.",
-                                .validator = sharg::arithmetic_range_validator{ (long unsigned) 0, std::numeric_limits<uint64_t>::max()}});
+                                .validator = sharg::arithmetic_range_validator{ (uint64_t) 0, (uint64_t) std::numeric_limits<uint64_t>::max()}});
+                                // numeric limits resultd in different int types between macOS or linux compilers
     parser.add_option(options.sequenceOfInterest,
                 sharg::config{.short_id = '\0',
                                 .long_id = "sequenceOfInterest",
                                 .description = "Database sequences (0-based).",
-                                .validator = sharg::arithmetic_range_validator{ (long unsigned) 0, std::numeric_limits<uint64_t>::max()}});
+                                .validator = sharg::arithmetic_range_validator{ (uint64_t) 0, (uint64_t) std::numeric_limits<uint64_t>::max()}});
     parser.add_option(options.segmentBegin,
                 sharg::config{.short_id = '\0',
                                 .long_id = "segmentBegin",
@@ -118,8 +119,6 @@ void init_parser(sharg::parser & parser, StellarOptions & options)
                                 .long_id = "segmentEnd",
                                 .description = "Segment end in (single) database sequence.",
                                 .validator = sharg::arithmetic_range_validator{0u, std::numeric_limits<uint32_t>::max()}});
-
-// std::numeric_limits<uint32_t>::max()
 
     // Filtering options
     parser.add_option(options.qGram,
