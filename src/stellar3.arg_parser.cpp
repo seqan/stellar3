@@ -196,7 +196,7 @@ void run_stellar(sharg::parser & parser)
     if (options.onlyReverse && !options.onlyForward)
         options.forward = false;
 
-    if ( options.sequenceOfInterest )
+    if ( parser.is_option_set("sequenceOfInterest") )
         options.prefilteredSearch = true;
 
     options.outputFormat = options.outputFile.substr(options.outputFile.size() - 3);    // file extension previously validated
