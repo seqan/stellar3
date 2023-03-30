@@ -75,7 +75,7 @@ void _writeFileNames(StellarOptions const & options)
     std::cout << "  alphabet        : " << options.alphabet << std::endl;
     std::cout << "  output file     : " << options.outputFile << std::endl;
     std::cout << "  output format   : " << options.outputFormat << std::endl;
-    if (options.disableThresh != (size_t)-1)
+    if (options.disableThresh != std::numeric_limits<size_t>::max())
     {
         std::cout << "  disabled queries: " << options.disabledQueriesFile << std::endl;
     }

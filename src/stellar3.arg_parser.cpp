@@ -28,21 +28,38 @@ struct float_in_range_validator
     }
 };
 
-struct positive_integer_validator
+struct sequence_vector_validator
 {
-    using option_value_type = int64_t; // used for all arithmetic types
+    using el_value_type = size_t; // used for all arithmetic types
+    using option_value_type = std::vector<el_value_type>;
 
-    void operator()(option_value_type const & val) const
+    el_value_type min;
+    el_value_type max;
+
+    sequence_vector_validator(el_value_type min_value, el_value_type max_value) : min{min_value}, max{max_value} {}
+
+    void operator()(option_value_type const & val_vec) const
     {
-        if ((val < 0))
+        // sharg::validator can't accept std::unordered_set type arguments directly
+        std::unordered_set<el_value_type> unique_set{};
+        for (auto val : val_vec)
         {
-            throw sharg::validation_error{"Value must be positive number."};
+            unique_set.emplace(val);
+            if ((val < min || val > max))
+            {
+                throw sharg::validation_error{"Sequence indices must be in range [" + std::to_string(min) +
+                                              ", " + std::to_string(max) + "]."};
+            }
         }
+
+        if (unique_set.size() < val_vec.size())
+            throw sharg::validation_error{"Sequence indices must be unique."};
     }
 
     std::string get_help_page_message() const
     {
-        return "Value must be positive number.";
+        return "Sequence indices must be unique and in range [" + std::to_string(min) +
+                ", " + std::to_string(max) + "].";
     }
 };
 
@@ -102,13 +119,13 @@ void init_parser(sharg::parser & parser, StellarOptions & options)
                 sharg::config{.short_id = '\0',
                                 .long_id = "referenceLength",
                                 .description = "Reference database length.",
-                                .validator = sharg::arithmetic_range_validator{ (uint64_t) 0, (uint64_t) std::numeric_limits<uint64_t>::max()}});
-                                // numeric limits resultd in different int types between macOS or linux compilers
-    parser.add_option(options.sequenceOfInterest,
+                                .validator = sharg::arithmetic_range_validator{(uint64_t) 0, std::numeric_limits<uint64_t>::max()}});
+                                // numeric limits results in different int types between macOS or linux compilers
+    parser.add_option(options.binSequences,
                 sharg::config{.short_id = '\0',
                                 .long_id = "sequenceOfInterest",
                                 .description = "Database sequences (0-based).",
-                                .validator = sharg::arithmetic_range_validator{ (uint64_t) 0, (uint64_t) std::numeric_limits<uint64_t>::max()}});
+                                .validator = sequence_vector_validator{0u, std::numeric_limits<size_t>::max()}});
     parser.add_option(options.segmentBegin,
                 sharg::config{.short_id = '\0',
                                 .long_id = "segmentBegin",
@@ -180,8 +197,8 @@ void init_parser(sharg::parser & parser, StellarOptions & options)
     parser.add_flag(options.noRT,
                 sharg::config{.short_id = '\0',
                                 .long_id = "suppress-runtime-printing",
-                                .description = "Suppress printing running time."});
-
+                                .description = "Suppress printing running time.",
+                                .advanced = true});
 }
 
 void run_stellar(sharg::parser & parser)
@@ -196,7 +213,15 @@ void run_stellar(sharg::parser & parser)
         options.forward = false;
 
     if ( parser.is_option_set("sequenceOfInterest") )
+    {
         options.prefilteredSearch = true;
+
+        if (options.binSequences.size() > 1 && (parser.is_option_set("segmentBegin") || parser.is_option_set("segmentEnd")))
+            throw sharg::parser_error{"Invalid parameter value: can't pick segment from list of sequences\n"};
+
+        if (options.binSequences.size() == 1 && parser.is_option_set("segmentBegin") && parser.is_option_set("segmentEnd"))
+            options.searchSegment = true;
+    }
 
     options.outputFormat = options.outputFile.substr(options.outputFile.size() - 3);    // file extension previously validated
     options.epsilon = stellar::utils::fraction::from_double(options.numEpsilon).limit_denominator();

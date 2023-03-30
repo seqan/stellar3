@@ -47,7 +47,7 @@ template <typename TAlphabet, typename TStorage>
 TStorage _getDatabaseSegments(StringSet<String<TAlphabet>> & databases, StellarOptions const & options, bool const reverse = false)
 {
     TStorage databaseSegments{};
-    if (options.prefilteredSearch)
+    if (options.searchSegment)
     {
         if (length(databases[0]) < options.segmentEnd)
             throw std::runtime_error{"Segment end out of range"};

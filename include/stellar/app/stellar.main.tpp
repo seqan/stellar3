@@ -253,9 +253,7 @@ _stellarMain(
 
             StellarComputeStatisticsCollection computeStatistics;
 
-            //!TODO: the local stuff is not necessary when working on one thread/segment
             StellarOptions localOptions = options;
-
             for (StellarDatabaseSegment<TAlphabet> const & databaseSegment : databaseSegments)
             {
                 size_t const databaseRecordID = databaseIDMap.recordID(databaseSegment);
@@ -321,9 +319,7 @@ _stellarMain(
 
             StellarComputeStatisticsCollection computeStatistics;
 
-            //!TODO: the local stuff is not necessary when working on one thread/segment
             StellarOptions localOptions = options;
-
             for (StellarDatabaseSegment<TAlphabet> const & databaseSegment : databaseSegments)
             {
                 size_t const databaseRecordID = databaseIDMap.recordID(databaseSegment);
@@ -411,11 +407,11 @@ _checkUniqueId(std::set<TId> & uniqueIds, TId const & id)
 //  stores them in the StringSet seqs and their identifiers in the StringSet ids
 template <typename TSequence, typename TId, typename TLen>
 inline bool
-_importSequences(const char* fileName,
-                 CharString const & name,
-                 StringSet<TSequence> & seqs,
-                 StringSet<TId> & ids,
-                 TLen & seqLen)
+_importAllSequences(const char* fileName,
+                    CharString const & name,
+                    StringSet<TSequence> & seqs,
+                    StringSet<TId> & ids,
+                    TLen & seqLen)
 {
     SeqFileIn inSeqs;
     if (!open(inSeqs, (fileName)))
@@ -454,8 +450,8 @@ _importSequences(const char* fileName,
 // stores it in the StringSet seqs and their identifiers in the StringSet ids
 template <typename TSequence, typename TId, typename TLen>
 inline bool
-_importSequenceOfInterest(const char* fileName,
-                          unsigned const & sequenceIndex,
+_importSequencesOfInterest(const char* fileName,
+                          std::vector<size_t> const & binSequences,
                           StringSet<TSequence> & seqs,
                           StringSet<TId> & ids,
                           TLen & seqLen)
@@ -469,26 +465,26 @@ _importSequenceOfInterest(const char* fileName,
 
     TSequence seq;
     TId id;
-    unsigned seqCount = 0;
-    bool foundSeqOfInterest(false);
+    size_t seqCount = 0;
+    size_t foundSeqOfInterest{0};
     for (; !atEnd(inSeqs); ++seqCount)
     {
         readRecord(id, seq, inSeqs);
         seqLen += length(seq);
 
-        if (seqCount == sequenceIndex)
+        if (std::find(binSequences.begin(), binSequences.end(), seqCount) != binSequences.end())
         {
             appendValue(seqs, seq, Generous());
             appendValue(ids, id, Generous());
-            foundSeqOfInterest = true;
+            foundSeqOfInterest++;
             std::cout << "Loaded sequence " << id << ".\n";
         }
     }
 
-    if (foundSeqOfInterest)
+    if (foundSeqOfInterest == binSequences.size())
         return true;
 
-    std::cerr << "ERROR: Sequence index " << sequenceIndex << " out of range.\n";
+    std::cerr << "ERROR: Found " + std::to_string(foundSeqOfInterest) + " out of " + std::to_string(binSequences.size()) + " reference sequences.\n";
     return false;
 }
 
@@ -497,8 +493,8 @@ _importSequenceOfInterest(const char* fileName,
 // stores it in the StringSet seqs and their identifiers in the StringSet ids
 template <typename TSequence, typename TId>
 inline bool
-_importSequenceOfInterest(const char* fileName,
-                          unsigned const & sequenceIndex,
+_importSequencesOfInterest(const char* fileName,
+                          std::vector<size_t> const & binSequences,
                           StringSet<TSequence> & seqs,
                           StringSet<TId> & ids)
 {
@@ -511,20 +507,23 @@ _importSequenceOfInterest(const char* fileName,
 
     TSequence seq;
     TId id;
-    unsigned seqCount = 0;
+    size_t seqCount = 0;
+    size_t foundSeqOfInterest{0};
     for (; !atEnd(inSeqs); ++seqCount)
     {
         readRecord(id, seq, inSeqs);
-        if (seqCount == sequenceIndex)
+        if (std::find(binSequences.begin(), binSequences.end(), seqCount) != binSequences.end())
         {
             appendValue(seqs, seq, Generous());
             appendValue(ids, id, Generous());
             std::cout << "Loaded sequence " << id << ".\n";
-            return true;
+            foundSeqOfInterest++;
+            if (foundSeqOfInterest == binSequences.size())
+                return true;
         }
     }
 
-    std::cerr << "ERROR: Sequence index " << sequenceIndex << " out of range.\n";
+    std::cerr << "ERROR: Found " + std::to_string(foundSeqOfInterest) + " out of " + std::to_string(binSequences.size()) + " reference sequences.\n";
     return false;
 }
 
@@ -557,7 +556,7 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
     //!TODO: split query sequence
     bool const queriesSuccess = stellar_time.input_queries_time.measure_time([&]()
     {
-        return _importSequences(options.queryFile.c_str(), "query", queries, queryIDs, queryLen);
+        return _importAllSequences(options.queryFile.c_str(), "query", queries, queryIDs, queryLen);
     });
     if (!queriesSuccess)
         return 1;
@@ -570,17 +569,17 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
     bool const databasesSuccess = stellar_time.input_databases_time.measure_time([&]()
     {
         if (!options.prefilteredSearch)
-            return _importSequences(options.databaseFile.c_str(), "database", databases, databaseIDs, refLen);
+            return _importAllSequences(options.databaseFile.c_str(), "database", databases, databaseIDs, refLen);
         else
         {
             if (options.referenceLength > 0)
             {
                 refLen = options.referenceLength;
-                return _importSequenceOfInterest(options.databaseFile.c_str(), options.sequenceOfInterest, databases, databaseIDs);
+                return _importSequencesOfInterest(options.databaseFile.c_str(), options.binSequences, databases, databaseIDs);
             }
             else
             {
-                return _importSequenceOfInterest(options.databaseFile.c_str(), options.sequenceOfInterest, databases, databaseIDs, refLen);
+                return _importSequencesOfInterest(options.databaseFile.c_str(), options.binSequences, databases, databaseIDs, refLen);
             }
         }
     });
