@@ -404,17 +404,17 @@ _checkUniqueId(std::set<TId> & uniqueIds, TId const & id)
 
 ///////////////////////////////////////////////////////////////////////////////
 // Imports sequences from a file,
-//  stores them in the StringSet seqs and their identifiers in the StringSet ids
+// stores them in the StringSet seqs and their identifiers in the StringSet ids
 template <typename TSequence, typename TId, typename TLen>
 inline bool
-_importAllSequences(const char* fileName,
+_importAllSequences(char const * fileName,
                     CharString const & name,
                     StringSet<TSequence> & seqs,
                     StringSet<TId> & ids,
                     TLen & seqLen)
 {
     SeqFileIn inSeqs;
-    if (!open(inSeqs, (fileName)))
+    if (!open(inSeqs, fileName))
     {
         std::cerr << "Failed to open " << name << " file." << std::endl;
         return false;
@@ -425,7 +425,7 @@ _importAllSequences(const char* fileName,
 
     TSequence seq;
     TId id;
-    unsigned seqCount = 0;
+    size_t seqCount{0};
     for (; !atEnd(inSeqs); ++seqCount)
     {
         readRecord(id, seq, inSeqs);
@@ -450,14 +450,14 @@ _importAllSequences(const char* fileName,
 // stores it in the StringSet seqs and their identifiers in the StringSet ids
 template <typename TSequence, typename TId, typename TLen>
 inline bool
-_importSequencesOfInterest(const char* fileName,
+_importSequencesOfInterest(char const * fileName,
                           std::vector<size_t> const & binSequences,
                           StringSet<TSequence> & seqs,
                           StringSet<TId> & ids,
                           TLen & seqLen)
 {
     SeqFileIn inSeqs;
-    if (!open(inSeqs, (fileName)))
+    if (!open(inSeqs, fileName))
     {
         std::cerr << "Failed to open database file.\n";
         return false;
@@ -465,7 +465,7 @@ _importSequencesOfInterest(const char* fileName,
 
     TSequence seq;
     TId id;
-    size_t seqCount = 0;
+    size_t seqCount{0};
     size_t foundSeqOfInterest{0};
     for (; !atEnd(inSeqs); ++seqCount)
     {
@@ -493,13 +493,13 @@ _importSequencesOfInterest(const char* fileName,
 // stores it in the StringSet seqs and their identifiers in the StringSet ids
 template <typename TSequence, typename TId>
 inline bool
-_importSequencesOfInterest(const char* fileName,
+_importSequencesOfInterest(const char * fileName,
                           std::vector<size_t> const & binSequences,
                           StringSet<TSequence> & seqs,
                           StringSet<TId> & ids)
 {
     SeqFileIn inSeqs;
-    if (!open(inSeqs, (fileName)))
+    if (!open(inSeqs, fileName))
     {
         std::cerr << "Failed to open database file.\n";
         return false;
@@ -507,7 +507,7 @@ _importSequencesOfInterest(const char* fileName,
 
     TSequence seq;
     TId id;
-    size_t seqCount = 0;
+    size_t seqCount{0};
     size_t foundSeqOfInterest{0};
     for (; !atEnd(inSeqs); ++seqCount)
     {
@@ -533,8 +533,6 @@ _importSequencesOfInterest(const char* fileName,
 template <typename TAlphabet>
 int mainWithOptions(StellarOptions & options, String<TAlphabet>)
 {
-    using namespace seqan;
-
     typedef String<TAlphabet> TSequence;
 
     stellar_app_runtime stellar_time{};
