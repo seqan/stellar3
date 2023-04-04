@@ -533,8 +533,6 @@ _importSequencesOfInterest(const char * fileName,
 template <typename TAlphabet>
 int mainWithOptions(StellarOptions & options, String<TAlphabet>)
 {
-    using namespace seqan;
-
     typedef String<TAlphabet> TSequence;
 
     stellar_app_runtime stellar_time{};
