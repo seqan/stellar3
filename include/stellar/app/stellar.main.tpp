@@ -404,7 +404,7 @@ _checkUniqueId(std::set<TId> & uniqueIds, TId const & id)
 
 ///////////////////////////////////////////////////////////////////////////////
 // Imports sequences from a file,
-//  stores them in the StringSet seqs and their identifiers in the StringSet ids
+// stores them in the StringSet seqs and their identifiers in the StringSet ids
 template <typename TSequence, typename TId, typename TLen>
 inline bool
 _importAllSequences(char const * fileName,
@@ -425,7 +425,7 @@ _importAllSequences(char const * fileName,
 
     TSequence seq;
     TId id;
-    unsigned seqCount = 0;
+    size_t seqCount{0};
     for (; !atEnd(inSeqs); ++seqCount)
     {
         readRecord(id, seq, inSeqs);
@@ -507,7 +507,7 @@ _importSequencesOfInterest(const char * fileName,
 
     TSequence seq;
     TId id;
-    size_t seqCount = 0;
+    size_t seqCount{0};
     size_t foundSeqOfInterest{0};
     for (; !atEnd(inSeqs); ++seqCount)
     {
