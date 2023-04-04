@@ -34,6 +34,9 @@ list (APPEND CMAKE_MODULE_PATH "${SEQAN3_CLONE_DIR}/test/cmake/")
 include (seqan3_require_ccache)
 seqan3_require_ccache ()
 
+# Dependency: Sharg.
+find_package (Sharg QUIET REQUIRED HINTS lib/sharg-parser/build_system)
+
 # Add the application.
 add_subdirectory (src)
 message (STATUS "${FontBold}You can run `make` to build the application.${FontReset}")

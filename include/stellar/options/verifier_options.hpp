@@ -55,6 +55,7 @@ struct VerifierOptions
     double xDrop{5}; // maximal x-drop
 
     // verification strategy: exact, bestLocal, bandedGlobal
+    std::string strVerificationMethod{"exact"};
     StellarVerificationMethod verificationMethod{AllLocal{}};
 };
 

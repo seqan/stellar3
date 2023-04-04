@@ -23,6 +23,7 @@ protected:
         std::string out{};
         std::string err{};
         int exit_code{};
+        std::string command{};
     };
 
     // Invoke the app execution. The command line call should be given as separate parameters.
@@ -32,26 +33,29 @@ protected:
         cli_test_result result{};
 
         // Assemble the command string and disable version check.
-        std::ostringstream command{};
-        command << "SEQAN3_NO_VERSION_CHECK=1 " << BINDIR;
-        int a[] = {0, ((void)(command << command_items << ' '), 0) ... };
-        (void) a;
+        result.command = [&command_items...]()
+        {
+            std::ostringstream command{};
+            command << "SEQAN3_NO_VERSION_CHECK=1 " << BINDIR;
+            (void)((command << command_items << ' '), ...);
+            return command.str();
+        }();   // from raptor
 
         // Always capture the output streams.
         testing::internal::CaptureStdout();
         testing::internal::CaptureStderr();
 
         // Run the command and return results.
-        result.exit_code = std::system(command.str().c_str());
+        result.exit_code = std::system(result.command.c_str());
         result.out = testing::internal::GetCapturedStdout();
         result.err = testing::internal::GetCapturedStderr();
         return result;
     }
 
     // Generate the full path of a test input file that is provided in the data directory.
-    static std::filesystem::path data(std::string const & filename)
+    static std::string data(std::string const & filename)
     {
-        return std::filesystem::path{std::string{DATADIR}}.concat(filename);
+        return std::filesystem::path{std::string{DATADIR}}.concat(filename).string();
     }
 
     // Create an individual work directory for the current test.
@@ -105,6 +109,19 @@ struct stellar_base : public cli_test
         return cli_test::data(name);
     }
 
+    static inline std::filesystem::path const out_path(std::vector<size_t> const seqVec, std::string const extension) noexcept
+    {
+        std::string name{};
+        for (auto id : seqVec)
+        {
+            name += std::to_string(id);
+            name += "_";
+        }
+        name += ".";
+        name += extension;
+        return cli_test::data(name);
+    }
+
     static inline std::string const string_from_file(std::filesystem::path const & path, std::ios_base::openmode const mode = std::ios_base::in)
     {
         std::ifstream file_stream(path, mode);
@@ -116,4 +133,5 @@ struct stellar_base : public cli_test
     }
 };
 
-struct stellar_search : public stellar_base, public testing::WithParamInterface<std::tuple<size_t, std::pair<size_t, size_t>>> {};
+struct search_subset : public stellar_base, public testing::WithParamInterface<std::tuple<std::vector<size_t>>> {};
+struct search_segment : public stellar_base, public testing::WithParamInterface<std::tuple<std::vector<size_t>, std::pair<size_t, size_t>>> {};
