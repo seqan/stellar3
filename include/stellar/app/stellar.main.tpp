@@ -407,14 +407,14 @@ _checkUniqueId(std::set<TId> & uniqueIds, TId const & id)
 //  stores them in the StringSet seqs and their identifiers in the StringSet ids
 template <typename TSequence, typename TId, typename TLen>
 inline bool
-_importAllSequences(const char* fileName,
+_importAllSequences(char const * fileName,
                     CharString const & name,
                     StringSet<TSequence> & seqs,
                     StringSet<TId> & ids,
                     TLen & seqLen)
 {
     SeqFileIn inSeqs;
-    if (!open(inSeqs, (fileName)))
+    if (!open(inSeqs, fileName))
     {
         std::cerr << "Failed to open " << name << " file." << std::endl;
         return false;
@@ -450,14 +450,14 @@ _importAllSequences(const char* fileName,
 // stores it in the StringSet seqs and their identifiers in the StringSet ids
 template <typename TSequence, typename TId, typename TLen>
 inline bool
-_importSequencesOfInterest(const char* fileName,
+_importSequencesOfInterest(char const * fileName,
                           std::vector<size_t> const & binSequences,
                           StringSet<TSequence> & seqs,
                           StringSet<TId> & ids,
                           TLen & seqLen)
 {
     SeqFileIn inSeqs;
-    if (!open(inSeqs, (fileName)))
+    if (!open(inSeqs, fileName))
     {
         std::cerr << "Failed to open database file.\n";
         return false;
@@ -493,13 +493,13 @@ _importSequencesOfInterest(const char* fileName,
 // stores it in the StringSet seqs and their identifiers in the StringSet ids
 template <typename TSequence, typename TId>
 inline bool
-_importSequencesOfInterest(const char* fileName,
+_importSequencesOfInterest(const char * fileName,
                           std::vector<size_t> const & binSequences,
                           StringSet<TSequence> & seqs,
                           StringSet<TId> & ids)
 {
     SeqFileIn inSeqs;
-    if (!open(inSeqs, (fileName)))
+    if (!open(inSeqs, fileName))
     {
         std::cerr << "Failed to open database file.\n";
         return false;
