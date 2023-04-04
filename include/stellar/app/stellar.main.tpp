@@ -465,7 +465,7 @@ _importSequencesOfInterest(char const * fileName,
 
     TSequence seq;
     TId id;
-    size_t seqCount = 0;
+    size_t seqCount{0};
     size_t foundSeqOfInterest{0};
     for (; !atEnd(inSeqs); ++seqCount)
     {

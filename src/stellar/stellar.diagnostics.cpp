@@ -38,14 +38,14 @@ void _writeSpecifiedParams(StellarOptions const & options)
     std::cout << "  minimal match length             : " << options.minLength << std::endl;
     std::cout << "  maximal error rate (epsilon)     : " << options.epsilon << std::endl;
     std::cout << "  maximal x-drop                   : " << options.xDrop << std::endl;
-    if (options.qGram != (size_t)-1)
+    if (options.qGram != std::numeric_limits<size_t>::max())
         std::cout << "  k-mer (q-gram) length            : " << options.qGram << std::endl;
     std::cout << "  search forward strand            : " << ((options.forward) ? "yes" : "no") << std::endl;
     std::cout << "  search reverse complement        : " << ((options.reverse) ? "yes" : "no") << std::endl;
     std::cout << std::endl;
 
     std::cout << "  verification strategy            : " << to_string(options.verificationMethod) << std::endl;
-    if (options.disableThresh != (size_t)-1)
+    if (options.disableThresh != std::numeric_limits<size_t>::max())
     {
         std::cout << "  disable queries with more than   : " << options.disableThresh << " matches" << std::endl;
     }
