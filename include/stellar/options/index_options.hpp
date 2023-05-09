@@ -8,7 +8,7 @@ namespace stellar
 
 struct IndexOptions
 {
-    size_t qGram{7}; // length of the q-grams
+    size_t qGram{std::numeric_limits<size_t>::max()}; // length of the q-grams
     double qgramAbundanceCut{1};
 };
 
