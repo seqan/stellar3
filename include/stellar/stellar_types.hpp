@@ -72,7 +72,7 @@ struct StellarStatistics
         assert(options.epsilon.numerator() == 0 || StellarOptions::absoluteErrors(options.epsilon, n1) == e1);
 
         kMerLength = options.qGram;
-        kMerComputed = options.qGram == (unsigned)-1;
+        kMerComputed = options.qGram == (size_t)-1;
 
         if (kMerComputed)
             kMerLength = std::min(std::max(1u, smin), 32u);
