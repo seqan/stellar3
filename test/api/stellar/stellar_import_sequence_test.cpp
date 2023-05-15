@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#include <stellar/app/stellar.main.tpp>
+#include <stellar/io/import_sequence.hpp>
 
 using TAlphabet = seqan::Dna5;
 std::string databaseFile = std::string{DATADIR} + "/multi_seq_ref.fasta";
@@ -13,7 +13,7 @@ TEST(import_sequences, all_sequences)
     seqan::StringSet<seqan::CharString> databaseIDs;
 
     uint64_t refLen{0};
-    stellar::app::_importAllSequences(databaseFile.c_str(), "database", databases, databaseIDs, refLen);
+    stellar::_importAllSequences(databaseFile.c_str(), "database", databases, databaseIDs, refLen);
 
     EXPECT_EQ(length(databases), 3u);
     EXPECT_EQ(databases[0], (seqan::String<TAlphabet>) {"GATGACTCAGTCTTGTTGATTAGGCACCTCGGTATGTGGGCATTAGGCACATTGCTCTGTTTCTTGAAGT"
@@ -49,7 +49,7 @@ TEST(import_sequence_of_interest, first)
     seqan::StringSet<seqan::CharString> databaseIDs;
 
     uint64_t refLen{0};
-    stellar::app::_importSequencesOfInterest(databaseFile.c_str(), std::vector<size_t>{0}, databases, databaseIDs, refLen);
+    stellar::_importSequencesOfInterest(databaseFile.c_str(), std::vector<size_t>{0}, databases, databaseIDs, refLen);
 
     EXPECT_EQ(length(databases), 1u);
     EXPECT_EQ(databases[0], (seqan::String<TAlphabet>) {"GATGACTCAGTCTTGTTGATTAGGCACCTCGGTATGTGGGCATTAGGCACATTGCTCTGTTTCTTGAAGT"
@@ -70,7 +70,7 @@ TEST(import_sequence_of_interest, last_two)
     seqan::StringSet<seqan::CharString> databaseIDs;
 
     uint64_t refLen{0};
-    stellar::app::_importSequencesOfInterest(databaseFile.c_str(), std::vector<size_t>{1, 2}, databases, databaseIDs, refLen);
+    stellar::_importSequencesOfInterest(databaseFile.c_str(), std::vector<size_t>{1, 2}, databases, databaseIDs, refLen);
 
     EXPECT_EQ(length(databases), 2u);
     EXPECT_EQ(databases[0], (seqan::String<TAlphabet>) {"ATCTGCCTGGGTGGGGAATTGGGACAACCCTTGGGTTATAGACGTGCTCGTCAAAGGACAAGAGGAAATA"
@@ -98,7 +98,7 @@ TEST(import_sequence_of_interest, out_of_range)
 
     testing::internal::CaptureStderr();
     uint64_t refLen{0};
-    stellar::app::_importSequencesOfInterest(databaseFile.c_str(), sequenceIndex, databases, databaseIDs, refLen);
+    stellar::_importSequencesOfInterest(databaseFile.c_str(), sequenceIndex, databases, databaseIDs, refLen);
     std::string err = testing::internal::GetCapturedStderr();
 
     EXPECT_EQ(err,std::string("ERROR: Found 0 out of " + std::to_string(sequenceIndex.size()) + " reference sequences.\n"));
