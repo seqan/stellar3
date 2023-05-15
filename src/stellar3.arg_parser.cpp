@@ -76,7 +76,7 @@ void init_parser(sharg::parser & parser, StellarOptions & options)
     parser.info.description.emplace_back("Kehr, B., Weese, D., Reinert, K.: STELLAR: fast and exact local alignments. BMC Bioinformatics, "
                                          "12(Suppl 9):S15, 2011.");
 
-    parser.info.examples = {"./valik split --help", "./valik build --help", "./valik search --help", "./valik consolidate --help"};
+    parser.info.examples = {"./stellar --help"};
 
     parser.add_positional_option(options.databaseFile,
                     sharg::config{.description = "The database of sequences. "
