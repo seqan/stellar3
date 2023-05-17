@@ -8,16 +8,16 @@ namespace stellar
 {
 
 struct VerifyAllLocal_;
-using AllLocal = seqan::Tag<VerifyAllLocal_> const;
+using AllLocal = seqan2::Tag<VerifyAllLocal_> const;
 
 struct VerifyBestLocal_;
-using BestLocal = seqan::Tag<VerifyBestLocal_> const;
+using BestLocal = seqan2::Tag<VerifyBestLocal_> const;
 
 struct VerifyBandedGlobal_;
-using BandedGlobal = seqan::Tag<VerifyBandedGlobal_> const;
+using BandedGlobal = seqan2::Tag<VerifyBandedGlobal_> const;
 
 struct VerifyBandedGlobalExtend_;
-using BandedGlobalExtend = seqan::Tag<VerifyBandedGlobalExtend_> const;
+using BandedGlobalExtend = seqan2::Tag<VerifyBandedGlobalExtend_> const;
 
 // basically a std::variant<AllLocal, BestLocal, BandedGlobal, BandedGlobalExtend>
 struct StellarVerificationMethod
