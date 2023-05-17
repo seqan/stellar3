@@ -5,7 +5,7 @@
 namespace stellar
 {
 
-using namespace seqan;
+using namespace seqan2;
 
 template <typename TId>
 inline bool

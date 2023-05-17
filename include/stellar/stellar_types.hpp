@@ -30,7 +30,7 @@
 #include <stellar/options/eps_match_options.hpp>
 #include <stellar/options/index_options.hpp>
 #include <stellar/options/verifier_options.hpp>
-#include <shared.hpp>
+#include <stellar3.shared.hpp>
 
 #if __cpp_designated_initializers || __GNUC__ >= 8
 #   define STELLAR_DESIGNATED_INITIALIZER(designator, value) designator value
@@ -41,7 +41,7 @@
 namespace stellar
 {
 
-using namespace seqan;
+using namespace seqan2;
 
 struct StellarStatistics
 {

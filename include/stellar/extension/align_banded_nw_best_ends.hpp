@@ -5,7 +5,7 @@
 
 namespace stellar
 {
-using namespace seqan;
+using namespace seqan2;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Computes the banded alignment matrix and additionally a string with the best

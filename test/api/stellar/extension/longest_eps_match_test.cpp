@@ -3,12 +3,12 @@
 #include <stellar/stellar_extension.hpp>
 
 using TExtensionEndPosition = stellar::ExtensionEndPosition<size_t>;
-using TPair = seqan::Pair<typename seqan::Iterator<seqan::String<TExtensionEndPosition> const>::Type>;
+using TPair = seqan2::Pair<typename seqan2::Iterator<seqan2::String<TExtensionEndPosition> const>::Type>;
 
 TEST(longestEpsMatch, minLengthNotReached1)
 {
-    seqan::String<TExtensionEndPosition> leftExtensions{};
-    seqan::String<TExtensionEndPosition> rightExtensions{};
+    seqan2::String<TExtensionEndPosition> leftExtensions{};
+    seqan2::String<TExtensionEndPosition> rightExtensions{};
 
     appendValue(leftExtensions, TExtensionEndPosition{20, 100, 200}); // error: 0
     appendValue(rightExtensions, TExtensionEndPosition{20, 100, 200}); // error: 0
@@ -27,8 +27,8 @@ TEST(longestEpsMatch, minLengthNotReached1)
 
 TEST(longestEpsMatch, minLengthNotReached2)
 {
-    seqan::String<TExtensionEndPosition> leftExtensions{};
-    seqan::String<TExtensionEndPosition> rightExtensions{};
+    seqan2::String<TExtensionEndPosition> leftExtensions{};
+    seqan2::String<TExtensionEndPosition> rightExtensions{};
 
     // matrix: 30 x 20 of extension lengths
     //      0| 1| ⋯ |18|19
@@ -62,8 +62,8 @@ TEST(longestEpsMatch, minLengthNotReached2)
 
 TEST(longestEpsMatch, epsilonNotReached1)
 {
-    seqan::String<TExtensionEndPosition> leftExtensions{};
-    seqan::String<TExtensionEndPosition> rightExtensions{};
+    seqan2::String<TExtensionEndPosition> leftExtensions{};
+    seqan2::String<TExtensionEndPosition> rightExtensions{};
 
     // matrix: 1 x 1 of extension lengths
     //     30
@@ -91,8 +91,8 @@ TEST(longestEpsMatch, epsilonNotReached1)
 
 TEST(longestEpsMatch, epsilonNotReached2)
 {
-    seqan::String<TExtensionEndPosition> leftExtensions{};
-    seqan::String<TExtensionEndPosition> rightExtensions{};
+    seqan2::String<TExtensionEndPosition> leftExtensions{};
+    seqan2::String<TExtensionEndPosition> rightExtensions{};
 
     // matrix: 5 x 3 of extension lengths
     //      10| 25| 30
@@ -137,8 +137,8 @@ TEST(longestEpsMatch, epsilonNotReached2)
 
 TEST(longestEpsMatch, multipleValidEpsMatches)
 {
-    seqan::String<stellar::ExtensionEndPosition<size_t> > leftExtensions{};
-    seqan::String<stellar::ExtensionEndPosition<size_t> > rightExtensions{};
+    seqan2::String<stellar::ExtensionEndPosition<size_t> > leftExtensions{};
+    seqan2::String<stellar::ExtensionEndPosition<size_t> > rightExtensions{};
 
     appendValue(leftExtensions, TExtensionEndPosition{5, 0, 0}); // error: 0
     appendValue(leftExtensions, TExtensionEndPosition{9, 1, 1}); // error: 1

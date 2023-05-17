@@ -6,7 +6,7 @@
 namespace stellar
 {
 
-template <typename TAlphabet, typename TId = seqan::CharString>
+template <typename TAlphabet, typename TId = seqan2::CharString>
 struct DatabaseIDMap
 {
     size_t recordID(StellarDatabaseSegment<TAlphabet> const & databaseSegment) const
@@ -14,10 +14,10 @@ struct DatabaseIDMap
         return recordID(databaseSegment.underlyingDatabase());
     }
 
-    size_t recordID(seqan::String<TAlphabet> const & database) const
+    size_t recordID(seqan2::String<TAlphabet> const & database) const
     {
-        seqan::String<TAlphabet> const * begin = &databases[0];
-        seqan::String<TAlphabet> const * current = std::addressof(database);
+        seqan2::String<TAlphabet> const * begin = &databases[0];
+        seqan2::String<TAlphabet> const * current = std::addressof(database);
         return current - begin;
     }
 
@@ -26,13 +26,13 @@ struct DatabaseIDMap
         return databaseIDs[recordID];
     }
 
-    TId const & databaseID(seqan::String<TAlphabet> const & database) const
+    TId const & databaseID(seqan2::String<TAlphabet> const & database) const
     {
         return databaseIDs[recordID(database)];
     }
 
-    seqan::StringSet<seqan::String<TAlphabet> > const & databases;
-    seqan::StringSet<TId> const & databaseIDs;
+    seqan2::StringSet<seqan2::String<TAlphabet> > const & databases;
+    seqan2::StringSet<TId> const & databaseIDs;
 };
 
 } // namespace stellar

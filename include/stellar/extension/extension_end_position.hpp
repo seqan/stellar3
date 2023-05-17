@@ -5,7 +5,7 @@
 
 namespace stellar
 {
-using namespace seqan;
+using namespace seqan2;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Container for storing possible end positions in extension of eps-core

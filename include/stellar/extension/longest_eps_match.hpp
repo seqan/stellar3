@@ -7,7 +7,7 @@
 
 namespace stellar
 {
-using namespace seqan;
+using namespace seqan2;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Identifies the longest epsilon match in align from possEndsLeft and possEndsRight and sets the view positions of

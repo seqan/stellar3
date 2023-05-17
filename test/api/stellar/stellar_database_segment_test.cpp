@@ -2,7 +2,7 @@
 
 #include <stellar/stellar.hpp>
 
-using TAlphabet = seqan::Dna5;
+using TAlphabet = seqan2::Dna5;
 using TDatabaseSegment = stellar::StellarDatabaseSegment<TAlphabet>;
 using TStorage = std::vector<TDatabaseSegment>;
 
@@ -11,17 +11,17 @@ using TStorage = std::vector<TDatabaseSegment>;
 ////////////////////////////////////////////////
 TEST(StellarDatabaseSegment, underlyingDatabase)
 {
-    seqan::String<TAlphabet> database{"ACG""TACGTA""CGT"};
+    seqan2::String<TAlphabet> database{"ACG""TACGTA""CGT"};
     stellar::StellarDatabaseSegment<TAlphabet> segment{database, 3u, length(database) - 3};
 
-    seqan::String<TAlphabet> const & resultDatabase = database;
+    seqan2::String<TAlphabet> const & resultDatabase = database;
     EXPECT_EQ(resultDatabase, database);
     EXPECT_EQ(std::addressof(resultDatabase), std::addressof(database));
 }
 
 TEST(StellarDatabaseSegment, beginPosition)
 {
-    seqan::String<TAlphabet> database{"ACG""TACGTA""CGT"};
+    seqan2::String<TAlphabet> database{"ACG""TACGTA""CGT"};
     stellar::StellarDatabaseSegment<TAlphabet> segment{database, 3u, length(database) - 3};
 
     EXPECT_EQ(segment.beginPosition(), 3u);
@@ -29,7 +29,7 @@ TEST(StellarDatabaseSegment, beginPosition)
 
 TEST(StellarDatabaseSegment, endPosition)
 {
-    seqan::String<TAlphabet> database{"ACG""TACGTA""CGT"};
+    seqan2::String<TAlphabet> database{"ACG""TACGTA""CGT"};
     stellar::StellarDatabaseSegment<TAlphabet> segment{database, 3u, length(database) - 3};
 
     EXPECT_EQ(segment.endPosition(), length(database) - 3);
@@ -37,7 +37,7 @@ TEST(StellarDatabaseSegment, endPosition)
 
 TEST(StellarDatabaseSegment, interval)
 {
-    seqan::String<TAlphabet> database{"ACG""TACGTA""CGT"};
+    seqan2::String<TAlphabet> database{"ACG""TACGTA""CGT"};
     stellar::StellarDatabaseSegment<TAlphabet> segment{database, 3u, length(database) - 3};
 
     EXPECT_EQ(segment.interval(), (std::pair<size_t, size_t>{3u, length(database) - 3}));
@@ -45,7 +45,7 @@ TEST(StellarDatabaseSegment, interval)
 
 TEST(StellarDatabaseSegment, size)
 {
-    seqan::String<TAlphabet> database{"ACG""TACGTA""CGT"};
+    seqan2::String<TAlphabet> database{"ACG""TACGTA""CGT"};
     stellar::StellarDatabaseSegment<TAlphabet> segment{database, 3u, length(database) - 3};
 
     EXPECT_EQ(length(segment.asInfixSegment()), 6u);
@@ -54,18 +54,18 @@ TEST(StellarDatabaseSegment, size)
 
 TEST(StellarDatabaseSegment, asInfixSegment)
 {
-    seqan::String<TAlphabet> database{"ACG""TACGTA""CGT"};
+    seqan2::String<TAlphabet> database{"ACG""TACGTA""CGT"};
     stellar::StellarDatabaseSegment<TAlphabet> segment{database, 3u, length(database) - 3};
 
     EXPECT_EQ(segment.asInfixSegment(), "TACGTA");
-    EXPECT_EQ(segment.asInfixSegment(), seqan::infix(database, 3u, length(database) - 3));
+    EXPECT_EQ(segment.asInfixSegment(), seqan2::infix(database, 3u, length(database) - 3));
 }
 
 TEST(StellarDatabaseSegment, fromFinderMatch)
 {
-    using TFinderSegment = seqan::Segment<seqan::Segment<seqan::String<TAlphabet> const, seqan::InfixSegment>, seqan::InfixSegment>;
+    using TFinderSegment = seqan2::Segment<seqan2::Segment<seqan2::String<TAlphabet> const, seqan2::InfixSegment>, seqan2::InfixSegment>;
 
-    seqan::String<TAlphabet> database{};
+    seqan2::String<TAlphabet> database{};
     resize(database, 1'000'000u); // 1Mb
     std::generate(begin(database), end(database), [i = 0u]() mutable
     {
@@ -82,50 +82,50 @@ TEST(StellarDatabaseSegment, fromFinderMatch)
 
     {
         auto const databaseInfixSequence = "ACGTACGTACGTACGTACGTACGTACGTACGTACGT";
-        auto const finderMatch = seqan::infix(database, 111'948u, 111'984u);
+        auto const finderMatch = seqan2::infix(database, 111'948u, 111'984u);
         stellar::StellarDatabaseSegment<TAlphabet> segment
             = stellar::StellarDatabaseSegment<TAlphabet>::fromFinderMatch(finderMatch);
         EXPECT_EQ(segment.asInfixSegment(), databaseInfixSequence);
 
         TFinderSegment finderSegment = segment.asFinderSegment();
 
-        EXPECT_EQ(seqan::beginPosition(finderSegment), 111'948u);
-        EXPECT_EQ(seqan::endPosition(finderSegment), 111'984u);
-        EXPECT_EQ(seqan::infix(segment.underlyingDatabase(),
-                               seqan::beginPosition(finderSegment),
-                               seqan::endPosition(finderSegment)),
+        EXPECT_EQ(seqan2::beginPosition(finderSegment), 111'948u);
+        EXPECT_EQ(seqan2::endPosition(finderSegment), 111'984u);
+        EXPECT_EQ(seqan2::infix(segment.underlyingDatabase(),
+                               seqan2::beginPosition(finderSegment),
+                               seqan2::endPosition(finderSegment)),
                   databaseInfixSequence);
 
-        EXPECT_EQ(seqan::beginPosition(host(finderSegment)), 0u);
-        EXPECT_EQ(seqan::endPosition(host(finderSegment)), 1'000'000u);
+        EXPECT_EQ(seqan2::beginPosition(host(finderSegment)), 0u);
+        EXPECT_EQ(seqan2::endPosition(host(finderSegment)), 1'000'000u);
         EXPECT_EQ(std::addressof(host(host(finderSegment))), std::addressof(database));
     }
 
     {
         auto const databaseInfixSequence = "TACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTA";
-        auto const finderMatch = seqan::infix(database, 230'711u, 230'781u);
+        auto const finderMatch = seqan2::infix(database, 230'711u, 230'781u);
         stellar::StellarDatabaseSegment<TAlphabet> segment
             = stellar::StellarDatabaseSegment<TAlphabet>::fromFinderMatch(finderMatch);
         EXPECT_EQ(segment.asInfixSegment(), databaseInfixSequence);
 
         TFinderSegment finderSegment = segment.asFinderSegment();
 
-        EXPECT_EQ(seqan::beginPosition(finderSegment), 230'711u);
-        EXPECT_EQ(seqan::endPosition(finderSegment), 230'781u);
-        EXPECT_EQ(seqan::infix(segment.underlyingDatabase(),
-                               seqan::beginPosition(finderSegment),
-                               seqan::endPosition(finderSegment)),
+        EXPECT_EQ(seqan2::beginPosition(finderSegment), 230'711u);
+        EXPECT_EQ(seqan2::endPosition(finderSegment), 230'781u);
+        EXPECT_EQ(seqan2::infix(segment.underlyingDatabase(),
+                               seqan2::beginPosition(finderSegment),
+                               seqan2::endPosition(finderSegment)),
                   databaseInfixSequence);
 
-        EXPECT_EQ(seqan::beginPosition(host(finderSegment)), 0u);
-        EXPECT_EQ(seqan::endPosition(host(finderSegment)), 1'000'000u);
+        EXPECT_EQ(seqan2::beginPosition(host(finderSegment)), 0u);
+        EXPECT_EQ(seqan2::endPosition(host(finderSegment)), 1'000'000u);
         EXPECT_EQ(std::addressof(host(host(finderSegment))), std::addressof(database));
     }
 }
 
 TEST(StellarDatabaseSegment, comparison)
 {
-    std::vector<seqan::String<TAlphabet>> sequences{"ACGTACGTACGT", "TGCATGCATGCATGCA"};
+    std::vector<seqan2::String<TAlphabet>> sequences{"ACGTACGTACGT", "TGCATGCATGCATGCA"};
 
     stellar::StellarDatabaseSegment<TAlphabet> segment1, segment2;
 
@@ -227,12 +227,12 @@ TEST(StellarDatabaseSegment, comparison)
 ////////////////////////////////////////////////
 // TStorage _getDatabaseSegments()
 ////////////////////////////////////////////////
-seqan::StringSet<seqan::String<TAlphabet>> getDatabases()
+seqan2::StringSet<seqan2::String<TAlphabet>> getDatabases()
 {
-    seqan::StringSet<seqan::String<TAlphabet>> databases;
-    seqan::appendValue(databases, (seqan::String<TAlphabet>) {"AACAGTC"});
-    seqan::appendValue(databases, (seqan::String<TAlphabet>) {"ACGTCG"});
-    seqan::appendValue(databases, (seqan::String<TAlphabet>) {"CCGCTGC"});
+    seqan2::StringSet<seqan2::String<TAlphabet>> databases;
+    seqan2::appendValue(databases, (seqan2::String<TAlphabet>) {"AACAGTC"});
+    seqan2::appendValue(databases, (seqan2::String<TAlphabet>) {"ACGTCG"});
+    seqan2::appendValue(databases, (seqan2::String<TAlphabet>) {"CCGCTGC"});
     return databases;
 }
 
@@ -248,20 +248,20 @@ stellar::StellarOptions getPrefilteringOptions(std::vector<size_t> const seqInt,
 
 TEST(getDatabaseSegment, all_sequences)
 {
-    seqan::StringSet<seqan::String<TAlphabet>> databases = getDatabases();
+    seqan2::StringSet<seqan2::String<TAlphabet>> databases = getDatabases();
     auto options = getPrefilteringOptions(std::vector<size_t>{1}, 0u, 2u);
 
     TStorage databaseSegments = stellar::_getDatabaseSegments<TAlphabet, TStorage>(databases, options);
 
     EXPECT_EQ(length(databaseSegments), 3u);
-    EXPECT_EQ(databaseSegments[0].asInfixSegment(), (seqan::String<TAlphabet>) {"AACAGTC"});
-    EXPECT_EQ(databaseSegments[1].asInfixSegment(), (seqan::String<TAlphabet>) {"ACGTCG"});
-    EXPECT_EQ(databaseSegments[2].asInfixSegment(), (seqan::String<TAlphabet>) {"CCGCTGC"});
+    EXPECT_EQ(databaseSegments[0].asInfixSegment(), (seqan2::String<TAlphabet>) {"AACAGTC"});
+    EXPECT_EQ(databaseSegments[1].asInfixSegment(), (seqan2::String<TAlphabet>) {"ACGTCG"});
+    EXPECT_EQ(databaseSegments[2].asInfixSegment(), (seqan2::String<TAlphabet>) {"CCGCTGC"});
 }
 
 TEST(getDatabaseSegment, last_two)
 {
-    seqan::StringSet<seqan::String<TAlphabet>> databases = getDatabases();
+    seqan2::StringSet<seqan2::String<TAlphabet>> databases = getDatabases();
     auto options = getPrefilteringOptions(std::vector<size_t>{1, 2}, 0u, 2u);
     options.prefilteredSearch = true;
 
@@ -270,15 +270,15 @@ TEST(getDatabaseSegment, last_two)
     // each database sequence is made into a segment if options.searchSegment == false
     // a subset of sequences may be extracted with _importSequencesOfInterest if options.prefilteredSearch == true
     EXPECT_EQ(length(databaseSegments), 3u);
-    EXPECT_EQ(databaseSegments[0].asInfixSegment(), (seqan::String<TAlphabet>) {"AACAGTC"});
-    EXPECT_EQ(databaseSegments[1].asInfixSegment(), (seqan::String<TAlphabet>) {"ACGTCG"});
-    EXPECT_EQ(databaseSegments[2].asInfixSegment(), (seqan::String<TAlphabet>) {"CCGCTGC"});
+    EXPECT_EQ(databaseSegments[0].asInfixSegment(), (seqan2::String<TAlphabet>) {"AACAGTC"});
+    EXPECT_EQ(databaseSegments[1].asInfixSegment(), (seqan2::String<TAlphabet>) {"ACGTCG"});
+    EXPECT_EQ(databaseSegments[2].asInfixSegment(), (seqan2::String<TAlphabet>) {"CCGCTGC"});
 }
 
 TEST(getDatabaseSegment, from_begin)
 {
-    seqan::StringSet<seqan::String<TAlphabet>> databases;
-    seqan::appendValue(databases, (seqan::String<TAlphabet>) {"ACGTCG"});
+    seqan2::StringSet<seqan2::String<TAlphabet>> databases;
+    seqan2::appendValue(databases, (seqan2::String<TAlphabet>) {"ACGTCG"});
 
     auto options = getPrefilteringOptions(std::vector<size_t>{1}, 0u, 2u);
     options.prefilteredSearch = true;
@@ -289,13 +289,13 @@ TEST(getDatabaseSegment, from_begin)
     EXPECT_EQ(length(databaseSegments), 1u);
     EXPECT_EQ(length(databaseSegments[0].asInfixSegment()), 2u);
     EXPECT_EQ(databaseSegments[0].size(), 2u);
-    EXPECT_EQ(databaseSegments[0].asInfixSegment(), (seqan::String<TAlphabet>) {"AC"});
+    EXPECT_EQ(databaseSegments[0].asInfixSegment(), (seqan2::String<TAlphabet>) {"AC"});
 }
 
 TEST(getDatabaseSegment, whole_sequence)
 {
-    seqan::StringSet<seqan::String<TAlphabet>> databases;
-    seqan::appendValue(databases, (seqan::String<TAlphabet>) {"AACAGTC"});
+    seqan2::StringSet<seqan2::String<TAlphabet>> databases;
+    seqan2::appendValue(databases, (seqan2::String<TAlphabet>) {"AACAGTC"});
     auto options = getPrefilteringOptions(std::vector<size_t>{0}, 0u, 7u);
     options.prefilteredSearch = true;
     options.searchSegment = true;
@@ -305,13 +305,13 @@ TEST(getDatabaseSegment, whole_sequence)
     EXPECT_EQ(length(databaseSegments), 1u);
     EXPECT_EQ(length(databaseSegments[0].asInfixSegment()), 7u);
     EXPECT_EQ(databaseSegments[0].size(), 7u);
-    EXPECT_EQ(databaseSegments[0].asInfixSegment(), (seqan::String<TAlphabet>) {"AACAGTC"});
+    EXPECT_EQ(databaseSegments[0].asInfixSegment(), (seqan2::String<TAlphabet>) {"AACAGTC"});
 }
 
 /*
 TEST(getDatabaseSegment, seq_out_of_range)
 {
-    seqan::StringSet<seqan::String<TAlphabet>> databases = getDatabases();
+    seqan2::StringSet<seqan2::String<TAlphabet>> databases = getDatabases();
     auto options = getPrefilteringOptions(3u, 0u, 2u);
     options.prefilteredSearch = true;
     options.searchSegment = true;
@@ -332,8 +332,8 @@ TEST(getDatabaseSegment, seq_out_of_range)
 
 TEST(getDatabaseSegment, index_out_of_range)
 {
-    seqan::StringSet<seqan::String<TAlphabet>> databases;
-    seqan::appendValue(databases, (seqan::String<TAlphabet>) {"ACGTCG"});
+    seqan2::StringSet<seqan2::String<TAlphabet>> databases;
+    seqan2::appendValue(databases, (seqan2::String<TAlphabet>) {"ACGTCG"});
     auto options = getPrefilteringOptions(std::vector<size_t>{1}, 0u, 8u);
     options.prefilteredSearch = true;
     options.searchSegment = true;
@@ -359,8 +359,8 @@ TEST(getDatabaseSegment, index_out_of_range)
 
 TEST(getDatabaseSegment, too_short)
 {
-    seqan::StringSet<seqan::String<TAlphabet>> databases;
-    seqan::appendValue(databases, (seqan::String<TAlphabet>) {"ACGTCG"});
+    seqan2::StringSet<seqan2::String<TAlphabet>> databases;
+    seqan2::appendValue(databases, (seqan2::String<TAlphabet>) {"ACGTCG"});
     auto options = getPrefilteringOptions(std::vector<size_t>{1}, 0u, 1u);
     options.prefilteredSearch = true;
     options.searchSegment = true;
@@ -379,8 +379,8 @@ TEST(getDatabaseSegment, too_short)
 
 TEST(getDatabaseSegment, incorrect_indices)
 {
-    seqan::StringSet<seqan::String<TAlphabet>> databases;
-    seqan::appendValue(databases, (seqan::String<TAlphabet>) {"ACGTCG"});
+    seqan2::StringSet<seqan2::String<TAlphabet>> databases;
+    seqan2::appendValue(databases, (seqan2::String<TAlphabet>) {"ACGTCG"});
     auto options = getPrefilteringOptions(std::vector<size_t>{1}, 2u, 0u);
     options.prefilteredSearch = true;
     options.searchSegment = true;

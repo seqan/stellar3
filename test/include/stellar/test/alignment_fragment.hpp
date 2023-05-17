@@ -43,8 +43,8 @@ struct alignment_fragment
                                sequence2, beginPosition2, endPosition2, row(alignment, 1));
     }
 
-    using TSequence = seqan::String<TAlphabet>;
-    using TAlign = seqan::Align<TSequence const, seqan::ArrayGaps>;
+    using TSequence = seqan2::String<TAlphabet>;
+    using TAlign = seqan2::Align<TSequence const, seqan2::ArrayGaps>;
 
     TSequence sequence1{};
     TSequence sequence2{};

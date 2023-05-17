@@ -16,7 +16,7 @@ namespace stellar::test::fixture::a512_simSeq_0dot05::forward
 
 // best match
 // seq1	Stellar	eps-matches	203842	204051	95.3051	+	.	seq2;seq2Range=797542,797749;cigar=41M1D48M1D39M1I49M1D5M1I17M1D1M1D3M1I2M;mutations=27A,129A,148T,184C,206A
-static stellar::test::alignment_fragment<seqan::Dna5> const fragment0
+static stellar::test::alignment_fragment<seqan2::Dna5> const fragment0
 {
     "TTTGAAAAAACTTACTTGTCAATTT[",
     "AACGGGGTTGAACCAATTATTCATC[",

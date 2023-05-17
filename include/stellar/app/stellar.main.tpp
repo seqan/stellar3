@@ -46,11 +46,11 @@
 
 namespace stellar
 {
-using namespace seqan;
+using namespace seqan2;
 } // namespace stellar
 
 //////////////////////////////////////////////////////////////////////////////
-namespace seqan {
+namespace seqan2 {
 
 template <>
 struct FunctorComplement<AminoAcid>:
@@ -63,7 +63,7 @@ struct FunctorComplement<AminoAcid>:
 
 };
 
-} // namespace seqan
+} // namespace seqan2
 
 namespace stellar
 {
