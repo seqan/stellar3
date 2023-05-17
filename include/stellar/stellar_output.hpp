@@ -32,7 +32,7 @@
 namespace stellar
 {
 
-using namespace seqan;
+using namespace seqan2;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Computes the length adjustment for E-value computation

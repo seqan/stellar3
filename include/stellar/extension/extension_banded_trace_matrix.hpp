@@ -56,7 +56,7 @@ struct extension_banded_trace_matrix
     }
 
     // memory region for active row
-    std::span<seqan::TraceBack> rowSpan(size_t const row)
+    std::span<seqan2::TraceBack> rowSpan(size_t const row)
     {
         auto [beginRow, endRow] = rowInterval();
         if (!(beginRow <= row && row <= endRow))
@@ -73,13 +73,13 @@ struct extension_banded_trace_matrix
     }
 
     // complete underlying data
-    std::span<seqan::TraceBack> data()
+    std::span<seqan2::TraceBack> data()
     {
-        seqan::TraceBack & firstValue = *begin(_traceMatrix);
+        seqan2::TraceBack & firstValue = *begin(_traceMatrix);
         return {&firstValue, dataSize()};
     }
 
-    seqan::String<seqan::TraceBack> & underlyingTraceMatrix()
+    seqan2::String<seqan2::TraceBack> & underlyingTraceMatrix()
     {
         return _traceMatrix;
     }
@@ -151,7 +151,7 @@ private:
     diagonal_t _lowerDiagonal;
     diagonal_t _upperDiagonal;
 
-    seqan::String<seqan::TraceBack> _traceMatrix;
+    seqan2::String<seqan2::TraceBack> _traceMatrix;
 };
 
 }

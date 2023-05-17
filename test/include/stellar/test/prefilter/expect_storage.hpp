@@ -37,7 +37,7 @@ bool expectStorage(std::vector<stellar::StellarDatabaseSegment<TAlphabet>> stora
 
     // do all segments cover the complete sequence?
     {
-        using TKey = seqan::String<TAlphabet> const *;
+        using TKey = seqan2::String<TAlphabet> const *;
         using TInterval = std::pair<std::size_t, std::size_t>;
         std::unordered_map<TKey, TInterval> intervalMap{};
 
@@ -61,7 +61,7 @@ bool expectStorage(std::vector<stellar::StellarDatabaseSegment<TAlphabet>> stora
 
         for (auto && [key, interval] : intervalMap)
         {
-            seqan::String<TAlphabet> const & database = *key;
+            seqan2::String<TAlphabet> const & database = *key;
 
             noErrors = noErrors && (interval.first == 0u);
             EXPECT_EQ(interval.first, 0u);

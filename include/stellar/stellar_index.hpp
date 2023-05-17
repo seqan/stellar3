@@ -32,9 +32,9 @@
 
 namespace stellar
 {
-using namespace seqan;
+using namespace seqan2;
 
-template <typename TAlphabet, typename TString = String<TAlphabet>, typename TInfixSegment = seqan::Segment<TString const, seqan::InfixSegment>>
+template <typename TAlphabet, typename TString = String<TAlphabet>, typename TInfixSegment = seqan2::Segment<TString const, seqan2::InfixSegment>>
 using StellarQGramStringSet = StringSet<TInfixSegment, Owner<> >;
 
 template <typename TAlphabet>
@@ -49,8 +49,8 @@ using StellarSwiftFinder = Finder<Segment<String<TAlphabet> const, InfixSegment>
 template <typename TAlphabet>
 struct StellarIndex
 {
-    using TSequence = seqan::String<TAlphabet>;
-    using TInfixSegment = seqan::Segment<seqan::String<TAlphabet> const, seqan::InfixSegment>;
+    using TSequence = seqan2::String<TAlphabet>;
+    using TInfixSegment = seqan2::Segment<seqan2::String<TAlphabet> const, seqan2::InfixSegment>;
     using TQGramStringSet = StellarQGramStringSet<TAlphabet>;
 
     template <typename TSpec>
@@ -110,7 +110,7 @@ private:
     {
         StellarQGramStringSet<TAlphabet> dependentQueries;
         for (TSequence const & query: queries)
-            seqan::appendValue(dependentQueries, seqan::infix(query, 0, seqan::length(query)));
+            seqan2::appendValue(dependentQueries, seqan2::infix(query, 0, seqan2::length(query)));
 
         return dependentQueries;
     }
@@ -119,7 +119,7 @@ private:
     {
         StellarQGramStringSet<TAlphabet> dependentQueries;
         for (TInfixSegment const & query: queries)
-            seqan::appendValue(dependentQueries, query);
+            seqan2::appendValue(dependentQueries, query);
 
         return dependentQueries;
     }
@@ -128,7 +128,7 @@ private:
 } // namespace stellar
 
 
-namespace seqan {
+namespace seqan2 {
 
 template <typename TAlphabet>
 struct Cargo<::stellar::StellarQGramIndex<TAlphabet>>
@@ -172,6 +172,6 @@ inline bool _qgramDisableBuckets(::stellar::StellarQGramIndex<TAlphabet> & index
     return result;
 }
 
-} // namespace seqan
+} // namespace seqan2
 
 #endif

@@ -33,7 +33,7 @@
 
 namespace stellar
 {
-using namespace seqan;
+using namespace seqan2;
 
 ///////////////////////////////////////////////////////////////////////////////
 // returns true if align has a match at pos, otherwise false

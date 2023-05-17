@@ -17,7 +17,7 @@ struct error_rate_t
 };
 
 template <typename TSequence>
-error_rate_t error_rate(seqan::Align<TSequence const, seqan::ArrayGaps> const & alignment)
+error_rate_t error_rate(seqan2::Align<TSequence const, seqan2::ArrayGaps> const & alignment)
 {
     auto const & gappedSequence1 = row(alignment, 0);
     auto const & gappedSequence2 = row(alignment, 1);

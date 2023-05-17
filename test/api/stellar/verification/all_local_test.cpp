@@ -9,9 +9,9 @@
 
 TEST(AllLocal, empty)
 {
-    using TAlphabet = seqan::Dna5;
-    seqan::String<TAlphabet> database{};
-    seqan::String<TAlphabet> query{};
+    using TAlphabet = seqan2::Dna5;
+    seqan2::String<TAlphabet> database{};
+    seqan2::String<TAlphabet> query{};
     stellar::stellar_verification_time verification_runtime{};
 
     stellar::StellarDatabaseSegment<TAlphabet> databaseSegment{database, 0u, 0u};
@@ -44,8 +44,8 @@ TEST(AllLocal, empty)
 
 TEST(AllLocal, validSeedWithExactMatches)
 {
-    using TAlphabet = seqan::Dna5;
-    using TSequence = seqan::String<TAlphabet>;
+    using TAlphabet = seqan2::Dna5;
+    using TSequence = seqan2::String<TAlphabet>;
     TSequence database{"CAACGGACTGCTGTCTAGAC" "TAACCGCAGAACACG" "A" "CTCCTCTACCTTACCGCGT"};
     // original
     TSequence query{"CTCGAGGGTTTACGCATATCTGG" "TAACCGCAGAACACG" "A" "AGAGCCTGAGA"};
@@ -61,7 +61,7 @@ TEST(AllLocal, validSeedWithExactMatches)
 
     EXPECT_EQ(stellar::StellarOptions{}.xDrop, xDrop); // default xDrop is 5
 
-    using TAlignment = seqan::Align<TSequence const, seqan::ArrayGaps>;
+    using TAlignment = seqan2::Align<TSequence const, seqan2::ArrayGaps>;
     std::vector<TAlignment> alignments;
 
     stellar::verifySwiftHit(
@@ -97,8 +97,8 @@ TEST(AllLocal, validSeedWithExactMatches)
 
 TEST(AllLocal, oneErrorInsertion)
 {
-    using TAlphabet = seqan::Dna5;
-    using TSequence = seqan::String<TAlphabet>;
+    using TAlphabet = seqan2::Dna5;
+    using TSequence = seqan2::String<TAlphabet>;
     TSequence database{"CAACGGACTGCTGTCTAGAC" "TAACCGC"/* */"AGAACACG" "A" "CTCCTCTACCTTACCGCGT"};
     // 1 error, insert in query sequence
     TSequence query{"CTCGAGGGTTTACGCATATCTGG" "TAACCGC" "A" "AGAACACG" "A" "AGAGCCTGAGA"};
@@ -114,7 +114,7 @@ TEST(AllLocal, oneErrorInsertion)
 
     EXPECT_EQ(stellar::StellarOptions{}.xDrop, xDrop); // default xDrop is 5
 
-    using TAlignment = seqan::Align<TSequence const, seqan::ArrayGaps>;
+    using TAlignment = seqan2::Align<TSequence const, seqan2::ArrayGaps>;
     std::vector<TAlignment> alignments;
 
     stellar::verifySwiftHit(
@@ -163,8 +163,8 @@ TEST(AllLocal, oneErrorInsertion)
 
 TEST(AllLocal, oneErrorDeletion)
 {
-    using TAlphabet = seqan::Dna5;
-    using TSequence = seqan::String<TAlphabet>;
+    using TAlphabet = seqan2::Dna5;
+    using TSequence = seqan2::String<TAlphabet>;
     TSequence database{"CAACGGACTGCTGTCTAGAC" "TAACCG" "C" "AGAACACG" "A" "CTCCTCTACCTTACCGCGT"};
     // 1 error, delete in query sequence
     TSequence query{"CTCGAGGGTTTACGCATATCTGG" "TAACCG"/*C*/"AGAACACG" "A" "AGAGCCTGAGA"};
@@ -180,7 +180,7 @@ TEST(AllLocal, oneErrorDeletion)
 
     EXPECT_EQ(stellar::StellarOptions{}.xDrop, xDrop); // default xDrop is 5
 
-    using TAlignment = seqan::Align<TSequence const, seqan::ArrayGaps>;
+    using TAlignment = seqan2::Align<TSequence const, seqan2::ArrayGaps>;
     std::vector<TAlignment> alignments;
 
     stellar::verifySwiftHit(
@@ -216,8 +216,8 @@ TEST(AllLocal, oneErrorDeletion)
 
 TEST(AllLocal, oneErrorSubstitution)
 {
-    using TAlphabet = seqan::Dna5;
-    using TSequence = seqan::String<TAlphabet>;
+    using TAlphabet = seqan2::Dna5;
+    using TSequence = seqan2::String<TAlphabet>;
     TSequence database{"CAACGGACTGCTGTCTAGAC" "TAACCG" "C" "AGAACACG" "A" "CTCCTCTACCTTACCGCGT"};
     // 1 error, substitution in query sequence
     TSequence query{"CTCGAGGGTTTACGCATATCTGG" "TAACCG" "G" "AGAACACG" "A" "AGAGCCTGAGA"};
@@ -233,7 +233,7 @@ TEST(AllLocal, oneErrorSubstitution)
 
     EXPECT_EQ(stellar::StellarOptions{}.xDrop, xDrop); // default xDrop is 5
 
-    using TAlignment = seqan::Align<TSequence const, seqan::ArrayGaps>;
+    using TAlignment = seqan2::Align<TSequence const, seqan2::ArrayGaps>;
     std::vector<TAlignment> alignments;
 
     stellar::verifySwiftHit(
