@@ -44,7 +44,7 @@ struct StellarDatabaseSegment : public StellarSequenceSegment<TAlphabet>
 };
 
 template <typename TAlphabet, typename TStorage>
-TStorage _getDatabaseSegments(StringSet<String<TAlphabet>> & databases, StellarOptions const & options, bool const reverse = false)
+TStorage _getDatabaseSegments(StringSet<String<TAlphabet>> const & databases, StellarOptions const & options, bool const reverse = false)
 {
     TStorage databaseSegments{};
     if (options.searchSegment)
