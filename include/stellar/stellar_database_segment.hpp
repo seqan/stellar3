@@ -44,7 +44,7 @@ struct StellarDatabaseSegment : public StellarSequenceSegment<TAlphabet>
 };
 
 template <typename TAlphabet, typename TStorage>
-TStorage _getDatabaseSegments(StringSet<String<TAlphabet>> const & databases, StellarOptions const & options, bool const reverse = false)
+TStorage _getDatabaseSegments(StringSet<String<TAlphabet>> & databases, StellarOptions const & options, bool const reverse = false)
 {
     TStorage databaseSegments{};
     if (options.searchSegment)
@@ -79,12 +79,10 @@ TStorage _getDatabaseSegments(StringSet<String<TAlphabet>> const & databases, St
     return databaseSegments;
 }
 
-template <typename TAlphabet, typename TStorage>
-TStorage _getDatabaseSegmentForValik(String<TAlphabet> const & sequenceOfInterest,
-                                     StellarOptions const & options,
-                                     bool const reverse = false)
+template <typename TAlphabet, typename TDatabaseSegment>
+TDatabaseSegment _getDREAMDatabaseSegment(String<TAlphabet> const & sequenceOfInterest,
+                                             StellarOptions const & options)
 {
-    TStorage databaseSegments{};
     if (length(sequenceOfInterest) < options.segmentEnd)
         throw std::runtime_error{"Segment end out of range"};
 
@@ -94,15 +92,9 @@ TStorage _getDatabaseSegmentForValik(String<TAlphabet> const & sequenceOfInteres
     if (options.segmentEnd < options.minLength + options.segmentBegin)
         throw std::runtime_error{"Segment shorter than minimum match length"};
 
-    if (reverse)
-    {
-        reverseComplement(sequenceOfInterest);
-        databaseSegments.emplace_back(sequenceOfInterest, length(sequenceOfInterest) - options.segmentEnd, length(sequenceOfInterest) - options.segmentBegin);
-    }
-    else
-        databaseSegments.emplace_back(sequenceOfInterest, options.segmentBegin, options.segmentEnd);
+    TDatabaseSegment databaseSegment(sequenceOfInterest, options.segmentBegin, options.segmentEnd);
 
-    return databaseSegments;
+    return databaseSegment;
 }
 
 } // namespace stellar
