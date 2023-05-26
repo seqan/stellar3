@@ -6,9 +6,6 @@
 namespace stellar
 {
 
-namespace app
-{
-
 ///////////////////////////////////////////////////////////////////////////////
 // Calculates parameters from parameters in options object and writes them to std::cout
 void _writeCalculatedParams(StellarOptions & options);
@@ -41,7 +38,5 @@ void _printStellarStatistics(
     bool const databaseStrand,
     StringSet<CharString> const & databaseIDs,
     StellarComputeStatisticsCollection const & computeStatistics);
-
-} // namespace stellar::app
 
 } // namespace stellar

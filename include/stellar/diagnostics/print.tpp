@@ -1,11 +1,8 @@
 #pragma once
 
-#include <stellar/app/stellar.diagnostics.hpp>
+#include <stellar/diagnostics/print.hpp>
 
 namespace stellar
-{
-
-namespace app
 {
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -58,7 +55,5 @@ void _writeMoreCalculatedParams(StellarOptions const & options, TSize const & re
         std::cout << std::endl;
     }
 }
-
-} // namespace stellar::app
 
 } // namespace stellar

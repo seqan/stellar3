@@ -30,7 +30,7 @@
 #include <stellar/stellar.hpp>
 #include <stellar/stellar_output.hpp>
 
-#include <stellar/app/stellar.diagnostics.hpp>
+#include <stellar/diagnostics/print.hpp>
 #include <stellar/app/stellar.main.hpp>
 
 #include <stellar3.arg_parser.hpp>

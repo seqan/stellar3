@@ -1,9 +1,6 @@
-#include <stellar/app/stellar.diagnostics.hpp>
+#include <stellar/diagnostics/print.hpp>
 
 namespace stellar
-{
-
-namespace app
 {
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -137,7 +134,5 @@ void _printStellarStatistics(
         _printDatabaseIdAndStellarKernelStatistics(verbose, databaseStrand, databaseID, statistics);
     }
 }
-
-} // namespace stellar::app
 
 } // namespace stellar
