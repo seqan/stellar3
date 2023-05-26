@@ -40,7 +40,7 @@
 #include <stellar/verification/best_local.hpp>
 #include <stellar/verification/swift_hit_verifier.hpp>
 
-#include <stellar/app/stellar.diagnostics.hpp>
+#include <stellar/diagnostics/print.hpp>
 
 namespace stellar
 {
