@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stellar/query_id_map.hpp>
+#include <stellar/stellar.hpp>
 
 namespace stellar
 {
