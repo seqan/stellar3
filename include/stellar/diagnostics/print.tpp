@@ -6,6 +6,28 @@ namespace stellar
 {
 
 ///////////////////////////////////////////////////////////////////////////////
+// Calculates parameters from parameters in options object and writes them to std::cout
+void _writeCalculatedParams(StellarOptions & options)
+{
+//IOREV _notio_
+    StellarStatistics statistics{options};
+
+    std::cout << "Calculated parameters:" << std::endl;
+    if (statistics.kMerComputed)
+    {
+        options.qGram = (unsigned)statistics.kMerLength;
+        std::cout << "  k-mer length : " << statistics.kMerLength << std::endl;
+    }
+
+    std::cout << "  s^min        : " << statistics.smin << std::endl;
+    std::cout << "  threshold    : " << statistics.threshold << std::endl;
+    std::cout << "  distance cut : " << statistics.distanceCut << std::endl;
+    std::cout << "  delta        : " << statistics.delta << std::endl;
+    std::cout << "  overlap      : " << statistics.overlap << std::endl;
+    std::cout << std::endl;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // Calculates parameters from parameters in options object and from sequences and writes them to std::cout
 template <typename TStringSet, typename TSize>
 void _writeMoreCalculatedParams(StellarOptions const & options, TSize const & refLen, TStringSet const & queries)
