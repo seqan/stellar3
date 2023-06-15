@@ -7,7 +7,9 @@ namespace stellar
 
 ///////////////////////////////////////////////////////////////////////////////
 // Calculates parameters from parameters in options object and writes them to std::cout
-void _writeCalculatedParams(StellarOptions & options)
+// Sets options.qGram if not set by user input
+template <typename TOptions>
+void _writeCalculatedParams(TOptions & options)
 {
 //IOREV _notio_
     StellarStatistics statistics{options};
