@@ -9,8 +9,7 @@ namespace stellar
 //////////////////////////////////////////////////////////////////////////////
 // Calculates parameters from parameters in options object and writes them to std::cout
 // Sets options.qGram if not set by user input
-template <typename TOptions>
-void _writeCalculatedParams(TOptions & options);
+void _writeCalculatedParams(StellarOptions & options);
 
 ///////////////////////////////////////////////////////////////////////////////
 // Writes user specified parameters from options object to std::cout
