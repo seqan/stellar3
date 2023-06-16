@@ -146,7 +146,7 @@ _stellarMain(
                 computeStatistics.addStatistics(statistics);
             }
 
-            _printStellarStatistics(options.verbose, databaseStrand, databaseIDs, computeStatistics);
+            _printStellarStatistics(options.verbose, databaseStrand, databaseIDs, computeStatistics, std::cout);
 
             stellar_runtime.forward_strand_stellar_time.post_process_eps_matches_time.measure_time([&]()
             {
@@ -212,7 +212,7 @@ _stellarMain(
                 computeStatistics.addStatistics(statistics);
             }
 
-            _printStellarStatistics(options.verbose, databaseStrand, databaseIDs, computeStatistics);
+            _printStellarStatistics(options.verbose, databaseStrand, databaseIDs, computeStatistics, std::cout);
 
             stellar_runtime.reverse_strand_stellar_time.post_process_eps_matches_time.measure_time([&]()
             {
@@ -243,7 +243,7 @@ _stellarMain(
         }); // measure_time
     }
 
-    _writeOutputStatistics(outputStatistics, options.verbose, disabledQueriesFile.is_open());
+    _writeOutputStatistics(outputStatistics, options.verbose, disabledQueriesFile.is_open(), std::cout);
 
     return true;
 }
@@ -262,8 +262,8 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
     stellar::_writeFileNames(options, std::cout);
 
     // output parameters
-    stellar::_writeSpecifiedParams(options);
-    stellar::_writeCalculatedParams(options);
+    stellar::_writeSpecifiedParams(options, std::cout);
+    stellar::_writeCalculatedParams(options, std::cout);
 
     // import query sequences
     StringSet<TSequence> queries;
@@ -274,7 +274,7 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
     //!TODO: split query sequence
     bool const queriesSuccess = stellar_time.input_queries_time.measure_time([&]()
     {
-        return _importAllSequences(options.queryFile.c_str(), "query", queries, queryIDs, queryLen);
+        return _importAllSequences(options.queryFile.c_str(), "query", queries, queryIDs, queryLen, std::cout, std::cerr);
     });
     if (!queriesSuccess)
         return 1;
@@ -287,7 +287,7 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
     bool const databasesSuccess = stellar_time.input_databases_time.measure_time([&]()
     {
         if (!options.prefilteredSearch)
-            return _importAllSequences(options.databaseFile.c_str(), "database", databases, databaseIDs, refLen);
+            return _importAllSequences(options.databaseFile.c_str(), "database", databases, databaseIDs, refLen, std::cout, std::cerr);
         else
         {
             if (options.referenceLength > 0)
@@ -305,7 +305,7 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
         return 1;
 
     std::cout << std::endl;
-    stellar::_writeMoreCalculatedParams(options, refLen, queries);
+    stellar::_writeMoreCalculatedParams(options, refLen, queries, std::cout);
 
     // open output files
     std::ofstream outputFile(options.outputFile.c_str(), ::std::ios_base::out | ::std::ios_base::app);

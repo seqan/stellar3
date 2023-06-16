@@ -133,16 +133,13 @@ target_link_libraries (stellar_main PUBLIC "${PROJECT_NAME}_interface")
 add_library (stellar_arg_parser STATIC stellar3.arg_parser.cpp)
 target_link_libraries (stellar_arg_parser PUBLIC "stellar_main")
 
-add_library (stellar_diagnostics STATIC stellar/stellar.diagnostics.cpp)
-target_link_libraries (stellar_diagnostics PUBLIC "stellar_main")
-
 if (STELLAR_PRECOMPILED_HEADER_BUILD)
     target_precompile_headers (stellar_main PRIVATE ../include/stellar/app/stellar.main.tpp)
 endif ()
 
 # Update the list of file names below if you add source files to your application.
 add_executable (stellar stellar.cpp)
-target_link_libraries (stellar PRIVATE stellar_main stellar_arg_parser stellar_diagnostics)
+target_link_libraries (stellar PRIVATE stellar_main stellar_arg_parser)
 
 # Add dependencies found by find_package (SeqAn).
 target_link_libraries (stellar PUBLIC "${PROJECT_NAME}_interface" ${SEQAN_LIBRARIES})

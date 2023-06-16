@@ -34,7 +34,6 @@
 #include <stellar/app/stellar.main.hpp>
 
 #include <stellar3.arg_parser.hpp>
-#include "stellar/stellar.diagnostics.cpp"
 
 // TODO(holtgrew): Move this into a SeqAn misc module.
 

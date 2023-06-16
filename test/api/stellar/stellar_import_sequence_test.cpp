@@ -13,7 +13,7 @@ TEST(import_sequences, all_sequences)
     seqan2::StringSet<seqan2::CharString> databaseIDs;
 
     uint64_t refLen{0};
-    stellar::_importAllSequences(databaseFile.c_str(), "database", databases, databaseIDs, refLen);
+    stellar::_importAllSequences(databaseFile.c_str(), "database", databases, databaseIDs, refLen, std::cout, std::cerr);
 
     EXPECT_EQ(length(databases), 3u);
     EXPECT_EQ(databases[0], (seqan2::String<TAlphabet>) {"GATGACTCAGTCTTGTTGATTAGGCACCTCGGTATGTGGGCATTAGGCACATTGCTCTGTTTCTTGAAGT"

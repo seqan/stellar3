@@ -36,18 +36,20 @@ _checkUniqueId(std::set<TId> & uniqueIds, TId const & id)
 ///////////////////////////////////////////////////////////////////////////////
 // Imports sequences from a file,
 // stores them in the StringSet seqs and their identifiers in the StringSet ids
-template <typename TSequence, typename TId, typename TLen>
+template <typename TSequence, typename TId, typename TLen, typename TStream>
 inline bool
 _importAllSequences(char const * fileName,
                     CharString const & name,
                     StringSet<TSequence> & seqs,
                     StringSet<TId> & ids,
-                    TLen & seqLen)
+                    TLen & seqLen,
+                    TStream & strOut,
+                    TStream & strErr)
 {
     SeqFileIn inSeqs;
     if (!open(inSeqs, fileName))
     {
-        std::cerr << "Failed to open " << name << " file." << std::endl;
+        strErr << "Failed to open " << name << " file." << std::endl;
         return false;
     }
 
@@ -70,9 +72,9 @@ _importAllSequences(char const * fileName,
         appendValue(ids, id, Generous());
     }
 
-    std::cout << "Loaded " << seqCount << " " << name << " sequence" << ((seqCount > 1) ? "s." : ".") << std::endl;
+    strOut << "Loaded " << seqCount << " " << name << " sequence" << ((seqCount > 1) ? "s." : ".") << std::endl;
     if (!idsUnique)
-        std::cerr << "WARNING: Non-unique " << name << " ids. Output can be ambiguous.\n";
+        strErr << "WARNING: Non-unique " << name << " ids. Output can be ambiguous.\n";
     return true;
 }
 

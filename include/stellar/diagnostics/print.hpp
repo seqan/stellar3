@@ -2,43 +2,60 @@
 #pragma once
 
 #include <stellar/stellar_types.hpp>
+#include <stellar/stellar_output.hpp>
 
 namespace stellar
 {
 
-//////////////////////////////////////////////////////////////////////////////
-// Calculates parameters from parameters in options object and writes them to std::cout
+///////////////////////////////////////////////////////////////////////////////
+// Calculates parameters from parameters in options object and writes them to outStr
 // Sets options.qGram if not set by user input
-void _writeCalculatedParams(StellarOptions & options);
+template <typename TStream>
+void _writeCalculatedParams(StellarOptions & options, TStream & outStr);
 
 ///////////////////////////////////////////////////////////////////////////////
-// Writes user specified parameters from options object to std::cout
-void _writeSpecifiedParams(StellarOptions const & options);
+// Writes user specified parameters from options object to outStr
+template <typename TStream>
+void _writeSpecifiedParams(StellarOptions const & options, TStream & outStr);
 
 ///////////////////////////////////////////////////////////////////////////////
-// Writes file name from options object to std::cout
+// Writes file name from options object to outStr
 template <typename TStream>
 void _writeFileNames(StellarOptions const & options, TStream & outStr);
 
 ///////////////////////////////////////////////////////////////////////////////
-// Calculates parameters from parameters in options object and from sequences and writes them to std::cout
-template <typename TStringSet>
-void _writeMoreCalculatedParams(StellarOptions const & options, TStringSet const & databases, TStringSet const & queries);
+// Calculates parameters from parameters in options object and from sequences and writes them to outStr
+template <typename TStringSet, typename TSize, typename TStream>
+void _writeMoreCalculatedParams(StellarOptions const & options,
+                                TSize const & refLen,
+                                TStringSet const & queries,
+                                TStream & outStr);
 
 void _writeOutputStatistics(StellarOutputStatistics const & statistics, bool const verbose, bool const writeDisabledQueriesFile);
 
-void _printStellarKernelStatistics(StellarComputeStatistics const & statistics);
+template <typename TStream>
+void _printStellarKernelStatistics(StellarComputeStatistics const & statistics, TStream & outStr);
 
+template <typename TStream>
 void _printDatabaseIdAndStellarKernelStatistics(
     bool const verbose,
     bool const databaseStrand,
     CharString const & databaseID,
-    StellarComputeStatistics const & statistics);
+    StellarComputeStatistics const & statistics,
+    TStream & outStr);
 
+template <typename TStream>
 void _printStellarStatistics(
     bool const verbose,
     bool const databaseStrand,
     StringSet<CharString> const & databaseIDs,
-    StellarComputeStatisticsCollection const & computeStatistics);
+    StellarComputeStatisticsCollection const & computeStatistics,
+    TStream & outStr);
+
+template <typename TStream>
+void _writeOutputStatistics(StellarOutputStatistics const & statistics,
+                            bool const verbose,
+                            bool const writeDisabledQueriesFile,
+                            TStream & outStr);
 
 } // namespace stellar
