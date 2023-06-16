@@ -17,7 +17,8 @@ void _writeSpecifiedParams(StellarOptions const & options);
 
 ///////////////////////////////////////////////////////////////////////////////
 // Writes file name from options object to std::cout
-void _writeFileNames(StellarOptions const & options);
+template <typename TStream>
+void _writeFileNames(StellarOptions const & options, TStream & outStr);
 
 ///////////////////////////////////////////////////////////////////////////////
 // Calculates parameters from parameters in options object and from sequences and writes them to std::cout

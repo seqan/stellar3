@@ -259,7 +259,7 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
     auto current_time = stellar_time.now();
 
     // output file names
-    stellar::_writeFileNames(options);
+    stellar::_writeFileNames(options, std::cout);
 
     // output parameters
     stellar::_writeSpecifiedParams(options);

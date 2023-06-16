@@ -62,24 +62,6 @@ void _writeSpecifiedParams(StellarOptions const & options)
     std::cout << std::endl;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// Writes file name from options object to std::cout
-void _writeFileNames(StellarOptions const & options)
-{
-//IOREV _notio_
-    std::cout << "I/O options:" << std::endl;
-    std::cout << "  database file   : " << options.databaseFile << std::endl;
-    std::cout << "  query file      : " << options.queryFile << std::endl;
-    std::cout << "  alphabet        : " << options.alphabet << std::endl;
-    std::cout << "  output file     : " << options.outputFile << std::endl;
-    std::cout << "  output format   : " << options.outputFormat << std::endl;
-    if (options.disableThresh != std::numeric_limits<size_t>::max())
-    {
-        std::cout << "  disabled queries: " << options.disabledQueriesFile << std::endl;
-    }
-    std::cout << std::endl;
-}
-
 void _writeOutputStatistics(StellarOutputStatistics const & statistics, bool const verbose, bool const writeDisabledQueriesFile)
 {
     std::cout << "# Eps-matches     : " << statistics.numMatches << std::endl;

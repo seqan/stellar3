@@ -6,6 +6,25 @@ namespace stellar
 {
 
 ///////////////////////////////////////////////////////////////////////////////
+// Writes file name from options object to std::cout
+template <typename TStream>
+void _writeFileNames(StellarOptions const & options, TStream & outStr)
+{
+//IOREV _notio_
+    outStr << "I/O options:" << std::endl;
+    outStr << "  database file   : " << options.databaseFile << std::endl;
+    outStr << "  query file      : " << options.queryFile << std::endl;
+    outStr << "  alphabet        : " << options.alphabet << std::endl;
+    outStr << "  output file     : " << options.outputFile << std::endl;
+    outStr << "  output format   : " << options.outputFormat << std::endl;
+    if (options.disableThresh != std::numeric_limits<size_t>::max())
+    {
+        outStr << "  disabled queries: " << options.disabledQueriesFile << std::endl;
+    }
+    outStr << std::endl;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // Calculates parameters from parameters in options object and from sequences and writes them to std::cout
 template <typename TStringSet, typename TSize>
 void _writeMoreCalculatedParams(StellarOptions const & options, TSize const & refLen, TStringSet const & queries)
