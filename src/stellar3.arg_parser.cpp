@@ -194,11 +194,10 @@ void init_parser(sharg::parser & parser, StellarOptions & options)
                                 .long_id = "disabledQueriesFile",
                                 .description = "Name of output file for disabled query sequences.",
                                 .validator = sharg::output_file_validator{sharg::output_file_open_options::open_or_create, {"fa", "fasta"}}});
-    parser.add_flag(options.noRT,
+    parser.add_flag(options.write_time,
                 sharg::config{.short_id = '\0',
-                                .long_id = "suppress-runtime-printing",
-                                .description = "Suppress printing running time.",
-                                .advanced = true});
+                                .long_id = "time",
+                                .description = "Write running time."});
 }
 
 void run_stellar(sharg::parser & parser)

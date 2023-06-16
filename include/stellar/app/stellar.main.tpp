@@ -330,55 +330,10 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
     if (!_stellarMain(databases, databaseIDs, refLen, queries, queryIDs, options, outputFile, disabledQueriesFile, stellar_time))
         return 1;
 
-    if (options.verbose && options.noRT == false)
+    if (options.write_time)
     {
         stellar_time.manual_timing(current_time);
-
-        auto _print_stellar_strand_time = [](stellar_strand_time const & strand_runtime, std::string strandDirection)
-        {
-            stellar_kernel_runtime const & prefiltered_stellar_time
-                = strand_runtime.prefiltered_stellar_time;
-            stellar_verification_time const & verification_time
-                = strand_runtime.prefiltered_stellar_time.verification_time;
-            stellar_extension_time const & extension_time
-                = verification_time.extension_time;
-            stellar_best_extension_time const & best_extension_time
-                = extension_time.best_extension_time;
-
-            std::cout << "       + Prefiltered Stellar Time (" << strandDirection << "): " << prefiltered_stellar_time.milliseconds() << "ms" << std::endl;
-            std::cout << "          + Swift Filter Time (" << strandDirection << "): " << prefiltered_stellar_time.swift_filter_time.milliseconds() << "ms" << std::endl;
-            std::cout << "          + Seed Verification Time (" << strandDirection << "): " << verification_time.milliseconds() << "ms" << std::endl;
-            std::cout << "             + Find Next Local Alignment Time (" << strandDirection << "): " << verification_time.next_local_alignment_time.milliseconds() << "ms" << std::endl;
-            std::cout << "             + Split At X-Drops Time (" << strandDirection << "): " << verification_time.split_at_x_drops_time.milliseconds() << "ms" << std::endl;
-            std::cout << "             + Extension Time (" << strandDirection << "): " << extension_time.milliseconds() << "ms" << std::endl;
-            std::cout << "                + Extend Seed Time (" << strandDirection << "): " << extension_time.extend_seed_time.milliseconds() << "ms" << std::endl;
-            std::cout << "                + Best Extension Time (" << strandDirection << "): " << best_extension_time.milliseconds() << "ms" << std::endl;
-            std::cout << "                   + Banded Needleman-Wunsch Time (" << strandDirection << "): " << best_extension_time.banded_needleman_wunsch_time.milliseconds() << "ms" << std::endl;
-            std::cout << "                      + Banded Needleman-Wunsch (Left Extension) Time (" << strandDirection << "): " << best_extension_time.banded_needleman_wunsch_left_time.milliseconds() << "ms" << std::endl;
-            std::cout << "                      + Banded Needleman-Wunsch (Right Extension) Time (" << strandDirection << "): " << best_extension_time.banded_needleman_wunsch_right_time.milliseconds() << "ms" << std::endl;
-            std::cout << "                   + Longest EPS Match Time (" << strandDirection << "): " << best_extension_time.longest_eps_match_time.milliseconds() << "ms" << std::endl;
-            std::cout << "                   + Construct Alignment Time (" << strandDirection << "): " << best_extension_time.construct_seed_alignment_time.milliseconds() << "ms" << std::endl;
-            std::cout << "                   = total time: " << best_extension_time.total_time().milliseconds() << "ms" << std::endl;
-            std::cout << "                = total time: " << extension_time.total_time().milliseconds() << "ms" << std::endl;
-            std::cout << "             = total time: " << verification_time.total_time().milliseconds() << "ms" << std::endl;
-            std::cout << "          = total time: " << prefiltered_stellar_time.total_time().milliseconds() << "ms" << std::endl;
-            std::cout << "       + Post-Process Eps-Matches Time (" << strandDirection << "): " << strand_runtime.post_process_eps_matches_time.milliseconds() << "ms" << std::endl;
-            std::cout << "       + File Output Eps-Matches Time (" << strandDirection << "): " << strand_runtime.output_eps_matches_time.milliseconds() << "ms" << std::endl;
-            std::cout << "       = total time: " << strand_runtime.total_time().milliseconds() << "ms" << std::endl;
-        };
-
-        std::cout << "Running time: " << stellar_time.milliseconds() << "ms" << std::endl;
-        std::cout << " * Stellar Application Time: " << stellar_time.milliseconds() << "ms" << std::endl;
-        std::cout << "    + File Input Queries Time: " << stellar_time.input_queries_time.milliseconds() << "ms" << std::endl;
-        std::cout << "    + File Input Databases Time: " << stellar_time.input_databases_time.milliseconds() << "ms" << std::endl;
-        std::cout << "    + SwiftFilter Construction Time: " << stellar_time.swift_index_construction_time.milliseconds() << "ms" << std::endl;
-        std::cout << "    + Stellar Forward Strand Time: " << stellar_time.forward_strand_stellar_time.milliseconds() << "ms" << std::endl;
-        _print_stellar_strand_time(stellar_time.forward_strand_stellar_time, "Forward");
-        std::cout << "    + Database Reverse Complement Time: " << stellar_time.reverse_complement_database_time.milliseconds() << "ms" << std::endl;
-        std::cout << "    + Stellar Reverse Strand Time: " << stellar_time.reverse_strand_stellar_time.milliseconds() << "ms" << std::endl;
-        _print_stellar_strand_time(stellar_time.reverse_strand_stellar_time, "Reverse");
-        std::cout << "    + File Output Disabled Queries Time: " << stellar_time.output_disabled_queries_time.milliseconds() << "ms" << std::endl;
-        std::cout << "    = total time: " << stellar_time.total_time().milliseconds() << "ms" << std::endl;
+        _print_stellar_app_time(stellar_time, std::cout);
     }
 
     return 0;
