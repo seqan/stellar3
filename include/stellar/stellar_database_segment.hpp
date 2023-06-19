@@ -81,7 +81,8 @@ TStorage _getDatabaseSegments(StringSet<String<TAlphabet>> & databases, StellarO
 
 template <typename TAlphabet, typename TDatabaseSegment>
 TDatabaseSegment _getDREAMDatabaseSegment(String<TAlphabet> const & sequenceOfInterest,
-                                             StellarOptions const & options)
+                                          StellarOptions const & options,
+                                          bool const reverse = false)
 {
     if (length(sequenceOfInterest) < options.segmentEnd)
         throw std::runtime_error{"Segment end out of range"};
@@ -92,9 +93,11 @@ TDatabaseSegment _getDREAMDatabaseSegment(String<TAlphabet> const & sequenceOfIn
     if (options.segmentEnd < options.minLength + options.segmentBegin)
         throw std::runtime_error{"Segment shorter than minimum match length"};
 
-    TDatabaseSegment databaseSegment(sequenceOfInterest, options.segmentBegin, options.segmentEnd);
+    if (reverse)
+        return TDatabaseSegment(sequenceOfInterest, length(sequenceOfInterest) - options.segmentEnd, length(sequenceOfInterest) - options.segmentBegin);
 
-    return databaseSegment;
+    return TDatabaseSegment(sequenceOfInterest, options.segmentBegin, options.segmentEnd);
+
 }
 
 } // namespace stellar
