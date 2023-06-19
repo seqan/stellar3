@@ -396,3 +396,91 @@ TEST(getDatabaseSegment, incorrect_indices)
         FAIL() << "Expected std::runtime_error";
     }
 }
+
+////////////////////////////////////////////////
+// TDatabaseSegment _getDREAMDatabaseSegment
+////////////////////////////////////////////////
+TEST(_getDREAMDatabaseSegment, from_begin)
+{
+    seqan2::String<TAlphabet> sequence = "ACGTCG";
+    auto options = getPrefilteringOptions(std::vector<size_t>{1}, 0u, 2u);
+
+    TDatabaseSegment segment = stellar::_getDREAMDatabaseSegment<TAlphabet, TDatabaseSegment>(sequence, options);
+
+    EXPECT_EQ(segment.size(), 2u);
+    EXPECT_EQ(segment.asInfixSegment(), (seqan2::String<TAlphabet>) {"AC"});
+}
+
+TEST(_getDREAMDatabaseSegment, reverse_complement)
+{
+    seqan2::String<TAlphabet> sequence = "ACGTCG";
+    reverseComplement(sequence);
+    auto options = getPrefilteringOptions(std::vector<size_t>{1}, 0u, 2u);
+
+    TDatabaseSegment segment = stellar::_getDREAMDatabaseSegment<TAlphabet, TDatabaseSegment>(sequence, options, true);
+
+    EXPECT_EQ(segment.size(), 2u);
+    EXPECT_EQ(segment.asInfixSegment(), (seqan2::String<TAlphabet>) {"GT"});
+}
+
+TEST(_getDREAMDatabaseSegment, whole_sequence)
+{
+    seqan2::String<TAlphabet> sequence = "ACGTCG";
+    auto options = getPrefilteringOptions(std::vector<size_t>{1}, 0u, 6u);
+
+    TDatabaseSegment segment = stellar::_getDREAMDatabaseSegment<TAlphabet, TDatabaseSegment>(sequence, options);
+
+    EXPECT_EQ(segment.size(), 6u);
+    EXPECT_EQ(segment.asInfixSegment(), (seqan2::String<TAlphabet>) {"ACGTCG"});
+}
+
+TEST(_getDREAMDatabaseSegment, index_out_of_range)
+{
+    seqan2::String<TAlphabet> sequence = "ACGTCG";
+    auto options = getPrefilteringOptions(std::vector<size_t>{1}, 0u, 8u);
+
+    try {
+        TDatabaseSegment databaseSegments = stellar::_getDREAMDatabaseSegment<TAlphabet, TDatabaseSegment>(sequence, options);
+        FAIL() << "Expected std::runtime_error";
+    }
+    catch(std::runtime_error const & err) {
+        EXPECT_EQ(err.what(),std::string("Segment end out of range"));
+    }
+    catch(...) {
+        FAIL() << "Expected std::runtime_error";
+    }
+}
+
+TEST(_getDREAMDatabaseSegment, too_short)
+{
+    seqan2::String<TAlphabet> sequence = "ACGTCG";
+    auto options = getPrefilteringOptions(std::vector<size_t>{1}, 0u, 1u);
+
+    try {
+        TDatabaseSegment databaseSegments = stellar::_getDREAMDatabaseSegment<TAlphabet, TDatabaseSegment>(sequence, options);
+        FAIL() << "Expected std::runtime_error";
+    }
+    catch(std::runtime_error const & err) {
+        EXPECT_EQ(err.what(),std::string("Segment shorter than minimum match length"));
+    }
+    catch(...) {
+        FAIL() << "Expected std::runtime_error";
+    }
+}
+
+TEST(_getDREAMDatabaseSegment, incorrect_indices)
+{
+    seqan2::String<TAlphabet> sequence = "ACGTCG";
+    auto options = getPrefilteringOptions(std::vector<size_t>{1}, 2u, 0u);
+
+    try {
+        TDatabaseSegment segment = stellar::_getDREAMDatabaseSegment<TAlphabet, TDatabaseSegment>(sequence, options);
+        FAIL() << "Expected std::runtime_error";
+    }
+    catch(std::runtime_error const & err) {
+        EXPECT_EQ(err.what(),std::string("Incorrect segment definition"));
+    }
+    catch(...) {
+        FAIL() << "Expected std::runtime_error";
+    }
+}
