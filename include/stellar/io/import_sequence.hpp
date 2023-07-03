@@ -19,13 +19,9 @@ _checkUniqueId(std::set<TId> & uniqueIds, TId const & id)
         appendValue(shortId, *it);
     }
 
-    if (!uniqueIds.contains(shortId))
-    {
-        uniqueIds.insert(shortId);
-        return 1;
-    }
+    auto [it, added] = uniqueIds.insert(shortId);
 
-    return 0;
+    return added;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
