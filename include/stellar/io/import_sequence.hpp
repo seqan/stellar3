@@ -14,14 +14,11 @@ _checkUniqueId(std::set<TId> & uniqueIds, TId const & id)
     TId shortId;
     using TIterator =  typename Iterator<TId const>::Type;
 
-    TIterator it = begin(id);
-    TIterator itEnd = end(id);
 
     // (cut at first whitespace)
-    while (it != itEnd && *it > ' ')
+    for (auto it = begin(id); it != itEnd && *it > ' '; ++it)
     {
         appendValue(shortId, *it);
-        ++it;
     }
 
     if (!uniqueIds.contains(shortId))
