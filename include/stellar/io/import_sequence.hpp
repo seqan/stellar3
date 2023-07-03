@@ -24,7 +24,7 @@ _checkUniqueId(std::set<TId> & uniqueIds, TId const & id)
         ++it;
     }
 
-    if (uniqueIds.count(shortId) == 0)
+    if (!uniqueIds.contains(shortId))
     {
         uniqueIds.insert(shortId);
         return 1;
