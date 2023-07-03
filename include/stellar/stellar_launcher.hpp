@@ -117,9 +117,8 @@ struct StellarLauncher
 
         StellarComputeStatistics statistics = _verificationMethodVisit(
             localOptions.verificationMethod,
-            [&](auto tag) -> StellarComputeStatistics
+            [&]<typename TTag>(TTag tag) -> StellarComputeStatistics
             {
-                using TTag = decltype(tag);
                 SwiftHitVerifier<TTag> swiftVerifier
                 {
                     STELLAR_DESIGNATED_INITIALIZER(.eps_match_options = , localOptions),
