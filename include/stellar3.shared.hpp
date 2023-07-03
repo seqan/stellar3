@@ -25,7 +25,7 @@ struct StellarOptions : public EPSMatchOptions, public IndexOptions, public Veri
     std::string disabledQueriesFile{"stellar.disabled.fasta"}; // name of result file containing disabled queries
     std::string outputFormat{"gff"};        // Possible formats: gff, text
     std::string alphabet{"dna5"};            // Possible values: dna, rna, protein, char
-    bool write_time;
+    bool write_time;        // write running time to standard output
 
     // more options
     bool forward{true};               // compute matches to forward strand of database
