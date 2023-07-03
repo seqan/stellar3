@@ -12,7 +12,7 @@ inline bool
 _checkUniqueId(std::set<TId> & uniqueIds, TId const & id)
 {
     TId shortId;
-    typedef typename Iterator<TId const>::Type TIterator;
+    using TIterator =  typename Iterator<TId const>::Type;
 
     TIterator it = begin(id);
     TIterator itEnd = end(id);
