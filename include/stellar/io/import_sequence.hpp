@@ -14,7 +14,7 @@ _checkUniqueId(std::set<TId> & uniqueIds, TId const & id)
     TId shortId;
 
     // (cut at first whitespace)
-    for (auto it = begin(id); it != itEnd && *it > ' '; ++it)
+    for (auto it = begin(id); it != end(id) && *it > ' '; ++it)
     {
         appendValue(shortId, *it);
     }
