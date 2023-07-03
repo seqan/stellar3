@@ -12,8 +12,6 @@ inline bool
 _checkUniqueId(std::set<TId> & uniqueIds, TId const & id)
 {
     TId shortId;
-    using TIterator =  typename Iterator<TId const>::Type;
-
 
     // (cut at first whitespace)
     for (auto it = begin(id); it != itEnd && *it > ' '; ++it)
