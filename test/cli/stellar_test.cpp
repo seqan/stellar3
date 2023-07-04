@@ -25,7 +25,6 @@ TEST_P(search_subset, stellar_search_subset)
                                                "--minLength 50",
                                                "-k 15",
                                                "--verbose",
-                                               "--suppress-runtime-printing",
                                                segments);
 
     EXPECT_EQ(result.exit_code, 0);
@@ -74,7 +73,6 @@ TEST_P(search_segment, stellar_search_segment)
                                                 "--minLength 50",
                                                 "-k 15",
                                                 "--verbose",
-                                                "--suppress-runtime-printing",
                                                 "> segment_out.stdout");
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.err, std::string{"\n\n"});

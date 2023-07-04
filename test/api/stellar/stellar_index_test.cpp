@@ -6,13 +6,13 @@ struct StringSetOwnerFactory
 {
     template <typename TAlphabet>
     static decltype(auto)
-    dependentQueries(seqan::StringSet<seqan::String<TAlphabet>, seqan::Owner<> > const & sequences)
+    dependentQueries(seqan2::StringSet<seqan2::String<TAlphabet>, seqan2::Owner<> > const & sequences)
     {
         return sequences; // pass as is
     }
 
     template <typename TAlphabet>
-    static decltype(auto) underlyingSequence(seqan::String<TAlphabet> const & sequence)
+    static decltype(auto) underlyingSequence(seqan2::String<TAlphabet> const & sequence)
     {
         return sequence; // pass as is
     }
@@ -21,14 +21,14 @@ struct StringSetOwnerFactory
 struct StringSetDependentFactory
 {
     template <typename TAlphabet>
-    static seqan::StringSet<seqan::String<TAlphabet>, seqan::Dependent<>>
-    dependentQueries(seqan::StringSet<seqan::String<TAlphabet>> const & sequences)
+    static seqan2::StringSet<seqan2::String<TAlphabet>, seqan2::Dependent<>>
+    dependentQueries(seqan2::StringSet<seqan2::String<TAlphabet>> const & sequences)
     {
         return sequences; // convert
     }
 
     template <typename TAlphabet>
-    static decltype(auto) underlyingSequence(seqan::String<TAlphabet> const & sequence)
+    static decltype(auto) underlyingSequence(seqan2::String<TAlphabet> const & sequence)
     {
         return sequence; // pass as is
     }
@@ -37,15 +37,15 @@ struct StringSetDependentFactory
 struct InfixSegmentVectorFactory
 {
     template <typename TAlphabet>
-    using TInfixSequence = seqan::Segment<seqan::String<TAlphabet> const, seqan::InfixSegment>;
+    using TInfixSequence = seqan2::Segment<seqan2::String<TAlphabet> const, seqan2::InfixSegment>;
 
     template <typename TAlphabet>
     static auto
-    dependentQueries(seqan::StringSet<seqan::String<TAlphabet>> const & sequences)
+    dependentQueries(seqan2::StringSet<seqan2::String<TAlphabet>> const & sequences)
     {
         std::vector<TInfixSequence<TAlphabet>> infixSequences{};
         for (auto const & sequence : sequences)
-            infixSequences.emplace_back(sequence, 0u, seqan::length(sequence));
+            infixSequences.emplace_back(sequence, 0u, seqan2::length(sequence));
 
         return infixSequences; // convert
     }
@@ -142,21 +142,21 @@ struct SwiftHitVerifier<TVerifyPassthroughSeed>
 template <typename TAlphabet, typename TypeParam>
 results<TAlphabet> stellar_kernel_swift_seeds(
     StellarIndexTest<TypeParam> const & self,
-    seqan::String<TAlphabet> const & database,
-    seqan::StringSet<seqan::String<TAlphabet>> const & queries,
+    seqan2::String<TAlphabet> const & database,
+    seqan2::StringSet<seqan2::String<TAlphabet>> const & queries,
     stellar::StellarOptions const & options)
 {
-    using TSequence = seqan::String<TAlphabet>;
-    using TInfixSequence = seqan::Segment<TSequence const, seqan::InfixSegment>;
+    using TSequence = seqan2::String<TAlphabet>;
+    using TInfixSequence = seqan2::Segment<TSequence const, seqan2::InfixSegment>;
 
     decltype(auto) dependentQueries = self.factory.dependentQueries(queries);
 
     if constexpr (std::is_same<TypeParam, StringSetOwnerFactory>::value)
     {
-        EXPECT_TRUE((std::is_same<seqan::StringSet<TSequence> const &, decltype(dependentQueries)>::value));
+        EXPECT_TRUE((std::is_same<seqan2::StringSet<TSequence> const &, decltype(dependentQueries)>::value));
     } else if constexpr (std::is_same<TypeParam, StringSetDependentFactory>::value)
     {
-        EXPECT_TRUE((std::is_same<seqan::StringSet<TSequence, seqan::Dependent<>>, decltype(dependentQueries)>::value));
+        EXPECT_TRUE((std::is_same<seqan2::StringSet<TSequence, seqan2::Dependent<>>, decltype(dependentQueries)>::value));
     } else if constexpr (std::is_same<TypeParam, InfixSegmentVectorFactory>::value)
     {
         EXPECT_TRUE((std::is_same<std::vector<TInfixSequence>, decltype(dependentQueries)>::value));
@@ -179,7 +179,7 @@ results<TAlphabet> stellar_kernel_swift_seeds(
     stellar::StellarSwiftPattern<TAlphabet> swiftPattern = index.createSwiftPattern();
     stellar::StellarSwiftFinder<TAlphabet> swiftFinder
     {
-        seqan::infix(database, 0u, seqan::length(database)),
+        seqan2::infix(database, 0u, seqan2::length(database)),
         options.minRepeatLength,
         options.maxRepeatPeriod
     };
@@ -242,23 +242,23 @@ results<TAlphabet> stellar_kernel_swift_seeds(
 
 TYPED_TEST(StellarIndexTest, validSeedWithExactMatches)
 {
-    using TAlphabet = seqan::Dna5;
-    using TSequence = seqan::String<TAlphabet>;
+    using TAlphabet = seqan2::Dna5;
+    using TSequence = seqan2::String<TAlphabet>;
     TSequence database{"CAACGGACTGCTGTCTAGAC" "TAACCGCAGAACACG" "ACTCCTCTACCTTACCGCGT"};
 
-    seqan::StringSet<TSequence> queries{};
+    seqan2::StringSet<TSequence> queries{};
     // original
-    seqan::appendValue(queries, "CTCGAGGGTTTACGCATATCTGG" "TAACCG" "C"/**/ "AGAACACG" "A" "AGAGCCTGAGA");
+    seqan2::appendValue(queries, "CTCGAGGGTTTACGCATATCTGG" "TAACCG" "C"/**/ "AGAACACG" "A" "AGAGCCTGAGA");
     // 1 error, insert in query sequence
-    seqan::appendValue(queries, "CTCGAGGGTTTACGCATATCTGG" "TAACCG" "C" "A" "AGAACACG" "A" "AGAGCCTGAGA");
+    seqan2::appendValue(queries, "CTCGAGGGTTTACGCATATCTGG" "TAACCG" "C" "A" "AGAACACG" "A" "AGAGCCTGAGA");
     // 1 error, delete in query sequence
-    seqan::appendValue(queries, "CTCGAGGGTTTACGCATATCTGG" "TAACCG"/*C   */ "AGAACACG" "A" "AGAGCCTGAGA");
+    seqan2::appendValue(queries, "CTCGAGGGTTTACGCATATCTGG" "TAACCG"/*C   */ "AGAACACG" "A" "AGAGCCTGAGA");
     // 1 error, substitution in query sequence
-    seqan::appendValue(queries, "CTCGAGGGTTTACGCATATCTGG" "TAACCG" "G"/**/ "AGAACACG" "A" "AGAGCCTGAGA");
+    seqan2::appendValue(queries, "CTCGAGGGTTTACGCATATCTGG" "TAACCG" "G"/**/ "AGAACACG" "A" "AGAGCCTGAGA");
     // another sequence
-    seqan::appendValue(queries, "CCGACTACCCACTTACTTATTAGCCG" "TAACCGCAGAACACG" "GACCAATCAGGCCC");
+    seqan2::appendValue(queries, "CCGACTACCCACTTACTTATTAGCCG" "TAACCGCAGAACACG" "GACCAATCAGGCCC");
     // another smaller sequence
-    seqan::appendValue(queries, "TAGCCAGTTTA" "GCAGAACAC" "CAAGA");
+    seqan2::appendValue(queries, "TAGCCAGTTTA" "GCAGAACAC" "CAAGA");
 
     size_t const kmerSize = 7u;
     stellar::StellarOptions options{};
@@ -317,23 +317,23 @@ TYPED_TEST(StellarIndexTest, validSeedWithExactMatches)
 
 TYPED_TEST(StellarIndexTest, validSeedWithOneErrorMatches)
 {
-    using TAlphabet = seqan::Dna5;
-    using TSequence = seqan::String<TAlphabet>;
+    using TAlphabet = seqan2::Dna5;
+    using TSequence = seqan2::String<TAlphabet>;
     TSequence database{"CAACGGACTGCTGTCTAGAC" "TAACCGCAGAACACG" "ACTCCTCTACCTTACCGCGT"};
 
-    seqan::StringSet<TSequence> queries{};
+    seqan2::StringSet<TSequence> queries{};
     // original
-    seqan::appendValue(queries, "CTCGAGGGTTTACGCATATCTGG" "TAACCG" "C"/**/ "AGAACACG" "A" "AGAGCCTGAGA");
+    seqan2::appendValue(queries, "CTCGAGGGTTTACGCATATCTGG" "TAACCG" "C"/**/ "AGAACACG" "A" "AGAGCCTGAGA");
     // 1 error, insert in query sequence
-    seqan::appendValue(queries, "CTCGAGGGTTTACGCATATCTGG" "TAACCG" "C" "A" "AGAACACG" "A" "AGAGCCTGAGA");
+    seqan2::appendValue(queries, "CTCGAGGGTTTACGCATATCTGG" "TAACCG" "C" "A" "AGAACACG" "A" "AGAGCCTGAGA");
     // 1 error, delete in query sequence
-    seqan::appendValue(queries, "CTCGAGGGTTTACGCATATCTGG" "TAACCG"/*C   */ "AGAACACG" "A" "AGAGCCTGAGA");
+    seqan2::appendValue(queries, "CTCGAGGGTTTACGCATATCTGG" "TAACCG"/*C   */ "AGAACACG" "A" "AGAGCCTGAGA");
     // 1 error, substitution in query sequence
-    seqan::appendValue(queries, "CTCGAGGGTTTACGCATATCTGG" "TAACCG" "G"/**/ "AGAACACG" "A" "AGAGCCTGAGA");
+    seqan2::appendValue(queries, "CTCGAGGGTTTACGCATATCTGG" "TAACCG" "G"/**/ "AGAACACG" "A" "AGAGCCTGAGA");
     // another sequence
-    seqan::appendValue(queries, "CCGACTACCCACTTACTTATTAGCCG" "TAACCGCAGAACACG" "GACCAATCAGGCCC");
+    seqan2::appendValue(queries, "CCGACTACCCACTTACTTATTAGCCG" "TAACCGCAGAACACG" "GACCAATCAGGCCC");
     // another smaller sequence
-    seqan::appendValue(queries, "TAGCCAGTTTA" "GCAGAACAC" "CAAGA");
+    seqan2::appendValue(queries, "TAGCCAGTTTA" "GCAGAACAC" "CAAGA");
 
     size_t const kmerSize = 7u;
     stellar::StellarOptions options{};

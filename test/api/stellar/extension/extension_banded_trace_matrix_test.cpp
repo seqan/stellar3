@@ -171,7 +171,7 @@ TEST(extension_banded_trace_matrix, rowSpan)
 
     {
         stellar::extension_banded_trace_matrix matrix{/*rows*/ 5u, /*columns*/ 5u, -2, +2};
-        std::iota(matrix.data().begin(), matrix.data().end(), seqan::TraceBack{});
+        std::iota(matrix.data().begin(), matrix.data().end(), seqan2::TraceBack{});
 
         //      ||e|A|B|C|D||
         // e|0|1||2|3|4|x|x||
@@ -188,7 +188,7 @@ TEST(extension_banded_trace_matrix, rowSpan)
 
     {
         stellar::extension_banded_trace_matrix matrix{/*rows*/ 8u, /*columns*/ 5u, -2, -1};
-        std::iota(matrix.data().begin(), matrix.data().end(), seqan::TraceBack{});
+        std::iota(matrix.data().begin(), matrix.data().end(), seqan2::TraceBack{});
 
         //    ||e|A|B|C|D||
         // e  ||x|x|x|x|x||
@@ -213,7 +213,7 @@ TEST(extension_banded_trace_matrix, rowSpan)
 
     {
         stellar::extension_banded_trace_matrix matrix{/*rows*/ 5u, /*columns*/ 5u, +1, +2};
-        std::iota(matrix.data().begin(), matrix.data().end(), seqan::TraceBack{});
+        std::iota(matrix.data().begin(), matrix.data().end(), seqan2::TraceBack{});
 
         //  |e|A|B|C|D||
         // e|x|0|1|x|x||

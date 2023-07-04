@@ -6,7 +6,7 @@
 
 TEST(alignment, empty)
 {
-    using TAlphabet = seqan::Dna5;
+    using TAlphabet = seqan2::Dna5;
     stellar::test::alignment_fragment<TAlphabet> fragment{"[]", "[]"};
 
     EXPECT_EQ(fragment.sequence1, "");
@@ -21,7 +21,7 @@ TEST(alignment, empty)
 
 TEST(alignment, empty2)
 {
-    using TAlphabet = seqan::Dna5;
+    using TAlphabet = seqan2::Dna5;
     stellar::test::alignment_fragment<TAlphabet> fragment
     {
         "ACGTAC[]GT",
@@ -40,7 +40,7 @@ TEST(alignment, empty2)
 
 TEST(alignment, singleChar)
 {
-    using TAlphabet = seqan::Dna5;
+    using TAlphabet = seqan2::Dna5;
     stellar::test::alignment_fragment<TAlphabet> fragment
     {
         "ACGT[A]CGT",
@@ -59,7 +59,7 @@ TEST(alignment, singleChar)
 
 TEST(alignment, ungappedSequence)
 {
-    using TAlphabet = seqan::Dna5;
+    using TAlphabet = seqan2::Dna5;
     stellar::test::alignment_fragment<TAlphabet> fragment
     {
         "ACGT[ACG]T",
@@ -78,7 +78,7 @@ TEST(alignment, ungappedSequence)
 
 TEST(alignment, gappedSequence)
 {
-    using TAlphabet = seqan::Dna5;
+    using TAlphabet = seqan2::Dna5;
     stellar::test::alignment_fragment<TAlphabet> fragment
     {
         "ACGT[-ACGT]",
@@ -95,7 +95,7 @@ TEST(alignment, gappedSequence)
     EXPECT_EQ(row(fragment.alignment, 1), "CATG-");
 }
 
-static stellar::test::alignment_fragment<seqan::Dna5> const globalFragment
+static stellar::test::alignment_fragment<seqan2::Dna5> const globalFragment
 {
       "[AAAAACCCCC]GGGGGTTTTT",
     "AA[--AAACCC--]CCGGGGGTTTTT",
@@ -117,7 +117,7 @@ TEST(alignment, gappedSequenceWithGlobalFragment)
 
 TEST(alignment, gappedSequenceWithWhitespace)
 {
-    using TAlphabet = seqan::Dna5;
+    using TAlphabet = seqan2::Dna5;
     stellar::test::alignment_fragment<TAlphabet> fragment
     {
         "    [ AAAAA CCCCC ]  GGGGG  TTTTT  ",
@@ -136,7 +136,7 @@ TEST(alignment, gappedSequenceWithWhitespace)
 
 TEST(alignment, gappedSequenceWithMultipleSequenceLines)
 {
-    using TAlphabet = seqan::Dna5;
+    using TAlphabet = seqan2::Dna5;
     stellar::test::alignment_fragment<TAlphabet> const & fragment
         = stellar::test::fixture::a512_simSeq_0dot05::forward::fragment0;
 

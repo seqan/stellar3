@@ -194,11 +194,10 @@ void init_parser(sharg::parser & parser, StellarOptions & options)
                                 .long_id = "disabledQueriesFile",
                                 .description = "Name of output file for disabled query sequences.",
                                 .validator = sharg::output_file_validator{sharg::output_file_open_options::open_or_create, {"fa", "fasta"}}});
-    parser.add_flag(options.noRT,
+    parser.add_flag(options.write_time,
                 sharg::config{.short_id = '\0',
-                                .long_id = "suppress-runtime-printing",
-                                .description = "Suppress printing running time.",
-                                .advanced = true});
+                                .long_id = "time",
+                                .description = "Write running time."});
 }
 
 void run_stellar(sharg::parser & parser)
@@ -244,17 +243,17 @@ void run_stellar(sharg::parser & parser)
         throw sharg::parser_error{"Invalid parameter values: Please choose numMatches <= sortThresh.\n"};
 
     if (options.alphabet == "dna")
-        stellar::app::mainWithOptions(options, seqan::String<seqan::Dna>());
+        stellar::app::mainWithOptions(options, seqan2::String<seqan2::Dna>());
     else if (options.alphabet == "dna5")
-        stellar::app::mainWithOptions(options, seqan::String<seqan::Dna5>());
+        stellar::app::mainWithOptions(options, seqan2::String<seqan2::Dna5>());
     else if (options.alphabet == "rna")
-        stellar::app::mainWithOptions(options, seqan::String<seqan::Rna>());
+        stellar::app::mainWithOptions(options, seqan2::String<seqan2::Rna>());
     else if (options.alphabet == "rna5")
-        stellar::app::mainWithOptions(options, seqan::String<seqan::Rna5>());
+        stellar::app::mainWithOptions(options, seqan2::String<seqan2::Rna5>());
     else if (options.alphabet == "protein")
-        stellar::app::mainWithOptions(options, seqan::String<seqan::AminoAcid>());
+        stellar::app::mainWithOptions(options, seqan2::String<seqan2::AminoAcid>());
     else if (options.alphabet == "char")
-        stellar::app::mainWithOptions(options, seqan::String<char>());
+        stellar::app::mainWithOptions(options, seqan2::String<char>());
 }
 
 } // namespace stellar::app

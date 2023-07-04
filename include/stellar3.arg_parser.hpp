@@ -5,7 +5,7 @@
 #include <stellar/app/stellar.main.tpp>
 #include <stellar/options/verifier_options.hpp>
 
-#include <shared.hpp>
+#include <stellar3.shared.hpp>
 
 namespace stellar::app
 {

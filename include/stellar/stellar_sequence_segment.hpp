@@ -9,8 +9,8 @@ namespace stellar
 template <typename TAlphabet>
 struct StellarSequenceSegment
 {
-    using TString = seqan::String<TAlphabet>;
-    using TInfixSegment = seqan::Segment<TString const, seqan::InfixSegment>;
+    using TString = seqan2::String<TAlphabet>;
+    using TInfixSegment = seqan2::Segment<TString const, seqan2::InfixSegment>;
 
     StellarSequenceSegment() = default;
 
@@ -22,19 +22,19 @@ struct StellarSequenceSegment
         : _sequenceSegment{sequence, beginPosition, endPosition}
     {}
 
-    seqan::String<TAlphabet> const & underlyingSequence() const &
+    seqan2::String<TAlphabet> const & underlyingSequence() const &
     {
         return host(_sequenceSegment);
     }
 
     size_t beginPosition() const
     {
-        return seqan::beginPosition(_sequenceSegment);
+        return seqan2::beginPosition(_sequenceSegment);
     }
 
     size_t endPosition() const
     {
-        return seqan::endPosition(_sequenceSegment);
+        return seqan2::endPosition(_sequenceSegment);
     }
 
     std::pair<size_t, size_t> interval() const

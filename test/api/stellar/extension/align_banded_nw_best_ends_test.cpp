@@ -34,10 +34,10 @@ void expect_same_matrix(TTraceBackMatrix & traceBackMatrix1, TTraceBackMatrix & 
 
 TEST(align_banded_nw_best_ends, identicalAlignment)
 {
-    seqan::String<seqan::Dna> sequence1 = "TGTC";
-    seqan::String<seqan::Dna> sequence2 = "GCCT";
+    seqan2::String<seqan2::Dna> sequence1 = "TGTC";
+    seqan2::String<seqan2::Dna> sequence2 = "GCCT";
 
-    seqan::StringSet<seqan::String<seqan::Dna>> sequences;
+    seqan2::StringSet<seqan2::String<seqan2::Dna>> sequences;
     appendValue(sequences, sequence1);
     appendValue(sequences, sequence2);
 
@@ -47,9 +47,9 @@ TEST(align_banded_nw_best_ends, identicalAlignment)
     size_t const columnCount = length(sequence1) + 1;
     TTraceBackMatrix traceBackMatrix1(rowCount, columnCount, diagL, diagU);
     TTraceBackMatrix traceBackMatrix2(rowCount, columnCount, diagL, diagU);
-    seqan::String<TEndInfo> possibleEnds1, possibleEnds2;
+    seqan2::String<TEndInfo> possibleEnds1, possibleEnds2;
 
-    seqan::Score<TScore> scoringScheme1(1, -1, -1);
+    seqan2::Score<TScore> scoringScheme1(1, -1, -1);
     _align_banded_nw_best_ends (
         traceBackMatrix1.underlyingTraceMatrix(),
         possibleEnds1,
@@ -59,7 +59,7 @@ TEST(align_banded_nw_best_ends, identicalAlignment)
         diagU
     );
 
-    seqan::Score<TScore> scoringScheme2(1, -1, -1);
+    seqan2::Score<TScore> scoringScheme2(1, -1, -1);
     _align_banded_nw_best_ends (
         traceBackMatrix2.underlyingTraceMatrix(),
         possibleEnds2,
@@ -74,18 +74,18 @@ TEST(align_banded_nw_best_ends, identicalAlignment)
 
 TEST(align_banded_nw_best_ends, sameTraceMatrixButDifferentParameters)
 {
-    seqan::String<seqan::Dna> sequence1 =
+    seqan2::String<seqan2::Dna> sequence1 =
         "TGTCAGCGGATGGGATGGTTCGTAATGGTAGTGGATTGCCCTTTGGAGTTAAATTACTTCTGCTCTGACACAATAGATCGGTTTAATGACCATTCTCCGCTCACGCTAGA"
         "GTGAGCCAGAGTGTGTTTGGTGCAGTTCATACGGTCCATTGCGTGAACTGTGCGGGCTAGTAGAGGTTTAACACGGACATGGCCTTGATGGGCGCACTTAAACAGTCCGA"
         "GTAATTGGTTGGATTAGCCAGAAATAGCATCAACTAGAGGCCCTATGTGGTGACTGACCTCGCTGACTTACATCTTGGCGTTGTCTGTCATAAAGCTCGCGTTCGCCAGC"
         "TGTCTCTAAGCGTATAATCGCACACCGCTTAAGGGGGTAGAACTCAGTCACTGTTTTTTTAGTGC";
-    seqan::String<seqan::Dna> sequence2 =
+    seqan2::String<seqan2::Dna> sequence2 =
         "ATCTTAATTCATGTGCACGCTACTTACAGGCTAGTGGCACGGCTGGCTGGCCTGTGAGATCTGTCGACAGACTGACTGTAGGGTGTATCGGCGTTGTTTGAACGGTTGCG"
         "AACGGGTCGCCGTGCCAAAGCATTACGGTTGTTCGTGGGGGATTATCGCGCTGGGTCCCGATATCGTTCTGGAGCGAGCTAAAAATATTACTTGGGACAAAGGTCTGAAG"
         "ATAGTAAATATGAGAAGTTCATCTATTAAGGCTCACACTACTGGTAAGTGGGGTGGGTCATGCGATAATCCGAGGTGTCATCATCGAGATGAAATATATAACCGCAAAGG"
         "GCCTCCCGATTTCCCAATAATCTGCCTTAGAGC";
 
-    seqan::StringSet<seqan::String<seqan::Dna>> sequences;
+    seqan2::StringSet<seqan2::String<seqan2::Dna>> sequences;
     appendValue(sequences, sequence1);
     appendValue(sequences, sequence2);
 
@@ -101,9 +101,9 @@ TEST(align_banded_nw_best_ends, sameTraceMatrixButDifferentParameters)
 
     TTraceBackMatrix traceBackMatrix1(rowCount, columnCount, diagL, diagU);
     TTraceBackMatrix traceBackMatrix2(rowCount, columnCount, diagL, diagU);
-    seqan::String<TEndInfo> possibleEnds1, possibleEnds2;
+    seqan2::String<TEndInfo> possibleEnds1, possibleEnds2;
 
-    seqan::Score<TScore> scoringScheme1(1, -99998, -99998);
+    seqan2::Score<TScore> scoringScheme1(1, -99998, -99998);
     _align_banded_nw_best_ends (
         traceBackMatrix1.underlyingTraceMatrix(),
         possibleEnds1,
@@ -113,7 +113,7 @@ TEST(align_banded_nw_best_ends, sameTraceMatrixButDifferentParameters)
         diagU
     );
 
-    seqan::Score<TScore> scoringScheme2(1, -11, -11);
+    seqan2::Score<TScore> scoringScheme2(1, -11, -11);
     _align_banded_nw_best_ends (
         traceBackMatrix2.underlyingTraceMatrix(),
         possibleEnds2,

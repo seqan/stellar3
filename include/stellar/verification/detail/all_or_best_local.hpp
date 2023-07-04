@@ -192,7 +192,7 @@ allOrBestLocal(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> con
                std::integral_constant<bool, bestLocalMethod>) {
     using TInfix = Segment<TSequence const, InfixSegment>;
     typedef Segment<TInfix, InfixSegment> TSegment;
-    typedef typename StellarMatch<TSequence const, seqan::CharString>::TAlign TAlign;
+    typedef typename StellarMatch<TSequence const, seqan2::CharString>::TAlign TAlign;
 
     TSize maxLength = 1000000000;
     if ((TSize)length(infH) > maxLength) {

@@ -37,9 +37,9 @@ call_stellar()
   query_file=512_simSeq2_$2.fa
   echo -e $ref_file "\t" $query_file
   ${STELLAR} -e $1 -l 50 -x 10 -k 7 -n 5000 -s 10000 $strand -v -a $alphabet -o $dir/$2.gff \
-              $ref_file $query_file --suppress-runtime-printing > $dir/$2.gff.stdout
+              $ref_file $query_file > $dir/$2.gff.stdout
   ${STELLAR} -e $1 -l 50 -x 10 -k 7 -n 5000 -s 10000 $strand -v -a $alphabet -o $dir/$2.txt \
-              $ref_file $query_file --suppress-runtime-printing > $dir/$2.txt.stdout
+              $ref_file $query_file > $dir/$2.txt.stdout
 }
 
 eps="e-1"
@@ -69,9 +69,9 @@ call_stellar $errRate $eps
 call_stellar_minlen()
 {
     ${STELLAR} -e 0.05 -l $1 -x 10 -k 7 -n 5000 -s 10000 $strand -v -a $alphabet -o $dir/minLen$1.gff \
-                512_simSeq1_5e-2.fa 512_simSeq2_5e-2.fa --suppress-runtime-printing > $dir/minLen$1.gff.stdout
+                512_simSeq1_5e-2.fa 512_simSeq2_5e-2.fa > $dir/minLen$1.gff.stdout
     ${STELLAR} -e 0.05 -l $1 -x 10 -k 7 -n 5000 -s 10000 $strand -v -a $alphabet -o $dir/minLen$1.txt \
-                512_simSeq1_5e-2.fa 512_simSeq2_5e-2.fa --suppress-runtime-printing > $dir/minLen$1.txt.stdout
+                512_simSeq1_5e-2.fa 512_simSeq2_5e-2.fa > $dir/minLen$1.txt.stdout
 }
 
 minLen="20"

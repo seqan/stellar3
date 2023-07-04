@@ -31,25 +31,24 @@
 
 #include <seqan3/core/debug_stream.hpp>
 
-#include <stellar/stellar.hpp>
-#include <stellar/stellar_index.hpp>
-#include <stellar/stellar_output.hpp>
-#include <stellar/stellar_database_segment.hpp>
 #include <stellar/database_id_map.hpp>
-#include <stellar/query_id_map.hpp>
+#include <stellar/io/import_sequence.hpp>
+#include <stellar/stellar.hpp>
+#include <stellar/stellar_database_segment.hpp>
+#include <stellar/stellar_index.hpp>
+#include <stellar/stellar_launcher.hpp>
+#include <stellar/stellar_output.hpp>
 #include <stellar/utils/stellar_app_runtime.hpp>
 
-#include <stellar/app/stellar.diagnostics.hpp>
-
-#include <stellar/app/stellar.diagnostics.tpp>
+#include <stellar/diagnostics/print.tpp>
 
 namespace stellar
 {
-using namespace seqan;
+using namespace seqan2;
 } // namespace stellar
 
 //////////////////////////////////////////////////////////////////////////////
-namespace seqan {
+namespace seqan2 {
 
 template <>
 struct FunctorComplement<AminoAcid>:
@@ -62,140 +61,13 @@ struct FunctorComplement<AminoAcid>:
 
 };
 
-} // namespace seqan
+} // namespace seqan2
 
 namespace stellar
 {
 
 namespace app
 {
-
-template <typename TAlphabet, typename TId>
-bool _shouldWriteOutputFile(bool const databaseStrand, StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > const & matches)
-{
-    // if databaseStrand == true always outputs
-    // if databaseStrand == false only outputs if TAlphabet == Dna5 or TAlphabet == Rna5
-    return databaseStrand || IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE;
-}
-
-template <typename TAlphabet, typename TId>
-void _postproccessQueryMatches(bool const databaseStrand, uint64_t const & refLen,
-                               StellarOptions const & options,
-                               StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > & matches,
-                               std::vector<size_t> & disabledQueryIDs)
-{
-    using TSequence = String<TAlphabet>;
-
-    for (size_t queryID = 0; queryID < length(matches); ++queryID)
-    {
-        QueryMatches<StellarMatch<TSequence const, TId>> & queryMatches = value(matches, queryID);
-
-        queryMatches.removeOverlapsAndCompactMatches(options.disableThresh,
-                                                     /*compactThresh*/ 0,
-                                                     options.minLength,
-                                                     options.numMatches);
-
-        if (queryMatches.disabled)
-            disabledQueryIDs.push_back(queryID);
-    }
-
-    // adjust length for each matches of a single query (only for dna5 and rna5)
-    // TODO: WHY? This seems like an arbitrary restriction
-    if (_shouldWriteOutputFile(databaseStrand, matches))
-        _postproccessLengthAdjustment(refLen, matches);
-}
-
-template <typename TAlphabet, typename TId = CharString>
-struct StellarApp
-{
-    template <typename visitor_fn_t>
-    static constexpr StellarComputeStatistics _verificationMethodVisit(
-        StellarVerificationMethod verificationMethod,
-        visitor_fn_t && visitor_fn
-    )
-    {
-        if (verificationMethod == StellarVerificationMethod{AllLocal{}})
-            return visitor_fn(AllLocal());
-        else if (verificationMethod == StellarVerificationMethod{BestLocal{}})
-            return visitor_fn(BestLocal());
-        else if (verificationMethod == StellarVerificationMethod{BandedGlobal{}})
-            return visitor_fn(BandedGlobal());
-        else if (verificationMethod == StellarVerificationMethod{BandedGlobalExtend{}})
-            return visitor_fn(BandedGlobalExtend());
-        return StellarComputeStatistics{};
-    }
-
-    static StellarComputeStatistics
-    search_and_verify(
-        StellarDatabaseSegment<TAlphabet> const databaseSegment,
-        TId const & databaseID,
-        QueryIDMap<TAlphabet> const & queryIDMap,
-        bool const databaseStrand,
-        StellarOptions & localOptions, // localOptions.compactThresh is out-param
-        StellarSwiftPattern<TAlphabet> & localSwiftPattern,
-        stellar::stellar_kernel_runtime & strand_runtime,
-        StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > & localMatches
-    )
-    {
-        using TSequence = String<TAlphabet>;
-
-        auto getQueryMatches = [&](auto const & pattern) -> QueryMatches<StellarMatch<TSequence const, TId> > &
-        {
-            // Note: Index is normally build over all queries [query0, query1, query2, ...],
-            // but in LocalQueryPrefilter case it can just be build over [query0].
-            // We need to translate that position to a "record" ID
-            //!TODO: this shouldn't be necessary
-            // each Stellar instance should be given a set of bin query, all of which should be indexed
-            size_t const queryRecordID = queryIDMap.recordID(pattern);
-            return value(localMatches, queryRecordID);
-        };
-
-        auto isPatternDisabled = [&](StellarSwiftPattern<TAlphabet> & pattern) -> bool {
-            QueryMatches<StellarMatch<TSequence const, TId> > & queryMatches = getQueryMatches(pattern);
-            return queryMatches.disabled;
-        };
-
-        auto onAlignmentResult = [&](auto & alignment) -> bool {
-            QueryMatches<StellarMatch<TSequence const, TId> > & queryMatches = getQueryMatches(localSwiftPattern);
-
-            StellarMatch<TSequence const, TId> match(alignment, databaseID, databaseStrand);
-            length(match);  // DEBUG: Contains assertion on clipping.
-
-            // success
-            return _insertMatch(
-                queryMatches,
-                match,
-                localOptions.minLength,
-                localOptions.disableThresh,
-                // compactThresh is basically an output-parameter; will be updated in kernel and propagated back
-                // outside of this function, the reason why StellarOptions can't be passed as const to this function.
-                // TODO: We might want to make this tied to the QueryMatches itself, as it should know then to consolidate
-                // the matches
-                localOptions.compactThresh,
-                localOptions.numMatches
-            );
-        };
-
-        // finder
-        StellarSwiftFinder<TAlphabet> swiftFinder(databaseSegment.asInfixSegment(), localOptions.minRepeatLength, localOptions.maxRepeatPeriod);
-
-        StellarComputeStatistics statistics = _verificationMethodVisit(
-            localOptions.verificationMethod,
-            [&](auto tag) -> StellarComputeStatistics
-            {
-                using TTag = decltype(tag);
-                SwiftHitVerifier<TTag> swiftVerifier
-                {
-                    STELLAR_DESIGNATED_INITIALIZER(.eps_match_options = , localOptions),
-                    STELLAR_DESIGNATED_INITIALIZER(.verifier_options = , localOptions),
-                };
-
-                return _stellarKernel(swiftFinder, localSwiftPattern, swiftVerifier, isPatternDisabled, onAlignmentResult, strand_runtime);
-            });
-
-        return statistics;
-    }
-};
 
 ///////////////////////////////////////////////////////////////////////////////
 // Creates database segments and calls search_and_verify on each of them
@@ -259,7 +131,7 @@ _stellarMain(
                 size_t const databaseRecordID = databaseIDMap.recordID(databaseSegment);
                 TId const & databaseID = databaseIDMap.databaseID(databaseRecordID);
 
-                StellarComputeStatistics statistics = StellarApp<TAlphabet>::search_and_verify
+                StellarComputeStatistics statistics = StellarLauncher<TAlphabet>::search_and_verify
                 (
                     databaseSegment,
                     databaseID,
@@ -274,7 +146,7 @@ _stellarMain(
                 computeStatistics.addStatistics(statistics);
             }
 
-            _printStellarStatistics(options.verbose, databaseStrand, databaseIDs, computeStatistics);
+            _printStellarStatistics(options.verbose, databaseStrand, databaseIDs, computeStatistics, std::cout);
 
             stellar_runtime.forward_strand_stellar_time.post_process_eps_matches_time.measure_time([&]()
             {
@@ -325,7 +197,7 @@ _stellarMain(
                 size_t const databaseRecordID = databaseIDMap.recordID(databaseSegment);
                 TId const & databaseID = databaseIDMap.databaseID(databaseRecordID);
 
-                StellarComputeStatistics statistics = StellarApp<TAlphabet>::search_and_verify
+                StellarComputeStatistics statistics = StellarLauncher<TAlphabet>::search_and_verify
                 (
                     databaseSegment,
                     databaseID,
@@ -340,7 +212,7 @@ _stellarMain(
                 computeStatistics.addStatistics(statistics);
             }
 
-            _printStellarStatistics(options.verbose, databaseStrand, databaseIDs, computeStatistics);
+            _printStellarStatistics(options.verbose, databaseStrand, databaseIDs, computeStatistics, std::cout);
 
             stellar_runtime.reverse_strand_stellar_time.post_process_eps_matches_time.measure_time([&]()
             {
@@ -371,162 +243,10 @@ _stellarMain(
         }); // measure_time
     }
 
-    _writeOutputStatistics(outputStatistics, options.verbose, disabledQueriesFile.is_open());
+    _writeOutputStatistics(outputStatistics, options.verbose, disabledQueriesFile.is_open(), std::cout);
 
     return true;
 }
-
-template <typename TId>
-inline bool
-_checkUniqueId(std::set<TId> & uniqueIds, TId const & id)
-{
-    TId shortId;
-    typedef typename Iterator<TId const>::Type TIterator;
-
-    TIterator it = begin(id);
-    TIterator itEnd = end(id);
-
-    // (cut at first whitespace)
-    while (it != itEnd && *it > ' ')
-    {
-        appendValue(shortId, *it);
-        ++it;
-    }
-
-    if (uniqueIds.count(shortId) == 0)
-    {
-        uniqueIds.insert(shortId);
-        return 1;
-    }
-
-    return 0;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Imports sequences from a file,
-// stores them in the StringSet seqs and their identifiers in the StringSet ids
-template <typename TSequence, typename TId, typename TLen>
-inline bool
-_importAllSequences(char const * fileName,
-                    CharString const & name,
-                    StringSet<TSequence> & seqs,
-                    StringSet<TId> & ids,
-                    TLen & seqLen)
-{
-    SeqFileIn inSeqs;
-    if (!open(inSeqs, fileName))
-    {
-        std::cerr << "Failed to open " << name << " file." << std::endl;
-        return false;
-    }
-
-    std::set<TId> uniqueIds; // set of short IDs (cut at first whitespace)
-    bool idsUnique = true;
-
-    TSequence seq;
-    TId id;
-    size_t seqCount{0};
-    for (; !atEnd(inSeqs); ++seqCount)
-    {
-        readRecord(id, seq, inSeqs);
-
-        if (name == "database")
-            seqLen += length(seq);
-
-        idsUnique &= _checkUniqueId(uniqueIds, id);
-
-        appendValue(seqs, seq, Generous());
-        appendValue(ids, id, Generous());
-    }
-
-    std::cout << "Loaded " << seqCount << " " << name << " sequence" << ((seqCount > 1) ? "s." : ".") << std::endl;
-    if (!idsUnique)
-        std::cerr << "WARNING: Non-unique " << name << " ids. Output can be ambiguous.\n";
-    return true;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Imports the sequence of interest from a file,
-// stores it in the StringSet seqs and their identifiers in the StringSet ids
-template <typename TSequence, typename TId, typename TLen>
-inline bool
-_importSequencesOfInterest(char const * fileName,
-                          std::vector<size_t> const & binSequences,
-                          StringSet<TSequence> & seqs,
-                          StringSet<TId> & ids,
-                          TLen & seqLen)
-{
-    SeqFileIn inSeqs;
-    if (!open(inSeqs, fileName))
-    {
-        std::cerr << "Failed to open database file.\n";
-        return false;
-    }
-
-    TSequence seq;
-    TId id;
-    size_t seqCount{0};
-    size_t foundSeqOfInterest{0};
-    for (; !atEnd(inSeqs); ++seqCount)
-    {
-        readRecord(id, seq, inSeqs);
-        seqLen += length(seq);
-
-        if (std::find(binSequences.begin(), binSequences.end(), seqCount) != binSequences.end())
-        {
-            appendValue(seqs, seq, Generous());
-            appendValue(ids, id, Generous());
-            foundSeqOfInterest++;
-            std::cout << "Loaded sequence " << id << ".\n";
-        }
-    }
-
-    if (foundSeqOfInterest == binSequences.size())
-        return true;
-
-    std::cerr << "ERROR: Found " + std::to_string(foundSeqOfInterest) + " out of " + std::to_string(binSequences.size()) + " reference sequences.\n";
-    return false;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Imports the sequence of interest from a file,
-// stores it in the StringSet seqs and their identifiers in the StringSet ids
-template <typename TSequence, typename TId>
-inline bool
-_importSequencesOfInterest(const char * fileName,
-                          std::vector<size_t> const & binSequences,
-                          StringSet<TSequence> & seqs,
-                          StringSet<TId> & ids)
-{
-    SeqFileIn inSeqs;
-    if (!open(inSeqs, fileName))
-    {
-        std::cerr << "Failed to open database file.\n";
-        return false;
-    }
-
-    TSequence seq;
-    TId id;
-    size_t seqCount{0};
-    size_t foundSeqOfInterest{0};
-    for (; !atEnd(inSeqs); ++seqCount)
-    {
-        readRecord(id, seq, inSeqs);
-        if (std::find(binSequences.begin(), binSequences.end(), seqCount) != binSequences.end())
-        {
-            appendValue(seqs, seq, Generous());
-            appendValue(ids, id, Generous());
-            std::cout << "Loaded sequence " << id << ".\n";
-            foundSeqOfInterest++;
-            if (foundSeqOfInterest == binSequences.size())
-                return true;
-        }
-    }
-
-    std::cerr << "ERROR: Found " + std::to_string(foundSeqOfInterest) + " out of " + std::to_string(binSequences.size()) + " reference sequences.\n";
-    return false;
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // Parses and outputs parameters, calls _stellarMain().
@@ -539,11 +259,11 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
     auto current_time = stellar_time.now();
 
     // output file names
-    stellar::app::_writeFileNames(options);
+    stellar::_writeFileNames(options, std::cout);
 
     // output parameters
-    stellar::app::_writeSpecifiedParams(options);
-    stellar::app::_writeCalculatedParams(options);
+    stellar::_writeSpecifiedParams(options, std::cout);
+    stellar::_writeCalculatedParams(options, std::cout);
 
     // import query sequences
     StringSet<TSequence> queries;
@@ -554,7 +274,7 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
     //!TODO: split query sequence
     bool const queriesSuccess = stellar_time.input_queries_time.measure_time([&]()
     {
-        return _importAllSequences(options.queryFile.c_str(), "query", queries, queryIDs, queryLen);
+        return _importAllSequences(options.queryFile.c_str(), "query", queries, queryIDs, queryLen, std::cout, std::cerr);
     });
     if (!queriesSuccess)
         return 1;
@@ -567,7 +287,7 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
     bool const databasesSuccess = stellar_time.input_databases_time.measure_time([&]()
     {
         if (!options.prefilteredSearch)
-            return _importAllSequences(options.databaseFile.c_str(), "database", databases, databaseIDs, refLen);
+            return _importAllSequences(options.databaseFile.c_str(), "database", databases, databaseIDs, refLen, std::cout, std::cerr);
         else
         {
             if (options.referenceLength > 0)
@@ -585,7 +305,7 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
         return 1;
 
     std::cout << std::endl;
-    stellar::app::_writeMoreCalculatedParams(options, refLen, queries);
+    stellar::_writeMoreCalculatedParams(options, refLen, queries, std::cout);
 
     // open output files
     std::ofstream outputFile(options.outputFile.c_str(), ::std::ios_base::out | ::std::ios_base::app);
@@ -610,55 +330,10 @@ int mainWithOptions(StellarOptions & options, String<TAlphabet>)
     if (!_stellarMain(databases, databaseIDs, refLen, queries, queryIDs, options, outputFile, disabledQueriesFile, stellar_time))
         return 1;
 
-    if (options.verbose && options.noRT == false)
+    if (options.write_time)
     {
         stellar_time.manual_timing(current_time);
-
-        auto _print_stellar_strand_time = [](stellar_strand_time const & strand_runtime, std::string strandDirection)
-        {
-            stellar_kernel_runtime const & prefiltered_stellar_time
-                = strand_runtime.prefiltered_stellar_time;
-            stellar_verification_time const & verification_time
-                = strand_runtime.prefiltered_stellar_time.verification_time;
-            stellar_extension_time const & extension_time
-                = verification_time.extension_time;
-            stellar_best_extension_time const & best_extension_time
-                = extension_time.best_extension_time;
-
-            std::cout << "       + Prefiltered Stellar Time (" << strandDirection << "): " << prefiltered_stellar_time.milliseconds() << "ms" << std::endl;
-            std::cout << "          + Swift Filter Time (" << strandDirection << "): " << prefiltered_stellar_time.swift_filter_time.milliseconds() << "ms" << std::endl;
-            std::cout << "          + Seed Verification Time (" << strandDirection << "): " << verification_time.milliseconds() << "ms" << std::endl;
-            std::cout << "             + Find Next Local Alignment Time (" << strandDirection << "): " << verification_time.next_local_alignment_time.milliseconds() << "ms" << std::endl;
-            std::cout << "             + Split At X-Drops Time (" << strandDirection << "): " << verification_time.split_at_x_drops_time.milliseconds() << "ms" << std::endl;
-            std::cout << "             + Extension Time (" << strandDirection << "): " << extension_time.milliseconds() << "ms" << std::endl;
-            std::cout << "                + Extend Seed Time (" << strandDirection << "): " << extension_time.extend_seed_time.milliseconds() << "ms" << std::endl;
-            std::cout << "                + Best Extension Time (" << strandDirection << "): " << best_extension_time.milliseconds() << "ms" << std::endl;
-            std::cout << "                   + Banded Needleman-Wunsch Time (" << strandDirection << "): " << best_extension_time.banded_needleman_wunsch_time.milliseconds() << "ms" << std::endl;
-            std::cout << "                      + Banded Needleman-Wunsch (Left Extension) Time (" << strandDirection << "): " << best_extension_time.banded_needleman_wunsch_left_time.milliseconds() << "ms" << std::endl;
-            std::cout << "                      + Banded Needleman-Wunsch (Right Extension) Time (" << strandDirection << "): " << best_extension_time.banded_needleman_wunsch_right_time.milliseconds() << "ms" << std::endl;
-            std::cout << "                   + Longest EPS Match Time (" << strandDirection << "): " << best_extension_time.longest_eps_match_time.milliseconds() << "ms" << std::endl;
-            std::cout << "                   + Construct Alignment Time (" << strandDirection << "): " << best_extension_time.construct_seed_alignment_time.milliseconds() << "ms" << std::endl;
-            std::cout << "                   = total time: " << best_extension_time.total_time().milliseconds() << "ms" << std::endl;
-            std::cout << "                = total time: " << extension_time.total_time().milliseconds() << "ms" << std::endl;
-            std::cout << "             = total time: " << verification_time.total_time().milliseconds() << "ms" << std::endl;
-            std::cout << "          = total time: " << prefiltered_stellar_time.total_time().milliseconds() << "ms" << std::endl;
-            std::cout << "       + Post-Process Eps-Matches Time (" << strandDirection << "): " << strand_runtime.post_process_eps_matches_time.milliseconds() << "ms" << std::endl;
-            std::cout << "       + File Output Eps-Matches Time (" << strandDirection << "): " << strand_runtime.output_eps_matches_time.milliseconds() << "ms" << std::endl;
-            std::cout << "       = total time: " << strand_runtime.total_time().milliseconds() << "ms" << std::endl;
-        };
-
-        std::cout << "Running time: " << stellar_time.milliseconds() << "ms" << std::endl;
-        std::cout << " * Stellar Application Time: " << stellar_time.milliseconds() << "ms" << std::endl;
-        std::cout << "    + File Input Queries Time: " << stellar_time.input_queries_time.milliseconds() << "ms" << std::endl;
-        std::cout << "    + File Input Databases Time: " << stellar_time.input_databases_time.milliseconds() << "ms" << std::endl;
-        std::cout << "    + SwiftFilter Construction Time: " << stellar_time.swift_index_construction_time.milliseconds() << "ms" << std::endl;
-        std::cout << "    + Stellar Forward Strand Time: " << stellar_time.forward_strand_stellar_time.milliseconds() << "ms" << std::endl;
-        _print_stellar_strand_time(stellar_time.forward_strand_stellar_time, "Forward");
-        std::cout << "    + Database Reverse Complement Time: " << stellar_time.reverse_complement_database_time.milliseconds() << "ms" << std::endl;
-        std::cout << "    + Stellar Reverse Strand Time: " << stellar_time.reverse_strand_stellar_time.milliseconds() << "ms" << std::endl;
-        _print_stellar_strand_time(stellar_time.reverse_strand_stellar_time, "Reverse");
-        std::cout << "    + File Output Disabled Queries Time: " << stellar_time.output_disabled_queries_time.milliseconds() << "ms" << std::endl;
-        std::cout << "    = total time: " << stellar_time.total_time().milliseconds() << "ms" << std::endl;
+        _print_stellar_app_time(stellar_time, std::cout);
     }
 
     return 0;
