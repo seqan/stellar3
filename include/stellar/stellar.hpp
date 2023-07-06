@@ -275,6 +275,7 @@ _stellarKernel(StellarSwiftFinder<TAlphabet> & finder,  // iterate over database
                stellar_kernel_runtime & stellar_kernel_runtime) {
     StellarComputeStatistics statistics{};
 
+    _printSwiftBuckets(pattern);
     while (true) {
 
         size_t before = stellar_kernel_runtime.swift_filter_time.milliseconds();
@@ -283,9 +284,7 @@ _stellarKernel(StellarSwiftFinder<TAlphabet> & finder,  // iterate over database
             return find(finder, pattern, swiftVerifier.eps_match_options.epsilon, swiftVerifier.eps_match_options.minLength);
         });
         size_t after = stellar_kernel_runtime.swift_filter_time.milliseconds();
-        std::cout << after - before << '\t';
-
-        _printSwiftBuckets(pattern);
+        //std::cout << after - before << '\t';
 
         if (!has_next)
             break;

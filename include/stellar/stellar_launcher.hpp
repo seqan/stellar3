@@ -115,6 +115,7 @@ struct StellarLauncher
         // finder
         //seqan3::debug_stream << length(databaseSegment.asInfixSegment()) <<  <<'\n';
         StellarSwiftFinder<TAlphabet> swiftFinder(databaseSegment.asInfixSegment(), localOptions.minRepeatLength, localOptions.maxRepeatPeriod);
+        _printSwiftBuckets(localSwiftPattern);
 
         StellarComputeStatistics statistics = _verificationMethodVisit(
             localOptions.verificationMethod,
@@ -129,6 +130,7 @@ struct StellarLauncher
                 return _stellarKernel(swiftFinder, localSwiftPattern, swiftVerifier, isPatternDisabled, onAlignmentResult, strand_runtime);
             });
 
+        std::cout << statistics.numSwiftHits << '\n';
         return statistics;
     }
 };
