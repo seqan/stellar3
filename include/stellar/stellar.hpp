@@ -277,10 +277,15 @@ _stellarKernel(StellarSwiftFinder<TAlphabet> & finder,  // iterate over database
 
     while (true) {
 
+        size_t before = stellar_kernel_runtime.swift_filter_time.milliseconds();
         bool const has_next = stellar_kernel_runtime.swift_filter_time.measure_time([&]()
         {
             return find(finder, pattern, swiftVerifier.eps_match_options.epsilon, swiftVerifier.eps_match_options.minLength);
         });
+        size_t after = stellar_kernel_runtime.swift_filter_time.milliseconds();
+        std::cout << after - before << '\t';
+
+        _printSwiftBuckets(pattern);
 
         if (!has_next)
             break;
@@ -298,10 +303,10 @@ _stellarKernel(StellarSwiftFinder<TAlphabet> & finder,  // iterate over database
             = StellarQuerySegment<TAlphabet>::fromPatternMatch(pattern);
 
         ////Debug stuff:
-        //std::cout << beginPosition(finderInfix) << ",";
-        //std::cout << endPosition(finderInfix) << "  ";
-        //std::cout << beginPosition(patternSegment) << ",";
-        //std::cout << endPosition(patternSegment) << std::endl;
+        //std::cout << beginPosition(finder) << ",";
+        //std::cout << endPosition(finder) << "  ";
+        //std::cout << beginPosition(pattern) << ",";
+        //std::cout << endPosition(pattern) << std::endl;
 
         // verification
         stellar_kernel_runtime.verification_time.measure_time([&]()

@@ -113,6 +113,7 @@ struct StellarLauncher
         };
 
         // finder
+        //seqan3::debug_stream << length(databaseSegment.asInfixSegment()) <<  <<'\n';
         StellarSwiftFinder<TAlphabet> swiftFinder(databaseSegment.asInfixSegment(), localOptions.minRepeatLength, localOptions.maxRepeatPeriod);
 
         StellarComputeStatistics statistics = _verificationMethodVisit(
