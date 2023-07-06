@@ -130,7 +130,7 @@ struct StellarLauncher
                 return _stellarKernel(swiftFinder, localSwiftPattern, swiftVerifier, isPatternDisabled, onAlignmentResult, strand_runtime);
             });
 
-        std::cout << statistics.numSwiftHits << '\n';
+        std::cout << "Debug:" << '\t' << length(databaseSegment.asInfixSegment()) << '\t' << statistics.numSwiftHits << '\n';
         return statistics;
     }
 };

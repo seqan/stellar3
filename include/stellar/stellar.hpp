@@ -301,10 +301,10 @@ _stellarKernel(StellarSwiftFinder<TAlphabet> & finder,  // iterate over database
             = StellarQuerySegment<TAlphabet>::fromPatternMatch(pattern);
 
         ////Debug stuff:
-        //std::cout << beginPosition(finder) << ",";
-        //std::cout << endPosition(finder) << "  ";
-        //std::cout << beginPosition(pattern) << ",";
-        //std::cout << endPosition(pattern) << std::endl;
+        std::cout << "Detaileddebug:"<< '\t' << beginPosition(finder) << ",";
+        std::cout << endPosition(finder) << "  ";
+        std::cout << beginPosition(pattern) << ",";
+        std::cout << endPosition(pattern) << std::endl;
 
         // verification
         stellar_kernel_runtime.verification_time.measure_time([&]()
