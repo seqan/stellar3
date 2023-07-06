@@ -275,7 +275,6 @@ _stellarKernel(StellarSwiftFinder<TAlphabet> & finder,  // iterate over database
                stellar_kernel_runtime & stellar_kernel_runtime) {
     StellarComputeStatistics statistics{};
 
-    _printSwiftBuckets(pattern);
     while (true) {
 
         size_t before = stellar_kernel_runtime.swift_filter_time.milliseconds();
