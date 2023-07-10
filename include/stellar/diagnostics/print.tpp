@@ -111,16 +111,16 @@ void _writeMoreCalculatedParams(StellarOptions const & options,
         outStr << std::endl;
     }
 
-    if (IsSameType<TAlphabet, Dna4>::VALUE)
-        std::cout << "DNA4"<< '\n';
+    if (IsSameType<TAlphabet, Dna>::VALUE)
+        std::cout << "DNA"<< '\n';
 
     if (IsSameType<TAlphabet, Dna5>::VALUE)
         std::cout << "DNA5"<< '\n';
 
-    if (IsSameType<TAlphabet, Dna4>::VALUE)
+    if (IsSameType<TAlphabet, Rna>::VALUE)
         std::cout << "RNA4"<< '\n';
 
-    if (IsSameType<TAlphabet, Dna5>::VALUE)
+    if (IsSameType<TAlphabet, Rna5>::VALUE)
         std::cout << "RNA5" << '\n';
 
     if (IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE)
