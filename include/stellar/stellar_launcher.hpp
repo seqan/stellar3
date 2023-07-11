@@ -7,14 +7,6 @@ namespace stellar
 {
 
 template <typename TAlphabet, typename TId>
-bool _shouldWriteOutputFile(bool const databaseStrand, StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > const & matches)
-{
-    // if databaseStrand == true always outputs
-    // if databaseStrand == false only outputs if TAlphabet == Dna5 or TAlphabet == Rna5
-    return databaseStrand || IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE;
-}
-
-template <typename TAlphabet, typename TId>
 void _postproccessQueryMatches(bool const databaseStrand, uint64_t const & refLen,
                                StellarOptions const & options,
                                StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > & matches,

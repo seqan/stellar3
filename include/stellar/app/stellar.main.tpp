@@ -155,14 +155,11 @@ _stellarMain(
                 _postproccessQueryMatches(databaseStrand, refLen, options, forwardMatches, disabledQueryIDs);
             }); // measure_time
 
-            if (_shouldWriteOutputFile(databaseStrand, forwardMatches))
+            stellar_runtime.forward_strand_stellar_time.output_eps_matches_time.measure_time([&]()
             {
-                stellar_runtime.forward_strand_stellar_time.output_eps_matches_time.measure_time([&]()
-                {
-                    // output forwardMatches on positive database strand
-                    _writeAllQueryMatchesToFile(forwardMatches, queryIDs, databaseStrand, options.outputFormat, outputFile);
-                }); // measure_time
-            }
+                // output forwardMatches on positive database strand
+                _writeAllQueryMatchesToFile(forwardMatches, queryIDs, databaseStrand, options.outputFormat, outputFile);
+            }); // measure_time
 
             outputStatistics = _computeOutputStatistics(forwardMatches);
         }); // measure_time
@@ -219,14 +216,11 @@ _stellarMain(
                 _postproccessQueryMatches(databaseStrand, refLen, options, reverseMatches, disabledQueryIDs);
             }); // measure_time
 
-            if (_shouldWriteOutputFile(databaseStrand, reverseMatches))
+            stellar_runtime.reverse_strand_stellar_time.output_eps_matches_time.measure_time([&]()
             {
-                stellar_runtime.reverse_strand_stellar_time.output_eps_matches_time.measure_time([&]()
-                {
-                    // output reverseMatches on negative database strand
-                    _writeAllQueryMatchesToFile(reverseMatches, queryIDs, databaseStrand, options.outputFormat, outputFile);
-                }); // measure_time
-            }
+                // output reverseMatches on negative database strand
+                _writeAllQueryMatchesToFile(reverseMatches, queryIDs, databaseStrand, options.outputFormat, outputFile);
+            }); // measure_time
 
             outputStatistics.mergeIn(_computeOutputStatistics(reverseMatches));
         }); // measure_time
