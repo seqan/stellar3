@@ -1,0 +1,1261 @@
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 765740..765717
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 480464..480487
+
+      0     .    :    .    :    
+        CCATTCAACAGGGGGCAGCAGTC
+        |||||||||||||| ||||||||
+        CCATTCAACAGGGGTCAGCAGTC
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 259892..259869
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 242054..242077
+
+      0     .    :    .    :    
+        CTTTAACCCTGGTATATCAGCCT
+        ||||||||||||| |||||||||
+        CTTTAACCCTGGTTTATCAGCCT
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 986825..986803
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 255703..255725
+
+      0     .    :    .    :   
+        CGTACTCGTCCGGGGTTGCTTA
+        |||||||| |||||||||||||
+        CGTACTCGGCCGGGGTTGCTTA
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 795137..795115
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 100167..100188
+
+      0     .    :    .    :   
+        TAAGGTCCGTTGATATCGCGCA
+        ||||||||||||||| ||||||
+        TAAGGTCCGTTGATA-CGCGCA
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 590074..590052
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 245227..245249
+
+      0     .    :    .    :   
+        GCGGCGCGTAGCTCAAGAGCCC
+        |||||||||||||||| |||||
+        GCGGCGCGTAGCTCAAAAGCCC
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 563231..563209
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 355252..355274
+
+      0     .    :    .    :   
+        GGCCCCACACTCTTTCAATGCG
+        ||| ||||||||||||||||||
+        GGCACCACACTCTTTCAATGCG
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 353258..353236
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 905107..905129
+
+      0     .    :    .    :   
+        AACATTTTAGGATCTGCTTAAC
+        || |||||||||||||||||||
+        AAGATTTTAGGATCTGCTTAAC
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 971537..971516
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 55260..55282
+
+      0     .    :    .    :   
+        GGTTCAATA-TCCTTAGTAACC
+        ||||||||| ||||||||||||
+        GGTTCAATATTCCTTAGTAACC
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 960223..960202
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 617578..617598
+
+      0     .    :    .    :  
+        CTACGTTCAGCCGCCGTACAC
+        ||||||||||||||||||| |
+        CTACGTTCAGCCGCCGTAC-C
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 887944..887923
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 527359..527380
+
+      0     .    :    .    :  
+        CATATACAAAGGTCTCCGACA
+        |||||| ||||||||||||||
+        CATATATAAAGGTCTCCGACA
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 814525..814504
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 546148..546168
+
+      0     .    :    .    :  
+        AACTTAAGCAGGACGAAGCGT
+        |||||||| ||||||||||||
+        AACTTAAG-AGGACGAAGCGT
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 721821..721800
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 739397..739419
+
+      0     .    :    .    :   
+        TTGGACGATA-TTTCAGATACG
+        |||||||||| |||||||||||
+        TTGGACGATACTTTCAGATACG
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 576878..576857
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 491561..491582
+
+      0     .    :    .    :  
+        TGAAAGTAGTTAACCAACCGA
+        || ||||||||||||||||||
+        TGCAAGTAGTTAACCAACCGA
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 558970..558949
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 683632..683652
+
+      0     .    :    .    :  
+        ATTATGCTCCTAGAGTGAGGG
+        |||||||||||| ||||||||
+        ATTATGCTCCTA-AGTGAGGG
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 479538..479517
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 83079..83100
+
+      0     .    :    .    :  
+        TGGAGTGCGGAGGTCCTGAAC
+        |||||||||||||||||| ||
+        TGGAGTGCGGAGGTCCTGCAC
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 433655..433634
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 879013..879033
+
+      0     .    :    .    :  
+        GCAGGTCCGCCGAAGGAGTTC
+        || ||||||||||||||||||
+        GC-GGTCCGCCGAAGGAGTTC
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 215684..215663
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 212346..212367
+
+      0     .    :    .    :  
+        GGCGCCCATTCAAGCGTTATA
+        ||||||||| |||||||||||
+        GGCGCCCATGCAAGCGTTATA
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 182589..182568
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 29770..29791
+
+      0     .    :    .    :  
+        GACGTTGAGATGGCCGACCCG
+        |||||||||||| ||||||||
+        GACGTTGAGATGACCGACCCG
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 995434..995414
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 228305..228325
+
+      0     .    :    .    : 
+        CCGAGCAAAAAACGGTCCCA
+        ||||||| ||||||||||||
+        CCGAGCAGAAAACGGTCCCA
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 930422..930402
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 832381..832400
+
+      0     .    :    .    : 
+        GCGATGCACCTACGTTGTCA
+        ||||||||||||||| ||||
+        GCGATGCACCTACGT-GTCA
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 924988..924968
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 932200..932219
+
+      0     .    :    .    : 
+        CTCTACCTCTTCCACCTAAG
+        |||||||||||||||||| |
+        CTCTACCTCTTCCACCTA-G
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 915558..915538
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 799351..799372
+
+      0     .    :    .    :  
+        TCATCAAT-CCAGAGTAGCGT
+        |||||||| ||||||||||||
+        TCATCAATCCCAGAGTAGCGT
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 886490..886470
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 337573..337592
+
+      0     .    :    .    : 
+        TGTACTGTAAAAAACCGTGC
+        |||||||||||||||| |||
+        TGTACTGTAAAAAACC-TGC
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 875125..875105
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 127515..127535
+
+      0     .    :    .    : 
+        CGAAGCATTAACAGCATTGT
+        |||||||| |||||||||||
+        CGAAGCATGAACAGCATTGT
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 860730..860710
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 137909..137928
+
+      0     .    :    .    : 
+        CCCGCAGAGTAGAGGGAATA
+        |||||| |||||||||||||
+        CCCGCA-AGTAGAGGGAATA
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 857267..857247
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 911395..911416
+
+      0     .    :    .    :  
+        GCCATGTCGGCATAGG-CTAC
+        |||||||||||||||| ||||
+        GCCATGTCGGCATAGGACTAC
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 805381..805361
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 46862..46882
+
+      0     .    :    .    : 
+        GTTAAGAGCTGTGGCCTAGA
+        ||| ||||||||||||||||
+        GTTGAGAGCTGTGGCCTAGA
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 782098..782078
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 744395..744414
+
+      0     .    :    .    : 
+        GTCAGTATCCAACAAGTTTG
+        |||||||| |||||||||||
+        GTCAGTAT-CAACAAGTTTG
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 763620..763600
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 245160..245179
+
+      0     .    :    .    : 
+        CGTAACTCATCTCTTCCTTC
+        |||||||||| |||||||||
+        CGTAACTCAT-TCTTCCTTC
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 761157..761137
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 849565..849585
+
+      0     .    :    .    : 
+        TGTATTATTGGTTCCAAGAG
+        |||||| |||||||||||||
+        TGTATTCTTGGTTCCAAGAG
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 715630..715610
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 769273..769293
+
+      0     .    :    .    : 
+        CGCGCATTTATCCTGGGGCA
+        |||||||||| |||||||||
+        CGCGCATTTAACCTGGGGCA
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 698086..698066
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 872431..872451
+
+      0     .    :    .    : 
+        GAACAAGCGACGCGGCCGGG
+        ||| ||||||||||||||||
+        GAAGAAGCGACGCGGCCGGG
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 687566..687546
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 870364..870383
+
+      0     .    :    .    : 
+        GGTCAAAATGGAATCTGATT
+        |||||||||| |||||||||
+        GGTCAAAATG-AATCTGATT
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 677996..677976
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 439432..439452
+
+      0     .    :    .    : 
+        CCGGTCCTGTATGTAGCGAA
+        |||||||||| |||||||||
+        CCGGTCCTGTCTGTAGCGAA
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 673664..673644
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 874397..874416
+
+      0     .    :    .    : 
+        ACCTCAAGTTCGGTATGTGT
+        |||||||||||||| |||||
+        ACCTCAAGTTCGGT-TGTGT
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 645057..645037
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 234190..234209
+
+      0     .    :    .    : 
+        TGCGTGGAGCGTTTCAAAAG
+        |||||||| |||||||||||
+        TGCGTGGA-CGTTTCAAAAG
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 644877..644857
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 676276..676295
+
+      0     .    :    .    : 
+        GTCAACAGCATGGATGGCGG
+        ||||||| ||||||||||||
+        GTCAACA-CATGGATGGCGG
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 644832..644812
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 865800..865819
+
+      0     .    :    .    : 
+        AGGCAATGCGGTGATCGCAT
+        ||||||||||||||||| ||
+        AGGCAATGCGGTGATCG-AT
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 641529..641509
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 607674..607693
+
+      0     .    :    .    : 
+        ATCCTGGGAGCCCCGATACT
+        ||||||||||||| ||||||
+        ATCCTGGGAGCCC-GATACT
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 620364..620344
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 670707..670727
+
+      0     .    :    .    : 
+        GCTTGTCTGCATTGTTGCCG
+        ||||||||||||||| ||||
+        GCTTGTCTGCATTGTGGCCG
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 590003..589983
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 562729..562749
+
+      0     .    :    .    : 
+        GCGTATCCTCCGGCGTTTAG
+        || |||||||||||||||||
+        GCTTATCCTCCGGCGTTTAG
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 584631..584611
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 427381..427402
+
+      0     .    :    .    :  
+        ATACGTCCGCTCGTCAGTG-C
+        ||||||||||||||||||| |
+        ATACGTCCGCTCGTCAGTGGC
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 579587..579567
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 894329..894348
+
+      0     .    :    .    : 
+        TATGTTATGTGCGGTGTCAA
+        ||||||||||||||||||| 
+        TATGTTATGTGCGGTGTCA-
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 563163..563143
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 603708..603727
+
+      0     .    :    .    : 
+        CACGCGTCCGGCGCGATGAA
+        ||||||||||||| ||||||
+        CACGCGTCCGGCG-GATGAA
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 559022..559002
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 545194..545215
+
+      0     .    :    .    :  
+        ACACAGTCGGGACAC-TAACT
+        ||||||||||||||| |||||
+        ACACAGTCGGGACACATAACT
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 555361..555341
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 244035..244054
+
+      0     .    :    .    : 
+        TCTTCGGTGGCGTCAATAGT
+        |||| |||||||||||||||
+        TCTT-GGTGGCGTCAATAGT
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 554029..554009
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 500179..500199
+
+      0     .    :    .    : 
+        GAAGCGGAATAGGACGGTTG
+        |||||||||||||||||| |
+        GAAGCGGAATAGGACGGTAG
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 529489..529469
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 261758..261779
+
+      0     .    :    .    :  
+        GGAAGAGCCGTCGAA-TCATG
+        ||||||||||||||| |||||
+        GGAAGAGCCGTCGAAGTCATG
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 494451..494431
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 109069..109088
+
+      0     .    :    .    : 
+        CTGTTATATCGCGGACCTCA
+        |||||||| |||||||||||
+        CTGTTATA-CGCGGACCTCA
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 486510..486490
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 60989..61009
+
+      0     .    :    .    : 
+        CTCGGTAATTTGGAAGTAGA
+        ||||||||||||| ||||||
+        CTCGGTAATTTGGGAGTAGA
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 479812..479792
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 853177..853197
+
+      0     .    :    .    : 
+        AGCCAAAGGACAGTGGCTAG
+        ||||||||||| ||||||||
+        AGCCAAAGGACCGTGGCTAG
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 478539..478519
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 100371..100390
+
+      0     .    :    .    : 
+        ATGACTGCGTCCGTGGTTTC
+        |||||||||||| |||||||
+        ATGACTGCGTCC-TGGTTTC
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 472571..472551
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 303199..303218
+
+      0     .    :    .    : 
+        ACCTCCACCCTTCGAGCTCA
+        ||||||| ||||||||||||
+        ACCTCCA-CCTTCGAGCTCA
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 471177..471157
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 32619..32640
+
+      0     .    :    .    :  
+        ATAAACCAGCCTG-AACTAGA
+        ||||||||||||| |||||||
+        ATAAACCAGCCTGGAACTAGA
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 455383..455363
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 669816..669837
+
+      0     .    :    .    :  
+        TACTA-AAGTCTGTTAAGGCG
+        ||||| |||||||||||||||
+        TACTACAAGTCTGTTAAGGCG
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 442627..442607
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 641356..641375
+
+      0     .    :    .    : 
+        CTTGGGGTAGGGGGAGCTCT
+        ||||||| ||||||||||||
+        CTTGGGG-AGGGGGAGCTCT
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 428989..428969
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 791788..791807
+
+      0     .    :    .    : 
+        CCTCCGCGAAGGACTCCATC
+        |||||| |||||||||||||
+        CCTCCG-GAAGGACTCCATC
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 408733..408713
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 574103..574123
+
+      0     .    :    .    : 
+        TTGTGGTTCAATTTCGTGGC
+        ||||| ||||||||||||||
+        TTGTGATTCAATTTCGTGGC
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 404469..404449
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 236051..236070
+
+      0     .    :    .    : 
+        AGCGTGAGCTCCGTAGAGGA
+        |||| |||||||||||||||
+        AGCG-GAGCTCCGTAGAGGA
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 402111..402091
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 928806..928825
+
+      0     .    :    .    : 
+        CTTCACTTATGTGGTAAAAT
+        |||||| |||||||||||||
+        CTTCAC-TATGTGGTAAAAT
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 377568..377548
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 920263..920282
+
+      0     .    :    .    : 
+        GCGGCTCGACTTTGAGATCA
+        |||||||||||||||| |||
+        GCGGCTCGACTTTGAG-TCA
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 362982..362962
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 618521..618540
+
+      0     .    :    .    : 
+        ACAGCTCGTTTCTGTCCCAC
+        |||||||||||| |||||||
+        ACAGCTCGTTTC-GTCCCAC
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 316466..316446
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 962071..962092
+
+      0     .    :    .    :  
+        GGTAAGTTC-AGCTTGAAACG
+        ||||||||| |||||||||||
+        GGTAAGTTCAAGCTTGAAACG
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 277774..277754
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 477269..477288
+
+      0     .    :    .    : 
+        TATGATTTCGGCGGATTATA
+        ||||||||||||| ||||||
+        TATGATTTCGGCG-ATTATA
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 252333..252313
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 518920..518939
+
+      0     .    :    .    : 
+        CTTCGCACACACATGGTCTT
+        ||||||||| ||||||||||
+        CTTCGCACA-ACATGGTCTT
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 238287..238267
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 83581..83602
+
+      0     .    :    .    :  
+        GTCAATCTTGAATATA-CTTG
+        |||||||||||||||| ||||
+        GTCAATCTTGAATATAACTTG
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 123850..123830
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 791400..791420
+
+      0     .    :    .    : 
+        CCCATATATGCAGCCCAGTT
+        |||||||||||||| |||||
+        CCCATATATGCAGCACAGTT
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 90457..90437
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 877933..877953
+
+      0     .    :    .    : 
+        CAAGAAAACAGAGAGGGCTC
+        ||||| ||||||||||||||
+        CAAGAGAACAGAGAGGGCTC
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 77415..77395
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 785297..785316
+
+      0     .    :    .    : 
+        TCACCTTAATGTGTTCTGCA
+        ||||||| ||||||||||||
+        TCACCTT-ATGTGTTCTGCA
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 66395..66375
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 842456..842475
+
+      0     .    :    .    : 
+        CACGGTTATCAACCTTTGCC
+        ||||||||| ||||||||||
+        CACGGTTAT-AACCTTTGCC
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 60990..60970
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 760086..760106
+
+      0     .    :    .    : 
+        AGTTGCCTACGGATACAACT
+        |||||||||||| |||||||
+        AGTTGCCTACGGTTACAACT
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 53917..53897
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 949224..949244
+
+      0     .    :    .    : 
+        CCTGCCTAGTTTCACGCTCA
+        ||||||||| ||||||||||
+        CCTGCCTAGGTTCACGCTCA
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 31283..31263
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 993851..993871
+
+      0     .    :    .    : 
+        TAATGTGCCAGATAATAGTC
+        ||| ||||||||||||||||
+        TAACGTGCCAGATAATAGTC
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 26522..26502
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 842545..842565
+
+      0     .    :    .    : 
+        ATATTCTAGCCGTCTCCAGG
+        |||||||| |||||||||||
+        ATATTCTACCCGTCTCCAGG
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 19477..19457
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 30537..30556
+
+      0     .    :    .    : 
+        ATAGTTCAGCATAGGGGTCT
+        ||||||| ||||||||||||
+        ATAGTTC-GCATAGGGGTCT
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 954662..954643
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 566181..566201
+
+      0     .    :    .    : 
+        TAG-GACGACTGTTAGGCCA
+        ||| ||||||||||||||||
+        TAGAGACGACTGTTAGGCCA
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 905595..905576
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 528543..528563
+
+      0     .    :    .    : 
+        ATTCTTTCTCTCTCTT-CGG
+        |||||||||||||||| |||
+        ATTCTTTCTCTCTCTTGCGG
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 805488..805469
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 41850..41870
+
+      0     .    :    .    : 
+        ACATTCCTACTC-ACCGTGC
+        |||||||||||| |||||||
+        ACATTCCTACTCGACCGTGC
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 795208..795189
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 361613..361633
+
+      0     .    :    .    : 
+        CCGTATGA-AGTTAAGTGTC
+        |||||||| |||||||||||
+        CCGTATGATAGTTAAGTGTC
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 763565..763546
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 469455..469475
+
+      0     .    :    .    : 
+        CTCA-TTAAATGGCGCCATC
+        |||| |||||||||||||||
+        CTCACTTAAATGGCGCCATC
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 732520..732501
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 446090..446110
+
+      0     .    :    .    : 
+        GA-TTCGGCCACTTCTATGG
+        || |||||||||||||||||
+        GACTTCGGCCACTTCTATGG
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 643840..643821
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 244583..244603
+
+      0     .    :    .    : 
+        GACTTCATGGGAGCTT-CAT
+        |||||||||||||||| |||
+        GACTTCATGGGAGCTTTCAT
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 603144..603125
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 192739..192759
+
+      0     .    :    .    : 
+        TGCGCGAAATGGGTC-CACG
+        ||||||||||||||| ||||
+        TGCGCGAAATGGGTCGCACG
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 508123..508104
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 400206..400226
+
+      0     .    :    .    : 
+        TCCCACCA-TATCCTCAGTC
+        |||||||| |||||||||||
+        TCCCACCATTATCCTCAGTC
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 447414..447395
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 828386..828406
+
+      0     .    :    .    : 
+        TGCCACCGTGCTTCCCT-TG
+        ||||||||||||||||| ||
+        TGCCACCGTGCTTCCCTATG
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 424870..424851
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 882878..882898
+
+      0     .    :    .    : 
+        CACCGTACAAGAC-AATATT
+        ||||||||||||| ||||||
+        CACCGTACAAGACTAATATT
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 418619..418600
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 159495..159515
+
+      0     .    :    .    : 
+        AGGGTCGGCCGTTCTGG-CG
+        ||||||||||||||||| ||
+        AGGGTCGGCCGTTCTGGGCG
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 399083..399064
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 932044..932064
+
+      0     .    :    .    : 
+        GCTGTAAAGACCCC-TACGT
+        |||||||||||||| |||||
+        GCTGTAAAGACCCCCTACGT
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 346410..346391
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 246661..246681
+
+      0     .    :    .    : 
+        TCTT-GGTCTAGGGCGTGGT
+        |||| |||||||||||||||
+        TCTTGGGTCTAGGGCGTGGT
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 313473..313454
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 993115..993135
+
+      0     .    :    .    : 
+        TATGGT-TCACCAATCTTGT
+        |||||| |||||||||||||
+        TATGGTGTCACCAATCTTGT
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 303085..303066
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 935084..935104
+
+      0     .    :    .    : 
+        CACGTAAA-CTCTAAATTCC
+        |||||||| |||||||||||
+        CACGTAAACCTCTAAATTCC
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 293491..293472
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 421801..421821
+
+      0     .    :    .    : 
+        CGACGTCCGCGGCATGAT-T
+        |||||||||||||||||| |
+        CGACGTCCGCGGCATGATCT
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 285973..285954
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 517349..517369
+
+      0     .    :    .    : 
+        GTAAA-AGCTGCTGTTGGTT
+        ||||| ||||||||||||||
+        GTAAAGAGCTGCTGTTGGTT
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 273625..273606
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 9350..9370
+
+      0     .    :    .    : 
+        CAAATA-GGGGTATGACAAT
+        |||||| |||||||||||||
+        CAAATAGGGGGTATGACAAT
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 216623..216604
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 669252..669272
+
+      0     .    :    .    : 
+        TGCAGTAAA-AATATACACC
+        ||||||||| ||||||||||
+        TGCAGTAAATAATATACACC
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 71342..71323
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 218248..218268
+
+      0     .    :    .    : 
+        TGCCCT-CCTTTAGCACCCG
+        |||||| |||||||||||||
+        TGCCCTCCCTTTAGCACCCG
+
+
+----------------------------------------------------------------------
+
+Database sequence: seq1 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200 (complement)
+Database positions: 3349..3330
+Query sequence: seq2 length=1000000 numMatches=500 errorRate=0.05 matchMinLength=50 matchMaxLength=200
+Query positions: 631236..631256
+
+      0     .    :    .    : 
+        CGGACCTGG-AGTGTCTGAC
+        ||||||||| ||||||||||
+        CGGACCTGGTAGTGTCTGAC
+
+
+----------------------------------------------------------------------
+
