@@ -7,14 +7,6 @@ namespace stellar
 {
 
 template <typename TAlphabet, typename TId>
-bool _shouldWriteOutputFile(bool const databaseStrand, StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > const & matches)
-{
-    // if databaseStrand == true always outputs
-    // if databaseStrand == false only outputs if TAlphabet == Dna5 or TAlphabet == Rna5
-    return databaseStrand || IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE;
-}
-
-template <typename TAlphabet, typename TId>
 void _postproccessQueryMatches(bool const databaseStrand, uint64_t const & refLen,
                                StellarOptions const & options,
                                StringSet<QueryMatches<StellarMatch<String<TAlphabet> const, TId> > > & matches,
@@ -37,7 +29,7 @@ void _postproccessQueryMatches(bool const databaseStrand, uint64_t const & refLe
 
     // adjust length for each matches of a single query (only for dna5 and rna5)
     // TODO: WHY? This seems like an arbitrary restriction
-    if (_shouldWriteOutputFile(databaseStrand, matches))
+    if (databaseStrand || IsSameType<TAlphabet, Dna5>::VALUE || IsSameType<TAlphabet, Rna5>::VALUE)
         _postproccessLengthAdjustment(refLen, matches);
 }
 
