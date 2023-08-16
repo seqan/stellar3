@@ -1,8 +1,6 @@
 
 #pragma once
 
-#include <valik/search/query_record.hpp>
-
 #include <stellar/stellar_sequence_segment.hpp>
 
 namespace stellar
@@ -39,13 +37,14 @@ struct StellarQuerySegment : public StellarSequenceSegment<TAlphabet>
             seqan2::endPosition(patternInfix) - seqan2::beginPosition(patternInfixSeq)
         };
     }
-
-    TString asString() const
-    {
-        TString const & _query = underlyingQuery();
-        //!TODO: get the infix string
-        return _query;
-    }
 };
+
+template <typename TAlphabet>
+std::ostream& operator<<(std::ostream& os, StellarQuerySegment<TAlphabet> const & segment)
+{
+    //!TODO: get the infix string to print out disabled queries
+    os << segment.underlyingQuery();
+    return os;
+}
 
 } // namespace stellar
