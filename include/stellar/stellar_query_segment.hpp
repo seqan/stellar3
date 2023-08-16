@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <valik/search/query_record.hpp>
+
 #include <stellar/stellar_sequence_segment.hpp>
 
 namespace stellar
@@ -11,6 +13,7 @@ struct StellarQuerySegment : public StellarSequenceSegment<TAlphabet>
 {
     using TBase = StellarSequenceSegment<TAlphabet>;
 
+    using typename TBase::TString;
     using typename TBase::TInfixSegment;
     using TNestedPatternSegment = seqan2::Segment<TInfixSegment, seqan2::InfixSegment>;
 
@@ -35,6 +38,13 @@ struct StellarQuerySegment : public StellarSequenceSegment<TAlphabet>
             seqan2::beginPosition(patternInfix) - seqan2::beginPosition(patternInfixSeq),
             seqan2::endPosition(patternInfix) - seqan2::beginPosition(patternInfixSeq)
         };
+    }
+
+    TString asString() const
+    {
+        TString const & _query = underlyingQuery();
+        //!TODO: get the infix string
+        return _query;
     }
 };
 

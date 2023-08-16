@@ -419,7 +419,7 @@ template <typename TQuery>
 void _appendDisabledQueryToFastaFile(CharString const & id, TQuery const & query, std::ofstream & disabledQueriesFile)
 {
     disabledQueriesFile << ">" << id << "\n";
-    disabledQueriesFile << query << "\n\n";
+    disabledQueriesFile << query.asString() << "\n\n";
 }
 
 template <typename TIds, typename TQueries>

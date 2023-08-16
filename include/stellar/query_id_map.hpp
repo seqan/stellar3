@@ -8,24 +8,24 @@
 namespace stellar
 {
 
-template <typename TAlphabet, typename TId = CharString>
+template <typename TAlphabet>
 struct QueryIDMap
 {
     size_t recordID(StellarSwiftPattern<TAlphabet> const & pattern) const
     {
         StellarQuerySegment<TAlphabet> querySegment
             = StellarQuerySegment<TAlphabet>::fromPatternMatch(pattern);
-        return recordID(querySegment.underlyingQuery());
+        return recordID(querySegment);
     }
 
-    size_t recordID(String<TAlphabet> const & query) const
+    size_t recordID(StellarQuerySegment<TAlphabet> const & segment) const
     {
-        String<TAlphabet> const * begin = &queries[0];
-        String<TAlphabet> const * current = std::addressof(query);
+        StellarQuerySegment<TAlphabet> const * begin = &queries[0];
+        StellarQuerySegment<TAlphabet> const * current = std::addressof(segment);
         return current - begin;
     }
 
-    StringSet<String<TAlphabet> > const & queries;
+    StringSet<StellarQuerySegment<TAlphabet>> const & queries;
 };
 
 } // namespace stellar
