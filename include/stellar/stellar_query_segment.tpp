@@ -24,8 +24,6 @@ StellarQuerySegment<TAlphabet>::fromPatternMatch(TSwiftPattern const & swiftPatt
     static_assert(std::is_same_v<decltype(underlyingQuery), seqan2::String<TAlphabet> const &>);
     auto const queryInfixInfix = seqan2::infix(swiftPattern, queryInfix);
 
-    seqan3::debug_stream << length(underlyingQuery) << '\n';
-
     return {underlyingQuery, seqan2::beginPosition(queryInfixInfix), seqan2::endPosition(queryInfixInfix)};
 }
 
