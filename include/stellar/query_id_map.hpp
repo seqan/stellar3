@@ -9,11 +9,27 @@ namespace stellar
 {
 
 /**
- * !\brief Struct that exposes the numerical index of a query sequence in the list of queries.
+ * !\brief Abstract base struct.
  */
 template <typename TAlphabet>
 struct QueryIDMap
 {
+    virtual ~QueryIDMap() = 0;
+};
+
+template <typename TAlphabet>
+QueryIDMap<TAlphabet>::~QueryIDMap() {}
+
+/**
+ * !\brief Struct that exposes the numerical index of a query sequence in the list of queries.
+ */
+template <typename TAlphabet>
+struct QuerySequenceIDMap : public QueryIDMap<TAlphabet>
+{
+    StringSet<String<TAlphabet>> const & sequences;
+
+    QuerySequenceIDMap(StringSet<String<TAlphabet>> const & seq) : sequences(seq) {};
+
     size_t recordID(StellarSwiftPattern<TAlphabet> const & pattern) const
     {
         StellarQuerySegment<TAlphabet> querySegment
@@ -23,12 +39,10 @@ struct QueryIDMap
 
     size_t recordID(String<TAlphabet> const & query) const
     {
-        String<TAlphabet> const * begin = &queries[0];
+        String<TAlphabet> const * begin = &sequences[0];
         String<TAlphabet> const * current = std::addressof(query);
         return current - begin;
     }
-
-    StringSet<String<TAlphabet>> const & queries;
 };
 
 /**
@@ -37,6 +51,10 @@ struct QueryIDMap
 template <typename TAlphabet>
 struct QuerySegmentIDMap : public QueryIDMap<TAlphabet>
 {
+    StringSet<StellarQuerySegment<TAlphabet>> const & segments;
+
+    QuerySegmentIDMap(StringSet<StellarQuerySegment<TAlphabet>> const & seg) : segments(seg) {}
+
     size_t recordID(StellarSwiftPattern<TAlphabet> const & pattern) const
     {
         StellarQuerySegment<TAlphabet> querySegment
@@ -50,8 +68,6 @@ struct QuerySegmentIDMap : public QueryIDMap<TAlphabet>
         StellarQuerySegment<TAlphabet> const * current = std::addressof(segment);
         return current - begin;
     }
-
-    StringSet<StellarQuerySegment<TAlphabet>> const & segments;
 };
 
 } // namespace stellar
