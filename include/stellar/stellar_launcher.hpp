@@ -33,7 +33,7 @@ void _postproccessQueryMatches(bool const databaseStrand, uint64_t const & refLe
         _postproccessLengthAdjustment(refLen, matches);
 }
 
-template <typename TAlphabet, typename TId = CharString>
+template <typename TAlphabet, typename TQuery = String<TAlphabet>, typename TId = CharString>
 struct StellarLauncher
 {
     template <typename visitor_fn_t>
@@ -71,9 +71,7 @@ struct StellarLauncher
         {
             // Note: Index is normally build over all queries [query0, query1, query2, ...],
             // but in LocalQueryPrefilter case it can just be build over [query0].
-            // We need to translate that position to a "record" ID
-            //!TODO: this shouldn't be necessary
-            // each Stellar instance should be given a set of bin query, all of which should be indexed
+            // We need to translate that position to a numerical index in the list of queries
             size_t const queryRecordID = queryIDMap.recordID(pattern);
             return value(localMatches, queryRecordID);
         };

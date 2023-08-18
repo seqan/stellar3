@@ -42,8 +42,7 @@ struct StellarQuerySegment : public StellarSequenceSegment<TAlphabet>
 template <typename TAlphabet>
 std::ostream& operator<<(std::ostream& os, StellarQuerySegment<TAlphabet> const & segment)
 {
-    //!TODO: get the infix string to print out disabled queries
-    os << segment.underlyingQuery();
+    os << segment.asInfixSegment() << '\n';
     return os;
 }
 
