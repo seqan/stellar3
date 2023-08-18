@@ -9,51 +9,12 @@ namespace stellar
 {
 
 /**
- * !\brief Abstract base struct.
+ * !\brief Struct that exposes the numerical index of a query sequences in the list of queries.
  */
 template <typename TAlphabet>
 struct QueryIDMap
 {
-    virtual ~QueryIDMap() = 0;
-};
-
-template <typename TAlphabet>
-QueryIDMap<TAlphabet>::~QueryIDMap() {}
-
-/**
- * !\brief Struct that exposes the numerical index of a query sequence in the list of queries.
- */
-template <typename TAlphabet>
-struct QuerySequenceIDMap : public QueryIDMap<TAlphabet>
-{
-    StringSet<String<TAlphabet>> const & sequences;
-
-    QuerySequenceIDMap(StringSet<String<TAlphabet>> const & seq) : sequences(seq) {};
-
-    size_t recordID(StellarSwiftPattern<TAlphabet> const & pattern) const
-    {
-        StellarQuerySegment<TAlphabet> querySegment
-            = StellarQuerySegment<TAlphabet>::fromPatternMatch(pattern);
-        return recordID(querySegment.underlyingQuery());
-    }
-
-    size_t recordID(String<TAlphabet> const & query) const
-    {
-        String<TAlphabet> const * begin = &sequences[0];
-        String<TAlphabet> const * current = std::addressof(query);
-        return current - begin;
-    }
-};
-
-/**
- * !\brief Struct that exposes the numerical index of a query segment in the list of queries.
- */
-template <typename TAlphabet>
-struct QuerySegmentIDMap : public QueryIDMap<TAlphabet>
-{
-    StringSet<StellarQuerySegment<TAlphabet>> const & segments;
-
-    QuerySegmentIDMap(StringSet<StellarQuerySegment<TAlphabet>> const & seg) : segments(seg) {}
+    StringSet<StellarQuerySegment<TAlphabet>> const & queries;
 
     size_t recordID(StellarSwiftPattern<TAlphabet> const & pattern) const
     {
@@ -62,12 +23,12 @@ struct QuerySegmentIDMap : public QueryIDMap<TAlphabet>
         return recordID(querySegment);
     }
 
-    size_t recordID(StellarQuerySegment<TAlphabet> const & segment) const
+    size_t recordID(StellarQuerySegment<TAlphabet> const & query) const
     {
-        StellarQuerySegment<TAlphabet> const * begin = &segments[0];
-        StellarQuerySegment<TAlphabet> const * current = std::addressof(segment);
+        StellarQuerySegment<TAlphabet> const * begin = &queries[0];
+        StellarQuerySegment<TAlphabet> const * current = std::addressof(query);
         return current - begin;
     }
 };
 
-} // namespace stellar
+}
