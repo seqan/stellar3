@@ -14,19 +14,20 @@ namespace stellar
 template <typename TAlphabet>
 struct QueryIDMap
 {
-    StringSet<StellarQuerySegment<TAlphabet>> const & queries;
+    using TQuery = seqan2::Segment<seqan2::String<TAlphabet> const, seqan2::InfixSegment>;
+    StringSet<TQuery> const & queries;
 
     size_t recordID(StellarSwiftPattern<TAlphabet> const & pattern) const
     {
         StellarQuerySegment<TAlphabet> querySegment
             = StellarQuerySegment<TAlphabet>::fromPatternMatch(pattern);
-        return recordID(querySegment);
+        return recordID(querySegment.asInfixSegment());
     }
 
-    size_t recordID(StellarQuerySegment<TAlphabet> const & query) const
+    size_t recordID(TQuery const & query) const
     {
-        StellarQuerySegment<TAlphabet> const * begin = &queries[0];
-        StellarQuerySegment<TAlphabet> const * current = std::addressof(query);
+        TQuery const * begin = &queries[0];
+        TQuery const * current = std::addressof(query);
         return current - begin;
     }
 };
