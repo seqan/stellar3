@@ -50,7 +50,7 @@ template <typename TAlphabet>
 struct StellarIndex
 {
     using TSequence = seqan2::String<TAlphabet>;
-    using TInfixSegment = seqan2::Segment<seqan2::String<TAlphabet> const, seqan2::InfixSegment>;
+    using TInfixSegment = StellarQuerySegment<TAlphabet>;
     using TQGramStringSet = StellarQGramStringSet<TAlphabet>;
 
     template <typename TSpec>
@@ -59,7 +59,7 @@ struct StellarIndex
     {}
 
     StellarIndex(StringSet<TInfixSegment> const & queries, IndexOptions const & options)
-        : StellarIndex{convertInfixStringSet(queries), options}
+        : StellarIndex{convertSegmentStringSet(queries), options}
     {}
 
     StellarIndex(std::span<TInfixSegment> const & queries, IndexOptions const & options)
@@ -110,27 +110,27 @@ private:
     }
 
     template <typename TSpec>
-    static StellarQGramStringSet<TAlphabet> convertImplStringSet(StringSet<TSequence, TSpec> const & queries)
+    static TQGramStringSet convertImplStringSet(StringSet<TSequence, TSpec> const & queries)
     {
-        StellarQGramStringSet<TAlphabet> dependentQueries;
+        TQGramStringSet dependentQueries;
         for (TSequence const & query: queries)
             seqan2::appendValue(dependentQueries, seqan2::infix(query, 0, seqan2::length(query)));
 
         return dependentQueries;
     }
 
-    static StellarQGramStringSet<TAlphabet> convertInfixStringSet(StringSet<TInfixSegment> const & queries)
+    static TQGramStringSet convertSegmentStringSet(StringSet<TInfixSegment> const & queries)
     {
-        StellarQGramStringSet<TAlphabet> dependentQueries;
+        TQGramStringSet dependentQueries;
         for (auto const & query: queries)
-            seqan2::appendValue(dependentQueries, seqan2::infix(query.data_host, query.data_begin_position, query.data_end_position));
+            seqan2::appendValue(dependentQueries, seqan2::infix(query.underlyingQuery(), query.beginPosition, query.endPosition));
 
         return dependentQueries;
     }
 
-    static StellarQGramStringSet<TAlphabet> convertImplSpan(std::span<TInfixSegment> const & queries)
+    static TQGramStringSet convertImplSpan(std::span<TInfixSegment> const & queries)
     {
-        StellarQGramStringSet<TAlphabet> dependentQueries;
+        TQGramStringSet dependentQueries;
         for (TInfixSegment const & query: queries)
             seqan2::appendValue(dependentQueries, query);
 
