@@ -50,7 +50,7 @@ template <typename TAlphabet>
 struct StellarIndex
 {
     using TSequence = seqan2::String<TAlphabet>;
-    using TInfixSegment = StellarQuerySegment<TAlphabet>;
+    using TInfixSegment = seqan2::Segment<seqan2::String<TAlphabet> const, seqan2::InfixSegment>;
     using TQGramStringSet = StellarQGramStringSet<TAlphabet>;
 
     template <typename TSpec>
@@ -121,9 +121,11 @@ private:
 
     static TQGramStringSet convertSegmentStringSet(StringSet<TInfixSegment> const & queries)
     {
-        TQGramStringSet dependentQueries;
+        TQGramStringSet dependentQueries = queries;
+        /*
         for (auto const & query: queries)
-            seqan2::appendValue(dependentQueries, seqan2::infix(query.underlyingQuery(), query.beginPosition, query.endPosition));
+            seqan2::appendValue(dependentQueries, query);
+        */
 
         return dependentQueries;
     }
