@@ -43,7 +43,6 @@ struct StellarQuerySegment
         return _underlyingSequence;
     }
 
-    //!TODO: this is probably an issue since it goes back to pointers
     TInfixSegment asInfixSegment() const
     {
         return {_underlyingSequence, beginPosition, endPosition};

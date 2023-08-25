@@ -14,14 +14,14 @@ namespace stellar
 template <typename TAlphabet>
 struct QueryIDMap
 {
-    using TQuery = StellarQuerySegment<TAlphabet>;
+    using TQuery = seqan2::Segment<seqan2::String<TAlphabet> const, seqan2::InfixSegment>;
     StringSet<TQuery> const & queries;
 
     size_t recordID(StellarSwiftPattern<TAlphabet> const & pattern) const
     {
         StellarQuerySegment<TAlphabet> querySegment
             = StellarQuerySegment<TAlphabet>::fromPatternMatch(pattern);
-        return recordID(querySegment);
+        return recordID(querySegment.asInfixSegment());
     }
 
     size_t recordID(TQuery const & query) const
