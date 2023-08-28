@@ -27,7 +27,13 @@ struct QueryIDMap
     size_t recordID(TQuery const & query) const
     {
         TQuery const * begin = &queries[0];
+        std::cout << *begin << '\n';
+        //!ERROR: query is not a reference to the queries set but a copy (that has a different memory address)
+        std::cout << "Find recordID of query:" << '\n';
+        std::cout << query << '\n';
         TQuery const * current = std::addressof(query);
+        std::cout << *current << '\n';
+        std::cout << "recordID:" << current - begin << '\n';
         return current - begin;
     }
 };

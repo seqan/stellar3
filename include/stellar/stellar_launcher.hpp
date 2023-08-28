@@ -73,6 +73,7 @@ struct StellarLauncher
             // but in LocalQueryPrefilter case it can just be build over [query0].
             // We need to translate that position to a numerical index in the list of queries
             size_t const queryRecordID = queryIDMap.recordID(pattern);
+            std::cout << "queryRecordID:" << queryRecordID << '\n';
             return value(localMatches, queryRecordID);
         };
 

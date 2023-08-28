@@ -18,9 +18,14 @@ StellarQuerySegment<TAlphabet>
 StellarQuerySegment<TAlphabet>::fromPatternMatch(TSwiftPattern const & swiftPattern)
 {
     size_t const queryID = swiftPattern.curSeqNo;
+    std::cout << "queryID" << queryID << '\n';
+    std::cout << std::addresof(swift)
     auto const & queryInfix = seqan2::getSequenceByNo(queryID, seqan2::indexText(seqan2::needle(swiftPattern)));
     static_assert(std::is_same_v<decltype(queryInfix), TInfixSegment const &>);
     auto const & underlyingQuery = host(queryInfix);
+    std::cout << "queryInfix in fromPatternMatch" << queryInfix << '\n';
+    std::cout << "from PatternMatch host address:" << std::addressof(queryInfix) << '\n';
+    std::cout << "from PatternMatch host address:" << std::addressof(underlyingQuery) << '\n';
     static_assert(std::is_same_v<decltype(underlyingQuery), seqan2::String<TAlphabet> const &>);
     auto const queryInfixInfix = seqan2::infix(swiftPattern, queryInfix);
 
