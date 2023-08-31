@@ -13,9 +13,13 @@ struct QueryIDMap
 {
     size_t recordID(StellarSwiftPattern<TAlphabet> const & pattern) const
     {
+        /*
         StellarQuerySegment<TAlphabet> querySegment
             = StellarQuerySegment<TAlphabet>::fromPatternMatch(pattern);
         return recordID(querySegment.underlyingQuery());
+        */
+
+        return pattern.curSeqNo;
     }
 
     size_t recordID(String<TAlphabet> const & query) const

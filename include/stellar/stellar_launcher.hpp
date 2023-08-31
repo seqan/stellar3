@@ -105,6 +105,7 @@ struct StellarLauncher
 
         // finder
         StellarSwiftFinder<TAlphabet> swiftFinder(databaseSegment.asInfixSegment(), localOptions.minRepeatLength, localOptions.maxRepeatPeriod);
+        std::cout << databaseSegment.asInfixSegment() << '\n';
 
         StellarComputeStatistics statistics = _verificationMethodVisit(
             localOptions.verificationMethod,
