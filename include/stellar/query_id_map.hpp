@@ -25,9 +25,7 @@ struct QueryIDMap
     size_t recordID(String<TAlphabet> const & query) const
     {
         String<TAlphabet> const * begin = &queries[0];
-        std::cout << "begin\tcurrent\trecordID\n";
         String<TAlphabet> const * current = std::addressof(query);
-        std::cout << begin << '\t' << current << '\t' << current - begin << '\n';
         return current - begin;
     }
 

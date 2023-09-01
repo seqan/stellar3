@@ -69,11 +69,7 @@ struct StellarLauncher
 
         auto getQueryMatches = [&](auto const & pattern) -> QueryMatches<StellarMatch<TSequence const, TId> > &
         {
-            // Note: Index is normally build over all queries [query0, query1, query2, ...],
-            // but in LocalQueryPrefilter case it can just be build over [query0].
-            // We need to translate that position to a numerical index in the list of queries
-            size_t const queryRecordID = queryIDMap.recordID(pattern);
-            std::cout << "queryRecordID:" << queryRecordID << '\n';
+            size_t const queryRecordID = pattern.curSeqNo;
             return value(localMatches, queryRecordID);
         };
 
@@ -105,7 +101,6 @@ struct StellarLauncher
 
         // finder
         StellarSwiftFinder<TAlphabet> swiftFinder(databaseSegment.asInfixSegment(), localOptions.minRepeatLength, localOptions.maxRepeatPeriod);
-        std::cout << databaseSegment.asInfixSegment() << '\n';
 
         StellarComputeStatistics statistics = _verificationMethodVisit(
             localOptions.verificationMethod,
