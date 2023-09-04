@@ -282,7 +282,7 @@ _stellarKernel(StellarSwiftFinder<TAlphabet> & finder,  // iterate over database
             return find(finder, pattern, swiftVerifier.eps_match_options.epsilon, swiftVerifier.eps_match_options.minLength);
         });
 
-         if (!has_next)
+        if (!has_next)
             break;
 
         StellarDatabaseSegment<TAlphabet> databaseSegment

@@ -33,7 +33,7 @@ void _postproccessQueryMatches(bool const databaseStrand, uint64_t const & refLe
         _postproccessLengthAdjustment(refLen, matches);
 }
 
-template <typename TAlphabet, typename TQuery = String<TAlphabet>, typename TId = CharString>
+template <typename TAlphabet, typename TId = CharString>
 struct StellarLauncher
 {
     template <typename visitor_fn_t>
@@ -69,8 +69,7 @@ struct StellarLauncher
 
         auto getQueryMatches = [&](auto const & pattern) -> QueryMatches<StellarMatch<TSequence const, TId> > &
         {
-            size_t const queryRecordID = pattern.curSeqNo;
-            return value(localMatches, queryRecordID);
+            return value(localMatches, queryIDMap.recordID(pattern));
         };
 
         auto isPatternDisabled = [&](StellarSwiftPattern<TAlphabet> & pattern) -> bool {
@@ -92,7 +91,7 @@ struct StellarLauncher
                 localOptions.disableThresh,
                 // compactThresh is basically an output-parameter; will be updated in kernel and propagated back
                 // outside of this function, the reason why StellarOptions can't be passed as const to this function.
-                // TODO: We might want to make this tied to the QueryMatches itself, as it should know then to consolidate
+                //!TODO: We might want to make this tied to the QueryMatches itself, as it should know then to consolidate
                 // the matches
                 localOptions.compactThresh,
                 localOptions.numMatches

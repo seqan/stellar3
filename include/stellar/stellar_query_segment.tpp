@@ -7,8 +7,6 @@
 
 #include <stellar/stellar_sequence_segment.hpp>
 
-#include <seqan3/core/debug_stream.hpp>
-
 namespace stellar
 {
 
@@ -18,11 +16,9 @@ StellarQuerySegment<TAlphabet>
 StellarQuerySegment<TAlphabet>::fromPatternMatch(TSwiftPattern const & swiftPattern)
 {
     size_t const queryID = swiftPattern.curSeqNo;
-
     auto const & queryInfix = seqan2::getSequenceByNo(queryID, seqan2::indexText(seqan2::needle(swiftPattern)));
     static_assert(std::is_same_v<decltype(queryInfix), TInfixSegment const &>);
     auto const & underlyingQuery = host(queryInfix);
-
     static_assert(std::is_same_v<decltype(underlyingQuery), seqan2::String<TAlphabet> const &>);
     auto const queryInfixInfix = seqan2::infix(swiftPattern, queryInfix);
 

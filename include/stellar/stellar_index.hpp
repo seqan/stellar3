@@ -59,7 +59,7 @@ struct StellarIndex
     {}
 
     StellarIndex(StringSet<TInfixSegment> const & queries, IndexOptions const & options)
-        : StellarIndex{convertSegmentStringSet(queries), options}
+        : StellarIndex{queries, options}
     {}
 
     StellarIndex(std::span<TInfixSegment> const & queries, IndexOptions const & options)
@@ -115,17 +115,6 @@ private:
         TQGramStringSet dependentQueries;
         for (TSequence const & query: queries)
             seqan2::appendValue(dependentQueries, seqan2::infix(query, 0, seqan2::length(query)));
-
-        return dependentQueries;
-    }
-
-    static TQGramStringSet convertSegmentStringSet(StringSet<TInfixSegment> const & queries)
-    {
-        TQGramStringSet dependentQueries = queries;
-        /*
-        for (auto const & query: queries)
-            seqan2::appendValue(dependentQueries, query);
-        */
 
         return dependentQueries;
     }
