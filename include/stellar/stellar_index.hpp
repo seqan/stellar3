@@ -58,10 +58,6 @@ struct StellarIndex
         : StellarIndex{convertImplStringSet(queries), options}
     {}
 
-    StellarIndex(StringSet<TInfixSegment> const & queries, IndexOptions const & options)
-        : StellarIndex{queries, options}
-    {}
-
     StellarIndex(std::span<TInfixSegment> const & queries, IndexOptions const & options)
         : StellarIndex{convertImplSpan(queries), options}
     {}
