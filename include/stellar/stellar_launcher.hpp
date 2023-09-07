@@ -69,7 +69,7 @@ struct StellarLauncher
 
         auto getQueryMatches = [&](auto const & pattern) -> QueryMatches<StellarMatch<TSequence const, TId> > &
         {
-            return value(localMatches, queryIDMap.recordID(pattern));
+            return value(localMatches, pattern.curSeqNo);
         };
 
         auto isPatternDisabled = [&](StellarSwiftPattern<TAlphabet> & pattern) -> bool {
