@@ -11,13 +11,6 @@ namespace stellar
 template <typename TAlphabet, typename TId = CharString>
 struct QueryIDMap
 {
-    size_t recordID(StellarSwiftPattern<TAlphabet> const & pattern) const
-    {
-        StellarQuerySegment<TAlphabet> querySegment
-            = StellarQuerySegment<TAlphabet>::fromPatternMatch(pattern);
-        return recordID(querySegment.underlyingQuery());
-    }
-
     size_t recordID(String<TAlphabet> const & query) const
     {
         String<TAlphabet> const * begin = &queries[0];

@@ -69,13 +69,7 @@ struct StellarLauncher
 
         auto getQueryMatches = [&](auto const & pattern) -> QueryMatches<StellarMatch<TSequence const, TId> > &
         {
-            // Note: Index is normally build over all queries [query0, query1, query2, ...],
-            // but in LocalQueryPrefilter case it can just be build over [query0].
-            // We need to translate that position to a "record" ID
-            //!TODO: this shouldn't be necessary
-            // each Stellar instance should be given a set of bin query, all of which should be indexed
-            size_t const queryRecordID = queryIDMap.recordID(pattern);
-            return value(localMatches, queryRecordID);
+            return value(localMatches, pattern.curSeqNo);
         };
 
         auto isPatternDisabled = [&](StellarSwiftPattern<TAlphabet> & pattern) -> bool {
@@ -97,7 +91,7 @@ struct StellarLauncher
                 localOptions.disableThresh,
                 // compactThresh is basically an output-parameter; will be updated in kernel and propagated back
                 // outside of this function, the reason why StellarOptions can't be passed as const to this function.
-                // TODO: We might want to make this tied to the QueryMatches itself, as it should know then to consolidate
+                //!TODO: We might want to make this tied to the QueryMatches itself, as it should know then to consolidate
                 // the matches
                 localOptions.compactThresh,
                 localOptions.numMatches
