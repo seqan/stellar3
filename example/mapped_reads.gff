@@ -1,0 +1,7 @@
+gi|9626685|ref|NC_001477.1|	Stellar	eps-matches	10580	10629	98.0392	+	.	read01;seq2Range=24,74;eValue=4.77542e-20;cigar=19M1I31M;mutations=20C
+gi|9626685|ref|NC_001477.1|	Stellar	eps-matches	6870	6923	98.1818	+	.	read03;seq2Range=46,100;eValue=4.09044e-22;cigar=29M1I25M;mutations=30C
+gi|9626685|ref|NC_001477.1|	Stellar	eps-matches	6418	6519	98.0392	+	.	read04;seq2Range=1,100;eValue=7.44922e-45;cigar=76M1D24M1D;mutations=
+gi|9626685|ref|NC_001477.1|	Stellar	eps-matches	9160	9222	98.4126	+	.	read08;seq2Range=11,73;eValue=3.00114e-26;cigar=63M;mutations=52N
+gi|9626685|ref|NC_001477.1|	Stellar	eps-matches	7149	7217	98.5507	+	.	read10;seq2Range=1,69;eValue=2.37916e-29;cigar=69M;mutations=48A
+gi|9626685|ref|NC_001477.1|	Stellar	eps-matches	9870	9939	98.5915	-	.	read02;seq2Range=1,71;eValue=2.20193e-30;cigar=20M1I50M;mutations=21C
+gi|9626685|ref|NC_001477.1|	Stellar	eps-matches	9056	9151	98.9583	-	.	read06;seq2Range=6,100;eValue=2.64571e-43;cigar=2M1D93M;mutations=
