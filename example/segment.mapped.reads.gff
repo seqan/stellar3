@@ -1,0 +1,3 @@
+gi|9626685|ref|NC_001477.1|	Stellar	eps-matches	6870	6923	98.1818	+	.	read03;seq2Range=46,100;eValue=4.09044e-22;cigar=29M1I25M;mutations=30C
+gi|9626685|ref|NC_001477.1|	Stellar	eps-matches	6418	6519	98.0392	+	.	read04;seq2Range=1,100;eValue=7.44922e-45;cigar=76M1D24M1D;mutations=
+gi|9626685|ref|NC_001477.1|	Stellar	eps-matches	7149	7217	98.5507	+	.	read10;seq2Range=1,69;eValue=2.37916e-29;cigar=69M;mutations=48A
