@@ -14,7 +14,7 @@ struct float_in_range_validator
 
     void operator()(option_value_type const & val) const
     {
-        if ((min >= val) || (val >= max))
+        if ((min > val) || (val > max))
         {
             throw sharg::validation_error{"Value must be in range [" + std::to_string(min) +
                                           ", " + std::to_string(max) + "]."};
@@ -157,7 +157,7 @@ void init_parser(sharg::parser & parser, StellarOptions & options)
                 sharg::config{.short_id = 'c',
                                 .long_id = "abundanceCut",
                                 .description = "k-mer overabundance cut ratio.",
-                                .validator = float_in_range_validator{0, 1}});
+                                .validator = float_in_range_validator{0.0f, 1.0f}});
 
     // Verification options
     parser.add_option(options.xDrop,
