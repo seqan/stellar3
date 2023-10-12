@@ -64,7 +64,7 @@ void init_parser(sharg::parser & parser, StellarOptions & options)
                     sharg::config{.short_id = 'e',
                                     .long_id = "epsilon",
                                     .description = "Maximal error rate (max 0.25).",
-                                    .validator = sharg::arithmetic_range_validator{0, 0.25}});
+                                    .validator = sharg::arithmetic_range_validator{0.0, 0.25}});
     parser.add_option(options.minLength,
                     sharg::config{.short_id = 'l',
                                     .long_id = "minLength",
