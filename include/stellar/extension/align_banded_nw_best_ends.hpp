@@ -153,6 +153,7 @@ _align_banded_nw_best_ends(TTrace& trace,
             //   (alignment_score - alignment_length * match_score) / (gapScore - matchScore)
             // = |mismatches| + |gaps| = errors
             errors = (*current_score_rowise_it - (*alignment_length_it * matchScore)) / (gapScore - matchScore);
+            SEQAN_ASSERT_GEQ(errors, 0);
             SEQAN_ASSERT_LEQ(errors, length(bestEnds));
             if (errors == length(bestEnds)) {
                 appendValue(bestEnds, TEnd(*alignment_length_it, row, col));

@@ -29,7 +29,10 @@ verifySwiftHit(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> con
     // define a scoring scheme
     typedef int TScore;
     TScore match = 1;
-    TScore mismatchIndel = (TScore)_max((TScore) ceil(-1/eps) + 1, -(TScore)length(host(infH)));
+    TScore mismatchIndel = (TScore)_max((TScore)-9999, -(TScore)1000);
+    if (eps > 0.0001)   // avoid division by 0
+        mismatchIndel = (TScore)_max((TScore) ceil(-1/eps) + 1, -(TScore)length(host(infH)));
+    //std::cout << seqan2::length(infH) << " inf lengths " << seqan2::length(infV) << std::endl; 
     Score<TScore> scoreMatrix(match, mismatchIndel, mismatchIndel);
     TScore scoreDropOff = (TScore) _max((TScore) xDrop * (-mismatchIndel), MinValue<TScore>::VALUE + 1);
 

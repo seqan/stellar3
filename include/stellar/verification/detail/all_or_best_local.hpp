@@ -205,9 +205,14 @@ allOrBestLocal(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> con
     // define a scoring scheme
     typedef int TScore;
     TScore match = 1;
-    TScore mismatchIndel = (TScore)_max((TScore) ceil(-1/eps) + 1, -(TScore)length(host(infH)));
+    //TScore mismatchIndel = (TScore)_max((TScore) ceil(-1/eps) + 1, -(TScore)length(host(infH)));
+    TScore mismatchIndel = (TScore)_max((TScore) ceil(-1/eps) + 1, -(TScore)1000);
+    
     Score<TScore> scoreMatrix(match, mismatchIndel, mismatchIndel);
     TScore scoreDropOff = (TScore) _max((TScore) xDrop * (-mismatchIndel), MinValue<TScore>::VALUE + 1);
+
+    std::cout << "mismatchIndel\t" << mismatchIndel << '\n';
+    std::cout << "scoreDropOff\t" << scoreDropOff << '\n';
 
     // calculate minimal score for local alignments
     TEpsilon e = floor(eps*minLength);

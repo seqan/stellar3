@@ -679,12 +679,21 @@ _extendAndExtract(Align<Segment<Segment<TSequence const, InfixSegment>, InfixSeg
         Segment<TSequence const, InfixSegment> infixSequenceH = host(infH); // inner nested Segment
         Segment<TSequence const, InfixSegment> infixSequenceV = host(infV); // inner nested Segment
 
+        std::cout << "initial seed\n" << 
+                     "query\t" << beginPositionV(seed) << '\t' << endPositionV(seed) << '\t' << (endPositionV(seed) - beginPositionV(seed)) <<
+                     "\nref\t" << beginPositionH(seed) << '\t' << endPositionH(seed) << '\t' << (endPositionH(seed) - beginPositionH(seed)) << "\n";
+
         extension_runtime.extend_seed_time.measure_time([&]()
         {
             //!TODO: The seed extension should take place in the complete sequence not the segment
             extendSeed(seed, infixSequenceH, infixSequenceV, direction, scoreMatrix, scoreDropOff, GappedXDrop());
         });
 
+        std::cout << "extended seed\n" << 
+                     "query\t" << beginPositionV(seed) << '\t' << endPositionV(seed) << '\t' << (endPositionV(seed) - beginPositionV(seed)) <<
+                     "\nref\t" << beginPositionH(seed) << '\t' << endPositionH(seed) << '\t' << (endPositionH(seed) - beginPositionH(seed)) << "\n";
+        
+        
         if (static_cast<int64_t>(seedSize(seed)) < minLength - (int)floor(minLength*eps))
             return false;
 
