@@ -28,7 +28,10 @@ verifySwiftHit(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> con
     // define a scoring scheme
     typedef int TScore;
     TScore match = 1;
-    TScore mismatchIndel = (TScore)_max((TScore) ceil(-1/eps) + 1, -(TScore)1000);
+    TScore mismatchIndel = -(TScore)1000;
+    if (eps > 0.001)   // avoid division by 0
+        mismatchIndel = (TScore)_max((TScore) ceil(-1/eps) + 1, -(TScore)length(host(infH)));
+
     Score<TScore> scoreMatrix(match, mismatchIndel, mismatchIndel);
 
     // diagonals for banded alignment
