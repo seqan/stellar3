@@ -3,31 +3,6 @@
 namespace stellar::app
 {
 
-struct float_in_range_validator
-{
-    using option_value_type = double; // used for all arithmetic types
-
-    option_value_type min;
-    option_value_type max;
-
-    float_in_range_validator(option_value_type min_value, option_value_type max_value) : min{min_value}, max{max_value} {}
-
-    void operator()(option_value_type const & val) const
-    {
-        if ((min >= val) || (val >= max))
-        {
-            throw sharg::validation_error{"Value must be in range [" + std::to_string(min) +
-                                          ", " + std::to_string(max) + "]."};
-        }
-    }
-
-    std::string get_help_page_message() const
-    {
-        return "Value must be in range [" + std::to_string(min) +
-                ", " + std::to_string(max) + "].";
-    }
-};
-
 struct sequence_vector_validator
 {
     using el_value_type = size_t; // used for all arithmetic types
@@ -89,7 +64,7 @@ void init_parser(sharg::parser & parser, StellarOptions & options)
                     sharg::config{.short_id = 'e',
                                     .long_id = "epsilon",
                                     .description = "Maximal error rate (max 0.25).",
-                                    .validator = float_in_range_validator{0, 0.25}});
+                                    .validator = sharg::arithmetic_range_validator{0.0f, 0.25f}});
     parser.add_option(options.minLength,
                     sharg::config{.short_id = 'l',
                                     .long_id = "minLength",
@@ -157,7 +132,7 @@ void init_parser(sharg::parser & parser, StellarOptions & options)
                 sharg::config{.short_id = 'c',
                                 .long_id = "abundanceCut",
                                 .description = "k-mer overabundance cut ratio.",
-                                .validator = float_in_range_validator{0, 1}});
+                                .validator = sharg::arithmetic_range_validator{0.0f, 1.0f}});
 
     // Verification options
     parser.add_option(options.xDrop,
