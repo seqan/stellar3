@@ -5,6 +5,8 @@
 #include <sstream>               // ostringstream
 #include <string>                // strings
 
+#include <seqan3/core/debug_stream.hpp>
+
 #pragma once
 
 // Provides functions for CLI test implementation.
@@ -96,7 +98,8 @@ protected:
 
 struct stellar_base : public cli_test
 {
-    static inline std::filesystem::path const out_path(size_t const seq, size_t const begin, size_t const end, std::string const extension) noexcept
+    static inline std::filesystem::path const out_path(size_t const seq, size_t const begin, size_t const end, 
+                                                       std::string const er, std::string const extension) noexcept
     {
         std::string name{};
         name += std::to_string(seq);
@@ -104,12 +107,15 @@ struct stellar_base : public cli_test
         name += std::to_string(begin);
         name += "_";
         name += std::to_string(end);
+        name += "_";
+        name += er;
         name += ".";
         name += extension;
         return cli_test::data(name);
     }
 
-    static inline std::filesystem::path const out_path(std::vector<size_t> const seqVec, std::string const extension) noexcept
+    static inline std::filesystem::path const out_path(std::vector<size_t> const seqVec, std::string const er, 
+                                                       std::string const extension) noexcept
     {
         std::string name{};
         for (auto id : seqVec)
@@ -117,6 +123,7 @@ struct stellar_base : public cli_test
             name += std::to_string(id);
             name += "_";
         }
+        name += er;
         name += ".";
         name += extension;
         return cli_test::data(name);
@@ -133,5 +140,6 @@ struct stellar_base : public cli_test
     }
 };
 
-struct search_subset : public stellar_base, public testing::WithParamInterface<std::tuple<std::vector<size_t>>> {};
-struct search_segment : public stellar_base, public testing::WithParamInterface<std::tuple<std::vector<size_t>, std::pair<size_t, size_t>>> {};
+struct search_subset : public stellar_base, public testing::WithParamInterface<std::tuple<std::vector<size_t>, float>> {};
+struct search_segment : public stellar_base, public testing::WithParamInterface<std::tuple<std::vector<size_t>, std::pair<size_t, size_t>, float>> {};
+struct search_small_error: public stellar_base, public testing::WithParamInterface<float> {};

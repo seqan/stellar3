@@ -1,0 +1,3 @@
+1	Stellar	eps-matches	761	812	100	+	.	1;seq2Range=498,549;eValue=2.23482e-21;cigar=52M;mutations=
+1	Stellar	eps-matches	728	777	100	+	.	1;seq2Range=438,487;eValue=2.4147e-20;cigar=50M;mutations=
+1	Stellar	eps-matches	708	757	100	-	.	1;seq2Range=1193,1242;eValue=2.4147e-20;cigar=50M;mutations=

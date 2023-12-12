@@ -1,0 +1,10 @@
+1	Stellar	eps-matches	1242	1293	96.1538	+	.	1;seq2Range=719,770;eValue=2.81906e-18;cigar=52M;mutations=40C,44T
+1	Stellar	eps-matches	127	177	96.0784	+	.	1;seq2Range=880,930;eValue=9.26648e-18;cigar=51M;mutations=22A,38A
+1	Stellar	eps-matches	184	234	96.0784	+	.	1;seq2Range=1090,1140;eValue=9.26648e-18;cigar=51M;mutations=7G,27T
+1	Stellar	eps-matches	729	779	96.0784	+	.	1;seq2Range=662,711;eValue=9.26648e-18;cigar=49M1D1M;mutations=13C
+1	Stellar	eps-matches	1247	1296	96	+	.	1;seq2Range=595,644;eValue=3.04597e-17;cigar=50M;mutations=38A,46A
+1	Stellar	eps-matches	1371	1422	96.1538	-	.	1;seq2Range=1600,1651;eValue=2.81906e-18;cigar=52M;mutations=3G,25G
+1	Stellar	eps-matches	1538	1587	96	-	.	1;seq2Range=1723,1772;eValue=3.04597e-17;cigar=50M;mutations=20G,31C
+1	Stellar	eps-matches	1104	1153	96	-	.	1;seq2Range=1859,1908;eValue=3.04597e-17;cigar=50M;mutations=5A,42T
+1	Stellar	eps-matches	744	793	96	-	.	1;seq2Range=1978,2027;eValue=3.04597e-17;cigar=50M;mutations=29C,42C
+1	Stellar	eps-matches	486	535	96	-	.	1;seq2Range=1296,1345;eValue=3.04597e-17;cigar=50M;mutations=41A,47G
