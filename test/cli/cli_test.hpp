@@ -98,31 +98,37 @@ protected:
 
 struct stellar_base : public cli_test
 {
-    static inline std::filesystem::path const out_path(size_t const seq, size_t const begin, size_t const end, 
-                                                       std::string const er, std::string const extension) noexcept
+    static inline std::filesystem::path const out_path(std::string const prefix, size_t const seq, size_t const begin, 
+                                                       size_t const end, std::string const er, std::string const extension) noexcept
     {
         std::string name{};
+        name += prefix;
+        name += "_";
         name += std::to_string(seq);
         name += "_";
         name += std::to_string(begin);
         name += "_";
         name += std::to_string(end);
         name += "_";
+        name += "e";
         name += er;
         name += ".";
         name += extension;
         return cli_test::data(name);
     }
 
-    static inline std::filesystem::path const out_path(std::vector<size_t> const seqVec, std::string const er, 
-                                                       std::string const extension) noexcept
+    static inline std::filesystem::path const out_path(std::string const prefix, std::vector<size_t> const seqVec, 
+                                                       std::string const er, std::string const extension) noexcept
     {
         std::string name{};
+        name += prefix;
+        name += "_";
         for (auto id : seqVec)
         {
             name += std::to_string(id);
             name += "_";
         }
+        name += "e";
         name += er;
         name += ".";
         name += extension;

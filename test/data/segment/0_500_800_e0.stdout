@@ -1,13 +1,13 @@
 I/O options:
   database file   : ref.fasta
-  query file      : query_e0.05.fasta
+  query file      : query_e0.fasta
   alphabet        : dna5
-  output file     : 0_0_400_0.05.gff
+  output file     : segment/0_500_800_e0.gff
   output format   : gff
 
 User specified parameters:
   minimal match length             : 50
-  maximal error rate (epsilon)     : 0.05 = (1/20)
+  maximal error rate (epsilon)     : 0 = (0/1)
   maximal x-drop                   : 5
   search forward strand            : yes
   search reverse complement        : yes
@@ -17,28 +17,31 @@ User specified parameters:
   duplicate removal every          : 500
 
 Calculated parameters:
-  k-mer length : 15
-  s^min        : 15
-  threshold    : 1
-  distance cut : 45
+  k-mer length : 32
+  s^min        : 50
+  threshold    : 19
+  distance cut : 50
   delta        : 16
-  overlap      : 2
+  overlap      : 0
 
 Loaded 1 query sequence.
 Loaded sequence 1.
 
 All matches resulting from your search have an E-value of: 
-        3.04597e-17 or smaller  (match score = 1, error penalty = -2)
+        2.4147e-20 or smaller  (match score = 1, error penalty = -2)
 
 Constructing index...
 
 Aligning all query sequences to database sequence...
   1
-    # SWIFT hits      : 2
-    Longest hit       : 44
-    Avg hit length    : 40
+    # SWIFT hits      : 28
+    Longest hit       : 32
+    Avg hit length    : 32
   1, complement
+    # SWIFT hits      : 19
+    Longest hit       : 32
+    Avg hit length    : 32
 
-# Eps-matches     : 2
-Longest eps-match : 51
-Avg match length  : 51
+# Eps-matches     : 3
+Longest eps-match : 52
+Avg match length  : 50

@@ -2,7 +2,7 @@ I/O options:
   database file   : multi_seq_ref.fasta
   query file      : query_e0.05.fasta
   alphabet        : dna5
-  output file     : multi_all_0.05.gff
+  output file     : subset/all_e0.05.gff
   output format   : gff
 
 User specified parameters:

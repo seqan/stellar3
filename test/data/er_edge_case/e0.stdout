@@ -2,7 +2,7 @@ I/O options:
   database file   : ref.fasta
   query file      : query_e0.0009.fasta
   alphabet        : dna5
-  output file     : edge_case_e0.gff
+  output file     : er_edge_case/e0.gff
   output format   : gff
 
 User specified parameters:

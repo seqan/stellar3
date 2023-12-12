@@ -2,7 +2,7 @@ I/O options:
   database file   : ref.fasta
   query file      : query_e0.fasta
   alphabet        : dna5
-  output file     : full_e0.gff
+  output file     : segment/all_e0.gff
   output format   : gff
 
 User specified parameters:

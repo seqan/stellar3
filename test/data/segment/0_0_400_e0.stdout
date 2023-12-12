@@ -2,7 +2,7 @@ I/O options:
   database file   : ref.fasta
   query file      : query_e0.fasta
   alphabet        : dna5
-  output file     : 0_500_800_0.gff
+  output file     : segment/0_0_400_e0.gff
   output format   : gff
 
 User specified parameters:
@@ -34,7 +34,7 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   1
-    # SWIFT hits      : 28
+    # SWIFT hits      : 39
     Longest hit       : 32
     Avg hit length    : 32
   1, complement
@@ -43,5 +43,5 @@ Aligning all query sequences to database sequence...
     Avg hit length    : 32
 
 # Eps-matches     : 3
-Longest eps-match : 52
+Longest eps-match : 51
 Avg match length  : 50

@@ -34,12 +34,12 @@ TEST_P(search_subset, stellar_search_subset)
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.err, std::string{"\n\n"}); // not sure where the whitespace comes from
 
-    std::string const expected_matches = string_from_file(out_path(seq, err_str, "gff"), std::ios::binary);
+    std::string const expected_matches = string_from_file(out_path("subset", seq, err_str, "gff"), std::ios::binary);
     std::string const actual_matches = string_from_file("subset_out.gff", std::ios::binary);
 
     EXPECT_EQ(expected_matches, actual_matches);
 
-    std::string expected_output = string_from_file(out_path(seq, err_str, "stdout"), std::ios::binary);
+    std::string expected_output = string_from_file(out_path("subset", seq, err_str, "stdout"), std::ios::binary);
     size_t pos = expected_output.find("User specified");    // do not compare paths
     expected_output = expected_output.substr(pos);
 
@@ -85,12 +85,12 @@ TEST_P(search_segment, stellar_search_segment)
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.err, std::string{"\n\n"});
 
-    std::string const expected_matches = string_from_file(out_path(seq[0], seg_range.first, seg_range.second, err_str, "gff"), std::ios::binary);
+    std::string const expected_matches = string_from_file(out_path("segment", seq[0], seg_range.first, seg_range.second, err_str, "gff"), std::ios::binary);
     std::string const actual_matches = string_from_file("segment_out.gff", std::ios::binary);
 
     EXPECT_EQ(expected_matches, actual_matches);
 
-    std::string expected_output = string_from_file(out_path(seq[0], seg_range.first, seg_range.second, err_str, "stdout"), std::ios::binary);
+    std::string expected_output = string_from_file(out_path("segment", seq[0], seg_range.first, seg_range.second, err_str, "stdout"), std::ios::binary);
     size_t pos = expected_output.find("User specified");    // do not compare paths
     expected_output = expected_output.substr(pos);
 
@@ -124,6 +124,8 @@ TEST_P(search_small_error, edge_case)
     err_stream << std::setprecision(4) << er;
     std::string err_str = err_stream.str();
 
+    seqan3::debug_stream << "Execute app with " << err_str << " error rate\n";
+
     cli_test_result const result = execute_app("stellar",
                                                data("ref.fasta"),
                                                data("query_e0.0009.fasta"),
@@ -136,12 +138,12 @@ TEST_P(search_small_error, edge_case)
     EXPECT_EQ(result.exit_code, 0);
     EXPECT_EQ(result.err, std::string{"\n\n"}); // not sure where the whitespace comes from
 
-    std::string const expected_matches = string_from_file(cli_test::data("edge_case_e" + err_str + ".gff"), std::ios::binary);
+    std::string const expected_matches = string_from_file(cli_test::data("er_edge_case_e" + err_str + ".gff"), std::ios::binary);
     std::string const actual_matches = string_from_file("small_er_out.gff", std::ios::binary);
 
     EXPECT_EQ(expected_matches, actual_matches);
 
-    std::string expected_output = string_from_file(cli_test::data("edge_case_e" + err_str + ".gff"), std::ios::binary);
+    std::string expected_output = string_from_file(cli_test::data("er_edge_case_e" + err_str + ".gff"), std::ios::binary);
     size_t pos = expected_output.find("User specified");    // do not compare paths
     expected_output = expected_output.substr(pos);
 

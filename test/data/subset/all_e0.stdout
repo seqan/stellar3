@@ -2,7 +2,7 @@ I/O options:
   database file   : multi_seq_ref.fasta
   query file      : query_e0.fasta
   alphabet        : dna5
-  output file     : 1_2_0.gff
+  output file     : subset/all_e0.gff
   output format   : gff
 
 User specified parameters:
@@ -25,8 +25,7 @@ Calculated parameters:
   overlap      : 0
 
 Loaded 1 query sequence.
-Loaded sequence chr2.
-Loaded sequence chr3.
+Loaded 3 database sequences.
 
 All matches resulting from your search have an E-value of: 
         1.71539e-20 or smaller  (match score = 1, error penalty = -2)
@@ -34,12 +33,20 @@ All matches resulting from your search have an E-value of:
 Constructing index...
 
 Aligning all query sequences to database sequence...
+  chr1
+    # SWIFT hits      : 39
+    Longest hit       : 32
+    Avg hit length    : 32
   chr2
     # SWIFT hits      : 40
     Longest hit       : 32
     Avg hit length    : 32
   chr3
     # SWIFT hits      : 6
+    Longest hit       : 32
+    Avg hit length    : 32
+  chr1, complement
+    # SWIFT hits      : 19
     Longest hit       : 32
     Avg hit length    : 32
   chr2, complement
@@ -51,6 +58,6 @@ Aligning all query sequences to database sequence...
     Longest hit       : 32
     Avg hit length    : 32
 
-# Eps-matches     : 6
+# Eps-matches     : 9
 Longest eps-match : 52
 Avg match length  : 50

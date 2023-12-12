@@ -16,31 +16,35 @@ TEST(import_sequences, all_sequences)
     stellar::_importAllSequences(databaseFile.c_str(), "database", databases, databaseIDs, refLen, std::cout, std::cerr);
 
     EXPECT_EQ(length(databases), 3u);
-    EXPECT_EQ(databases[0], (seqan2::String<TAlphabet>) {"GATGACTCAGTCTTGTTGATTAGGCACCTCGGTATGTGGGCATTAGGCACATTGCTCTGTTTCTTGAAGT"
-                                                        "CTGGTATGAGCACAAGGTGTGTCCCAACCGACAACTGGTTCAATGGCCACCCCGACCTAAAGGACGTTTC"
-                                                        "CGCTTCGATTGTGAGGACTTTAACAGGTTTTCGTCTGGCAGAATCATGTCCTTACTGCTTATCCAGGTCT"
-                                                        "TTTAAAGTTCGTTTCAGACTTTGGTCCCAAGCGACTCCAAACGGAGAACCGTACGAATATCTACCCAGTC"
-                                                        "CTACGAAAAAATGACTCAGTGGGCACAGGGGGTTTACAGTGTGATCAGTTAGCGTCCGGGAGAAAATATA"
-                                                        "ATCTGTGTAGCGAGGATTCTATATCAGACCGATAAATCTAATCGGCCCGGTATAAATTCTCGTACCGAAC"
-                                                        "AACTTCTAACTTGGACGGTTGTACACTTACGGGAACTAGCAAACTCTAAGATAATAGAAGGCCTGAATCC"
-                                                        "GGCGTTACACCCATAGGGGAATAACGCCGAAATTGGTGGTTCTCGATAATTGCCAGTAATGCATCACAGC"});
-    EXPECT_EQ(databaseIDs[0], "1");
+    EXPECT_EQ(databases[0], (seqan2::String<TAlphabet>) {"TATGCACCAGAGTATGGAAGCATAAGCTCTGCATGCAAAGGTACATCAGATCCTGCGGTTGGGTGCCAAC"
+                                                         "CCAAGTGTGTTCACGGGCGCTTGACAGACATCGGAGGATGGTGCACACTCACTCGACCAGCGCAAAGCAC"
+                                                         "AGGATCTCACGGGCGGACATCTCTTAGGTCAGTCATCGTGGAGGAATGCTTGTACGTTCTTTTGGCTTCC"
+                                                         "CCTAACACGGCGGGCGTCTCCGGTACGTATCCTGTCGGTACACCCCTTAAGCCCCTAGGCCCGAAGAACA"
+                                                         "TAGCGCATTTCACGCTCTCTACGAATGACCGCAACGATCAAATGGGCGAGAACAACTAATTCCGATTCAT"
+                                                         "GGGGTTTGTGGATTGTGACACAGCGCGCCCGCTACTGCGGGACGTGAGGACGCCCAATTCTGCCAAGGAT"
+                                                         "TATTTAGGGTGTTTCACTAGAGTTATGCGCCGACCCCGGTTGGACCAGCTTGCATTCGAAACTGCGTTAC"
+                                                         "ACAGCACCCCACCGCAATCGTATGACTCTCGCTGAAAAAGGGTGGTCAACCATTACACCTCTTATGCCTG"});
+    EXPECT_EQ(databaseIDs[0], "chr1");
 
-    EXPECT_EQ(databases[1], (seqan2::String<TAlphabet>) {"ATCTGCCTGGGTGGGGAATTGGGACAACCCTTGGGTTATAGACGTGCTCGTCAAAGGACAAGAGGAAATA"
-                                                        "CCCATCTGGTCATCGGGGATCCGATGGCATCGCCAGGTATTACGCCCCTCCATGAGAACAAAACAGCTCG"
-                                                        "GATAACGGTCAAACCGGCAGATGGTTAATGATCATGAGAATCCTTTGCTACGGTTAAAATACCCTGTAAG"
-                                                        "GACCGAATGTACCCAAATAAGGCAAGCAACGGAGTATACACCGGAGTCTCCAGTGTTCGGACTGACTCGC"
-                                                        "TGGGATAAGCTGACAGACGACTTATTGCCAATTGCGTTGATGTCTAAGAAGGCGAGCTTCCCCTCTCCTA"
-                                                        "GGTGCTGGTGGTGGCTCCGAACAAGGGGCTGACCTGCTCACCAGGTATTGTAGAGATCTGGCCATGGGTT"
-                                                        "TGACGGTTAATTCGAACAAATTTAGATGATTATTCCGTATTAGA"});
-    EXPECT_EQ(databaseIDs[1], "2");
+    EXPECT_EQ(databases[1], (seqan2::String<TAlphabet>) {"GTTGTGGGAGGCTCGGTCTTAAGCAGCGCGCGAGCTGTGATCCAGGCTACCACGGACATAGTGTATGGAA"
+                                                         "AGTGATCCAGAGTAGACCCGCGGGGGCCTGACCTAACCTATATAAGTTGTATCGTGGCTATGAGGGTAGT"
+                                                         "CGCCGGAGAAAACGTATGCTTACTGATTTTTAAGTCGGCGTGGCGCCGAAGCCGGATCGGTTGTAAGCTA"
+                                                         "GCCGGGCCTAGGGGTTCACCGTAACGGATTAGTCAAATTAAAATCCAGCGATGACTTCCTGATAGAACTC"
+                                                         "AAGTCGTGACCCCTCCGCTGCGGGCCTACATCTGTTTTCGCAGGCGTGGTTGTTTACCAGGTATGGTGCT"
+                                                         "CATCTCTATTAGTCACGGGCAGCATGGTGTCACCGAACCGCGCGTCTCCTAATATCTGGTCTACCGATTT"
+                                                         "AGCCCCGGCAAATAACTTTGGATTGTGGTTGGAGAGTGCCAGAACTGACGGGCGCTGCCGTGGGGCTCCT"
+                                                         "AACTAAAAACGCCACGGACCTGGCTAACATTCGTTGTTGACTATAACATTTGAGGGCGCTTCGGATTCCC"
+                                                         "CATACTGCCAGAGTATTATGTGGGTGGTAAACATAGATTCTATATAGTCAACGACATACACTCATTATTA"
+                                                         "TGCAATTGCGG"});
+    EXPECT_EQ(databaseIDs[1], "chr2");
 
-    EXPECT_EQ(databases[2], (seqan2::String<TAlphabet>) {"GACCGAATGTACCCAAATAAGGCAAGCAACGGAGTATACACCGGAGTCTCCAGTGTTCGGACTGACTCGC"
-                                                        "TGGGATAAGCTGACAGACGACTTATTGCCAATTGCGTTGATGTCTAAGAAGGCGAGCTTCCCCTCTCCTA"
-                                                        "GGTGCTGGTGGTGGCTCCGAACAAGGGGCTGACCTGCTCACCAGGTATTGTAGAGATCTGGCCATGGGTT"});
-    EXPECT_EQ(databaseIDs[2], "3");
+    EXPECT_EQ(databases[2], (seqan2::String<TAlphabet>) {"CCTAGGGGTTCACCGTAACGGATTAGTCAAATTAAAATCCAGCGATGACTTCCTGATAGAACTCAAGTCG"
+                                                         "TGACCCCTCCGCTGCGGGCCTACATCTGTTTTCGCAGGCGTGGTTGTTTACCAGGTATGGTGCTCATCTC"
+                                                         "TATTAGTCACGGGCAGCATGGTGTCACCGAACCGCGCGTCTCCTAATATCTGGTCTACCGATTTAGCCCC"
+                                                         "GGCAAATAACTTTGG"});
+    EXPECT_EQ(databaseIDs[2], "chr3");
 
-    EXPECT_EQ(refLen, 560 + 464 + 210);
+    EXPECT_EQ(refLen, 560 + 641 + 225);
 }
 
 TEST(import_sequence_of_interest, first)
@@ -52,16 +56,16 @@ TEST(import_sequence_of_interest, first)
     stellar::_importSequencesOfInterest(databaseFile.c_str(), std::vector<size_t>{0}, databases, databaseIDs, refLen);
 
     EXPECT_EQ(length(databases), 1u);
-    EXPECT_EQ(databases[0], (seqan2::String<TAlphabet>) {"GATGACTCAGTCTTGTTGATTAGGCACCTCGGTATGTGGGCATTAGGCACATTGCTCTGTTTCTTGAAGT"
-                                                        "CTGGTATGAGCACAAGGTGTGTCCCAACCGACAACTGGTTCAATGGCCACCCCGACCTAAAGGACGTTTC"
-                                                        "CGCTTCGATTGTGAGGACTTTAACAGGTTTTCGTCTGGCAGAATCATGTCCTTACTGCTTATCCAGGTCT"
-                                                        "TTTAAAGTTCGTTTCAGACTTTGGTCCCAAGCGACTCCAAACGGAGAACCGTACGAATATCTACCCAGTC"
-                                                        "CTACGAAAAAATGACTCAGTGGGCACAGGGGGTTTACAGTGTGATCAGTTAGCGTCCGGGAGAAAATATA"
-                                                        "ATCTGTGTAGCGAGGATTCTATATCAGACCGATAAATCTAATCGGCCCGGTATAAATTCTCGTACCGAAC"
-                                                        "AACTTCTAACTTGGACGGTTGTACACTTACGGGAACTAGCAAACTCTAAGATAATAGAAGGCCTGAATCC"
-                                                        "GGCGTTACACCCATAGGGGAATAACGCCGAAATTGGTGGTTCTCGATAATTGCCAGTAATGCATCACAGC"});
-    EXPECT_EQ(databaseIDs[0], "1");
-    EXPECT_EQ(refLen, 560 + 464 + 210); // need the size of the underlying reference to calculate e-values consistently
+    EXPECT_EQ(databases[0], (seqan2::String<TAlphabet>) {"TATGCACCAGAGTATGGAAGCATAAGCTCTGCATGCAAAGGTACATCAGATCCTGCGGTTGGGTGCCAAC"
+                                                         "CCAAGTGTGTTCACGGGCGCTTGACAGACATCGGAGGATGGTGCACACTCACTCGACCAGCGCAAAGCAC"
+                                                         "AGGATCTCACGGGCGGACATCTCTTAGGTCAGTCATCGTGGAGGAATGCTTGTACGTTCTTTTGGCTTCC"
+                                                         "CCTAACACGGCGGGCGTCTCCGGTACGTATCCTGTCGGTACACCCCTTAAGCCCCTAGGCCCGAAGAACA"
+                                                         "TAGCGCATTTCACGCTCTCTACGAATGACCGCAACGATCAAATGGGCGAGAACAACTAATTCCGATTCAT"
+                                                         "GGGGTTTGTGGATTGTGACACAGCGCGCCCGCTACTGCGGGACGTGAGGACGCCCAATTCTGCCAAGGAT"
+                                                         "TATTTAGGGTGTTTCACTAGAGTTATGCGCCGACCCCGGTTGGACCAGCTTGCATTCGAAACTGCGTTAC"
+                                                         "ACAGCACCCCACCGCAATCGTATGACTCTCGCTGAAAAAGGGTGGTCAACCATTACACCTCTTATGCCTG"});
+    EXPECT_EQ(databaseIDs[0], "chr1");
+    EXPECT_EQ(refLen, 560 + 641 + 225); // need the size of the underlying reference to calculate e-values consistently
 }
 
 TEST(import_sequence_of_interest, last_two)
@@ -73,20 +77,24 @@ TEST(import_sequence_of_interest, last_two)
     stellar::_importSequencesOfInterest(databaseFile.c_str(), std::vector<size_t>{1, 2}, databases, databaseIDs, refLen);
 
     EXPECT_EQ(length(databases), 2u);
-    EXPECT_EQ(databases[0], (seqan2::String<TAlphabet>) {"ATCTGCCTGGGTGGGGAATTGGGACAACCCTTGGGTTATAGACGTGCTCGTCAAAGGACAAGAGGAAATA"
-                                                        "CCCATCTGGTCATCGGGGATCCGATGGCATCGCCAGGTATTACGCCCCTCCATGAGAACAAAACAGCTCG"
-                                                        "GATAACGGTCAAACCGGCAGATGGTTAATGATCATGAGAATCCTTTGCTACGGTTAAAATACCCTGTAAG"
-                                                        "GACCGAATGTACCCAAATAAGGCAAGCAACGGAGTATACACCGGAGTCTCCAGTGTTCGGACTGACTCGC"
-                                                        "TGGGATAAGCTGACAGACGACTTATTGCCAATTGCGTTGATGTCTAAGAAGGCGAGCTTCCCCTCTCCTA"
-                                                        "GGTGCTGGTGGTGGCTCCGAACAAGGGGCTGACCTGCTCACCAGGTATTGTAGAGATCTGGCCATGGGTT"
-                                                        "TGACGGTTAATTCGAACAAATTTAGATGATTATTCCGTATTAGA"});
-    EXPECT_EQ(databaseIDs[0], "2");
+    EXPECT_EQ(databases[0], (seqan2::String<TAlphabet>) {"GTTGTGGGAGGCTCGGTCTTAAGCAGCGCGCGAGCTGTGATCCAGGCTACCACGGACATAGTGTATGGAA"
+                                                         "AGTGATCCAGAGTAGACCCGCGGGGGCCTGACCTAACCTATATAAGTTGTATCGTGGCTATGAGGGTAGT"
+                                                         "CGCCGGAGAAAACGTATGCTTACTGATTTTTAAGTCGGCGTGGCGCCGAAGCCGGATCGGTTGTAAGCTA"
+                                                         "GCCGGGCCTAGGGGTTCACCGTAACGGATTAGTCAAATTAAAATCCAGCGATGACTTCCTGATAGAACTC"
+                                                         "AAGTCGTGACCCCTCCGCTGCGGGCCTACATCTGTTTTCGCAGGCGTGGTTGTTTACCAGGTATGGTGCT"
+                                                         "CATCTCTATTAGTCACGGGCAGCATGGTGTCACCGAACCGCGCGTCTCCTAATATCTGGTCTACCGATTT"
+                                                         "AGCCCCGGCAAATAACTTTGGATTGTGGTTGGAGAGTGCCAGAACTGACGGGCGCTGCCGTGGGGCTCCT"
+                                                         "AACTAAAAACGCCACGGACCTGGCTAACATTCGTTGTTGACTATAACATTTGAGGGCGCTTCGGATTCCC"
+                                                         "CATACTGCCAGAGTATTATGTGGGTGGTAAACATAGATTCTATATAGTCAACGACATACACTCATTATTA"
+                                                         "TGCAATTGCGG"});
+    EXPECT_EQ(databaseIDs[0], "chr2");
 
-    EXPECT_EQ(databases[1], (seqan2::String<TAlphabet>) {"GACCGAATGTACCCAAATAAGGCAAGCAACGGAGTATACACCGGAGTCTCCAGTGTTCGGACTGACTCGC"
-                                                        "TGGGATAAGCTGACAGACGACTTATTGCCAATTGCGTTGATGTCTAAGAAGGCGAGCTTCCCCTCTCCTA"
-                                                        "GGTGCTGGTGGTGGCTCCGAACAAGGGGCTGACCTGCTCACCAGGTATTGTAGAGATCTGGCCATGGGTT"});
-    EXPECT_EQ(databaseIDs[1], "3");
-    EXPECT_EQ(refLen, 560 + 464 + 210);
+    EXPECT_EQ(databases[1], (seqan2::String<TAlphabet>) {"CCTAGGGGTTCACCGTAACGGATTAGTCAAATTAAAATCCAGCGATGACTTCCTGATAGAACTCAAGTCG"
+                                                         "TGACCCCTCCGCTGCGGGCCTACATCTGTTTTCGCAGGCGTGGTTGTTTACCAGGTATGGTGCTCATCTC"
+                                                         "TATTAGTCACGGGCAGCATGGTGTCACCGAACCGCGCGTCTCCTAATATCTGGTCTACCGATTTAGCCCC"
+                                                         "GGCAAATAACTTTGG"});
+    EXPECT_EQ(databaseIDs[1], "chr3");
+    EXPECT_EQ(refLen, 560 + 641 + 225);
 }
 
 TEST(import_sequence_of_interest, out_of_range)
