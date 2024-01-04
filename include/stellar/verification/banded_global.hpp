@@ -28,7 +28,12 @@ verifySwiftHit(Segment<Segment<TSequence const, InfixSegment>, InfixSegment> con
     // define a scoring scheme
     typedef int TScore;
     TScore match = 1;
-    TScore mismatchIndel = (TScore)_max((TScore) ceil(-1/eps) + 1, -(TScore)length(host(infH)));
+    // large negative scoring scheme values lead to excessive seed extension
+    TScore scoringSchemeLowerBound = -(TScore)1000;
+    TScore mismatchIndel = scoringSchemeLowerBound;
+    if (eps > -1/scoringSchemeLowerBound)   // avoid division by 0
+        mismatchIndel = (TScore)_max((TScore) std::ceil(-1/eps) + 1, -(TScore)length(host(infH)));
+    
     Score<TScore> scoreMatrix(match, mismatchIndel, mismatchIndel);
 
     // diagonals for banded alignment
