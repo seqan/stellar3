@@ -34,9 +34,9 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   1
-    # SWIFT hits      : 1087
-    Longest hit       : 32
-    Avg hit length    : 32
+    # SWIFT hits      : 1
+    Longest hit       : 1150
+    Avg hit length    : 1150
   1, complement
 
 # Eps-matches     : 0

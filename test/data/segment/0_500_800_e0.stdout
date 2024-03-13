@@ -34,14 +34,14 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   1
-    # SWIFT hits      : 28
-    Longest hit       : 32
-    Avg hit length    : 32
+    # SWIFT hits      : 1
+    Longest hit       : 50
+    Avg hit length    : 50
   1, complement
-    # SWIFT hits      : 19
-    Longest hit       : 32
-    Avg hit length    : 32
+    # SWIFT hits      : 1
+    Longest hit       : 50
+    Avg hit length    : 50
 
-# Eps-matches     : 3
-Longest eps-match : 52
+# Eps-matches     : 2
+Longest eps-match : 50
 Avg match length  : 50

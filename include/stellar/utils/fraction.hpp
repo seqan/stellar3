@@ -12,6 +12,7 @@ namespace stellar::utils
 
 struct fraction
 {
+    static constexpr uint64_t limiter = 1e6;
     using difference_t = std::ptrdiff_t;
 
     fraction() = default;
@@ -78,33 +79,37 @@ struct fraction
 
     static fraction from_double(long double value)
     {
-        constexpr size_t max_iterations = 400;
-
-        int exponent{0u};
-        double_t normalized_value = std::frexp(value, &exponent);
-
-        for (size_t i = 0; i < max_iterations && normalized_value != std::floor(normalized_value); ++i)
+        if (abs(value) < (1.0 / limiter))    // handle searching with 0 errors
+            return {(difference_t) 1, (difference_t) limiter};    
+        else
         {
-            // otherwise over/underflows
-            if (exponent <= -62 || exponent >= 62)
-                break;
+            constexpr size_t max_iterations = 400;
 
-            normalized_value *= 2.0;
-            exponent--;
+            int exponent{0u};
+            double_t normalized_value = std::frexp(value, &exponent);
+
+            for (size_t i = 0; i < max_iterations && normalized_value != std::floor(normalized_value); ++i)
+            {
+                // otherwise over/underflows
+                if (exponent <= -62 || exponent >= 62)
+                    break;
+
+                normalized_value *= 2.0;
+                exponent--;
+            }
+
+            difference_t numerator = std::llround(normalized_value);
+            difference_t denominator = 1;
+
+            if (exponent > 0) // normalized_value * 2^exponent
+            {
+                numerator <<= exponent;
+            } else
+            {
+                denominator <<= -exponent;
+            }
+            return {numerator, denominator};
         }
-
-        difference_t numerator = std::llround(normalized_value);
-        difference_t denominator = 1;
-
-        if (exponent > 0) // normalized_value * 2^exponent
-        {
-            numerator <<= exponent;
-        } else
-        {
-            denominator <<= -exponent;
-        }
-
-        return {numerator, denominator};
     }
 
     constexpr operator double() const
@@ -171,7 +176,7 @@ struct fraction
         };
     }
 
-    constexpr fraction limit_denominator(size_t max_denominator=1000000) const
+    constexpr fraction limit_denominator(uint64_t max_denominator=limiter) const
     {
         // https://stackoverflow.com/questions/17537613/does-python-have-a-function-to-reduce-fractions
         // https://hg.python.org/cpython/file/822c7c0d27d1/Lib/fractions.py#l211
@@ -236,7 +241,10 @@ struct fraction
     friend std::basic_ostream<CharT, Traits> &
     operator<<(std::basic_ostream<CharT,Traits> & os, fraction const & fraction)
     {
-        os << ((double)fraction.numerator() / fraction.denominator()) << " = (" << fraction.numerator() << "/" << fraction.denominator() << ")";
+        if (fraction.denominator() != limiter)
+            os << ((double)fraction.numerator() / fraction.denominator()) << " = (" << fraction.numerator() << "/" << fraction.denominator() << ")";
+        else
+            os << "0 = (0/1)";  // if floating point value <10e6 treat it as 0
         return os;
     }
 

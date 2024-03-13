@@ -89,7 +89,6 @@ TEST_P(search_segment, stellar_search_segment)
     std::string const actual_matches = string_from_file("segment_out.gff", std::ios::binary);
 
     EXPECT_EQ(expected_matches, actual_matches);
-
     std::string expected_output = string_from_file(out_path("segment", seq[0], seg_range.first, seg_range.second, err_str, "stdout"), std::ios::binary);
     size_t pos = expected_output.find("User specified");    // do not compare paths
     expected_output = expected_output.substr(pos);
