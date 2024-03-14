@@ -12,13 +12,21 @@ namespace stellar::utils
 
 struct fraction
 {
-    static constexpr uint64_t limiter = 1e6;
     using difference_t = std::ptrdiff_t;
 
     fraction() = default;
 
+    constexpr explicit fraction(uint32_t const precision_limit) :
+        _numerator{1}
+    {
+        _limiter = std::max(_limiter, precision_limit);
+        _denominator = limiter();
+        if (_denominator == 0u)
+            throw std::domain_error{"denominator shouldn't be zero."};
+    }
+
     template <typename TDenominator>
-    constexpr explicit fraction(difference_t const numerator, TDenominator const denominator, std::enable_if_t<std::is_unsigned_v<TDenominator>, int> = 0) :
+    constexpr explicit fraction(uint32_t const numerator, TDenominator const denominator, std::enable_if_t<std::is_unsigned_v<TDenominator>, int> = 0) :
         _numerator{numerator},
         _denominator{denominator}
     {
@@ -27,8 +35,8 @@ struct fraction
     }
 
     template <typename TDenominator>
-    constexpr fraction(difference_t const numerator, TDenominator const denominator, std::enable_if_t<std::is_signed_v<TDenominator>, int> = 0) :
-        fraction{_abs(numerator), static_cast<size_t>(_abs(denominator))}
+    constexpr fraction(uint32_t const numerator, TDenominator const denominator, std::enable_if_t<std::is_signed_v<TDenominator>, int> = 0) :
+        fraction{_abs(numerator), static_cast<uint32_t>(_abs(denominator))}
     {
         if (numerator < 0)
             _numerator = -_numerator;
@@ -63,7 +71,7 @@ struct fraction
             };
 
             difference_t numerator = parse_int(float_significand_str);
-            std::size_t denominator = 1u;
+            uint32_t denominator{1u};
             for (std::size_t exponent = float_fraction_str.size(); exponent > 0u; --exponent)
                 denominator *= 10;
 
@@ -77,39 +85,44 @@ struct fraction
         return from_double(value);
     }
 
+    static fraction from_double_with_limit(long double value, uint32_t const precision_limit)
+    {
+        if (abs(value) < (1.0 / (precision_limit + 1)))    // handle searching with 0 errors
+        {
+            return fraction(precision_limit);
+        }    
+        else
+            return from_double(value);        
+    }
+
     static fraction from_double(long double value)
     {
-        if (abs(value) < (1.0 / limiter))    // handle searching with 0 errors
-            return {(difference_t) 1, (difference_t) limiter};    
-        else
+        constexpr size_t max_iterations = 400;
+
+        int exponent{0u};
+        double_t normalized_value = std::frexp(value, &exponent);
+
+        for (size_t i = 0; i < max_iterations && normalized_value != std::floor(normalized_value); ++i)
         {
-            constexpr size_t max_iterations = 400;
+            // otherwise over/underflows
+            if (exponent <= -62 || exponent >= 62)
+                break;
 
-            int exponent{0u};
-            double_t normalized_value = std::frexp(value, &exponent);
-
-            for (size_t i = 0; i < max_iterations && normalized_value != std::floor(normalized_value); ++i)
-            {
-                // otherwise over/underflows
-                if (exponent <= -62 || exponent >= 62)
-                    break;
-
-                normalized_value *= 2.0;
-                exponent--;
-            }
-
-            difference_t numerator = std::llround(normalized_value);
-            difference_t denominator = 1;
-
-            if (exponent > 0) // normalized_value * 2^exponent
-            {
-                numerator <<= exponent;
-            } else
-            {
-                denominator <<= -exponent;
-            }
-            return {numerator, denominator};
+            normalized_value *= 2.0;
+            exponent--;
         }
+
+        uint32_t numerator = std::llround(normalized_value);
+        uint32_t denominator = 1;
+
+        if (exponent > 0) // normalized_value * 2^exponent
+        {
+            numerator <<= exponent;
+        } else
+        {
+            denominator <<= -exponent;
+        }
+        return fraction(numerator, denominator);
     }
 
     constexpr operator double() const
@@ -122,9 +135,14 @@ struct fraction
         return _numerator;
     }
 
-    constexpr size_t denominator() const
+    constexpr uint32_t denominator() const
     {
         return _denominator;
+    }
+
+    constexpr uint32_t limiter() const
+    {
+        return _limiter;
     }
 
     constexpr bool is_proper() const
@@ -167,6 +185,11 @@ struct fraction
     {
         return fraction{a.numerator() * b.numerator(), a.denominator() * b.denominator()};
     }
+    
+    constexpr friend double operator*(unsigned const i, fraction const a)
+    {
+        return i * a.numerator() / (double) a.denominator();
+    }
 
     constexpr friend fraction operator-(fraction a, fraction b)
     {
@@ -176,7 +199,7 @@ struct fraction
         };
     }
 
-    constexpr fraction limit_denominator(uint64_t max_denominator=limiter) const
+    constexpr fraction limit_denominator(uint64_t max_denominator=1000000) const
     {
         // https://stackoverflow.com/questions/17537613/does-python-have-a-function-to-reduce-fractions
         // https://hg.python.org/cpython/file/822c7c0d27d1/Lib/fractions.py#l211
@@ -241,7 +264,7 @@ struct fraction
     friend std::basic_ostream<CharT, Traits> &
     operator<<(std::basic_ostream<CharT,Traits> & os, fraction const & fraction)
     {
-        if (fraction.denominator() != limiter)
+        if (fraction.denominator() != fraction.limiter())
             os << ((double)fraction.numerator() / fraction.denominator()) << " = (" << fraction.numerator() << "/" << fraction.denominator() << ")";
         else
             os << "0 = (0/1)";  // if floating point value <10e6 treat it as 0
@@ -257,8 +280,9 @@ private:
     // std::abs is not constexpr
     constexpr static auto _abs = [](auto a) { return a < 0 ? -a : a; };
 
-    difference_t _numerator{0u};
-    size_t _denominator{1u};
+    uint32_t _limiter{1000u};
+    uint32_t _numerator{0u};
+    uint32_t _denominator{1u};
 };
 
 } // namespace stellar::utils
