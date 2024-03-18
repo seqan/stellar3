@@ -5,9 +5,6 @@ include (cmake/app_datasources.cmake)
 declare_datasource (FILE multi_seq_ref.fasta
                 URL ${CMAKE_SOURCE_DIR}/test/data/multi_seq_ref.fasta
                 URL_HASH SHA256=c91e4b0aee16c0a8a9db0507cc12e15241aeaa1db8e065f7cb117991f7a7ac2a)
-declare_datasource (FILE query_e0.0009.fasta
-                URL ${CMAKE_SOURCE_DIR}/test/data/query_e0.0009.fasta
-                URL_HASH SHA256=1ad1a3d42c801b6518d23ff193b0002da316a290eedde84c96a2ea27693fdc51)
 declare_datasource (FILE query_e0.001.fasta
                 URL ${CMAKE_SOURCE_DIR}/test/data/query_e0.001.fasta
                 URL_HASH SHA256=5aa1989d674d0c0f23b44d001b22b167117b35ea8d5588270c76809d40e3386e)
@@ -121,7 +118,7 @@ declare_datasource (FILE er_edge_case_e0.0009.gff
                 URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
 declare_datasource (FILE er_edge_case_e0.0009.stdout
                 URL ${CMAKE_SOURCE_DIR}/test/data/er_edge_case/e0.0009.stdout
-                URL_HASH SHA256=ff67d13e22be4cf67a07e9fa264a04562c557e1dcfba7ac91b03d27e7affa70c)
+                URL_HASH SHA256=02872181bee3195a2be68a97ea8f0ab92d151b1d73e97ce7f79ed178255ce579)
 declare_datasource (FILE er_edge_case_e0.001.gff
                 URL ${CMAKE_SOURCE_DIR}/test/data/er_edge_case/e0.001.gff
                 URL_HASH SHA256=3c91be74c5473c098e507a6974755cba5f57f3266dc6c507e9c49fd92d9c11e5)
@@ -133,4 +130,4 @@ declare_datasource (FILE er_edge_case_e0.gff
                 URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
 declare_datasource (FILE er_edge_case_e0.stdout
                 URL ${CMAKE_SOURCE_DIR}/test/data/er_edge_case/e0.stdout
-                URL_HASH SHA256=92030d9313d5e83dc6d3d237db0d9773038ba15660b1706e816e1a2765d02d4c)
+                URL_HASH SHA256=13855cbb45605c468436fa241449595a1d2d41eb150878ba31ebd2cc4950b38e)
