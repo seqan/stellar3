@@ -16,6 +16,10 @@ call_stellar_reverse()
     ${STELLAR} -e $1 -l 50 -x 10 -k 7 -n 5000 -s 10000 -r -v -o $2.txt ../../512_simSeq1_$2.fa ../../512_simSeq2_$2.fa > $2.txt.stdout
 }
 
+eps="0"
+errRate=0
+call_stellar_reverse $errRate $eps
+
 eps="e-1"
 errRate=0.1
 call_stellar_reverse $errRate $eps
@@ -30,10 +34,6 @@ call_stellar_reverse $errRate $eps
 
 eps="25e-3"
 errRate=0.025
-call_stellar_reverse $errRate $eps
-
-eps="e-4"
-errRate=0.0001
 call_stellar_reverse $errRate $eps
 
 # ============================================================

@@ -89,7 +89,6 @@ TEST_P(search_segment, stellar_search_segment)
     std::string const actual_matches = string_from_file("segment_out.gff", std::ios::binary);
 
     EXPECT_EQ(expected_matches, actual_matches);
-
     std::string expected_output = string_from_file(out_path("segment", seq[0], seg_range.first, seg_range.second, err_str, "stdout"), std::ios::binary);
     size_t pos = expected_output.find("User specified");    // do not compare paths
     expected_output = expected_output.substr(pos);
@@ -126,7 +125,7 @@ TEST_P(search_small_error, edge_case)
 
     cli_test_result const result = execute_app("stellar",
                                                data("ref.fasta"),
-                                               data("query_e0.0009.fasta"),
+                                               data("query_e0.001.fasta"),
                                                "-o small_er_out.gff",
                                                "--epsilon ", err_str,
                                                "--minLength 1000",
@@ -154,7 +153,7 @@ TEST_P(search_small_error, edge_case)
 
 INSTANTIATE_TEST_SUITE_P(edge_case_suite,
                          search_small_error,
-                         testing::Values(0.0f, 0.0009f),
+                         testing::Values(0.0f, 0.0009f, 0.001f),
                          [] (testing::TestParamInfo<search_small_error::ParamType> const & info)
                          {
                              std::string name =  "er_edge_case_" + std::to_string((int) std::round(info.param * 10000));

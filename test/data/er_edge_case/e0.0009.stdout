@@ -1,13 +1,13 @@
 I/O options:
   database file   : ref.fasta
-  query file      : query_e0.0009.fasta
+  query file      : query_e0.001.fasta
   alphabet        : dna5
   output file     : er_edge_case/e0.0009.gff
   output format   : gff
 
 User specified parameters:
   minimal match length             : 1000
-  maximal error rate (epsilon)     : 0.0009 = (9/10000)
+  maximal error rate (epsilon)     : 0 = (0/1)
   maximal x-drop                   : 5
   search forward strand            : yes
   search reverse complement        : yes
@@ -18,7 +18,7 @@ User specified parameters:
 
 Calculated parameters:
   k-mer length : 32
-  s^min        : 556
+  s^min        : 525
   threshold    : 969
   distance cut : 1032
   delta        : 16
@@ -34,11 +34,6 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   1
-    # SWIFT hits      : 1
-    Longest hit       : 1150
-    Avg hit length    : 1150
   1, complement
 
-# Eps-matches     : 1
-Longest eps-match : 1150
-Avg match length  : 1150
+# Eps-matches     : 0

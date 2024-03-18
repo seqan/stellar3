@@ -42,6 +42,10 @@ call_stellar()
               $ref_file $query_file > $dir/$2.txt.stdout
 }
 
+eps="0"
+errRate=0
+call_stellar $errRate $eps
+
 eps="e-1"
 errRate=0.1
 call_stellar $errRate $eps
@@ -56,10 +60,6 @@ call_stellar $errRate $eps
 
 eps="25e-3"
 errRate=0.025
-call_stellar $errRate $eps
-
-eps="e-4"
-errRate=0.0001
 call_stellar $errRate $eps
 
 # ============================================================
