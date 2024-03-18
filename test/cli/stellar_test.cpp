@@ -125,7 +125,7 @@ TEST_P(search_small_error, edge_case)
 
     cli_test_result const result = execute_app("stellar",
                                                data("ref.fasta"),
-                                               data("query_e0.0009.fasta"),
+                                               data("query_e0.001.fasta"),
                                                "-o small_er_out.gff",
                                                "--epsilon ", err_str,
                                                "--minLength 1000",
@@ -153,7 +153,7 @@ TEST_P(search_small_error, edge_case)
 
 INSTANTIATE_TEST_SUITE_P(edge_case_suite,
                          search_small_error,
-                         testing::Values(0.0f, 0.0009f),
+                         testing::Values(0.0f, 0.0009f, 0.001f),
                          [] (testing::TestParamInfo<search_small_error::ParamType> const & info)
                          {
                              std::string name =  "er_edge_case_" + std::to_string((int) std::round(info.param * 10000));

@@ -26,7 +26,7 @@ struct fraction
     }
 
     template <typename TDenominator>
-    constexpr explicit fraction(uint32_t const numerator, TDenominator const denominator, std::enable_if_t<std::is_unsigned_v<TDenominator>, int> = 0) :
+    constexpr explicit fraction(difference_t const numerator, TDenominator const denominator, std::enable_if_t<std::is_unsigned_v<TDenominator>, int> = 0) :
         _numerator{numerator},
         _denominator{denominator}
     {
@@ -35,8 +35,8 @@ struct fraction
     }
 
     template <typename TDenominator>
-    constexpr fraction(uint32_t const numerator, TDenominator const denominator, std::enable_if_t<std::is_signed_v<TDenominator>, int> = 0) :
-        fraction{_abs(numerator), static_cast<uint32_t>(_abs(denominator))}
+    constexpr fraction(difference_t const numerator, TDenominator const denominator, std::enable_if_t<std::is_signed_v<TDenominator>, int> = 0) :
+        fraction{_abs(numerator), static_cast<size_t>(_abs(denominator))}
     {
         if (numerator < 0)
             _numerator = -_numerator;
@@ -71,7 +71,7 @@ struct fraction
             };
 
             difference_t numerator = parse_int(float_significand_str);
-            uint32_t denominator{1u};
+            std::size_t denominator = 1u;
             for (std::size_t exponent = float_fraction_str.size(); exponent > 0u; --exponent)
                 denominator *= 10;
 
@@ -112,8 +112,8 @@ struct fraction
             exponent--;
         }
 
-        uint32_t numerator = std::llround(normalized_value);
-        uint32_t denominator = 1;
+        difference_t numerator = std::llround(normalized_value);
+        difference_t denominator = 1;
 
         if (exponent > 0) // normalized_value * 2^exponent
         {
@@ -135,7 +135,7 @@ struct fraction
         return _numerator;
     }
 
-    constexpr uint32_t denominator() const
+    constexpr size_t denominator() const
     {
         return _denominator;
     }
@@ -199,7 +199,7 @@ struct fraction
         };
     }
 
-    constexpr fraction limit_denominator(uint64_t max_denominator=1000000) const
+    constexpr fraction limit_denominator(size_t max_denominator=1000000) const
     {
         // https://stackoverflow.com/questions/17537613/does-python-have-a-function-to-reduce-fractions
         // https://hg.python.org/cpython/file/822c7c0d27d1/Lib/fractions.py#l211
@@ -280,9 +280,9 @@ private:
     // std::abs is not constexpr
     constexpr static auto _abs = [](auto a) { return a < 0 ? -a : a; };
 
-    uint32_t _limiter{1000u};
-    uint32_t _numerator{0u};
-    uint32_t _denominator{1u};
+    uint32_t _limiter{10000u};
+    difference_t _numerator{0u};
+    size_t _denominator{1u};
 };
 
 } // namespace stellar::utils

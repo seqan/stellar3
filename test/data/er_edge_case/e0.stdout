@@ -1,6 +1,6 @@
 I/O options:
   database file   : ref.fasta
-  query file      : query_e0.0009.fasta
+  query file      : query_e0.001.fasta
   alphabet        : dna5
   output file     : er_edge_case/e0.gff
   output format   : gff
@@ -34,9 +34,6 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   1
-    # SWIFT hits      : 1
-    Longest hit       : 1150
-    Avg hit length    : 1150
   1, complement
 
 # Eps-matches     : 0

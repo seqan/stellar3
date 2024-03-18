@@ -60,9 +60,9 @@ do
 done
 
 # Low error rate edge case
-error_rate=0.0009
+error_rate=0.001
 match_count=1
-match_length=1150
+match_length=1000
 echo "Generating $match_count reads of length $match_length with error rate $error_rate"
 generate_local_matches \
         --matches-out matches_e$error_rate.fasta \
