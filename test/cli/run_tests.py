@@ -243,13 +243,13 @@ def main(source_base, binary_base, alphabets, database_strands, output_extension
                 # Error rate 0.05:
                 testSuite.addTest('stellar', errorRate = '5e-2', testName = '5e-2', alphabet = alphabet, databaseStrand = databaseStrand, outputExt = outputExt)
 
-                # Error rate 0.25:
+                # Error rate 0.025:
                 testSuite.addTest('stellar', errorRate = '25e-3', testName = '25e-3', alphabet = alphabet, databaseStrand = databaseStrand, outputExt = outputExt)
 
-                # Error rate 0.75:
+                # Error rate 0.075:
                 testSuite.addTest('stellar', errorRate = '75e-3', testName = '75e-3', alphabet = alphabet, databaseStrand = databaseStrand, outputExt = outputExt)
 
-                # Error rate 0.0001:
+                # Error rate 0:
                 testSuite.addTest('stellar', errorRate = '0', testName = '0', alphabet = alphabet, databaseStrand = databaseStrand, outputExt = outputExt)
 
                 # Minimal length: 20, Error rate 0.05:

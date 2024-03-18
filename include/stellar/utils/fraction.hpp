@@ -87,7 +87,8 @@ struct fraction
 
     static fraction from_double_with_limit(long double value, uint32_t const precision_limit)
     {
-        if (abs(value) < (1.0 / (precision_limit + 1)))    // handle searching with 0 errors
+        // Applying a lower bound to the error rate because values close to 0 increase runtime dramatically  
+        if (abs(value) < (1.0 / (precision_limit * 1.05)))
         {
             return fraction(precision_limit);
         }    
@@ -185,11 +186,6 @@ struct fraction
     {
         return fraction{a.numerator() * b.numerator(), a.denominator() * b.denominator()};
     }
-    
-    constexpr friend double operator*(unsigned const i, fraction const a)
-    {
-        return i * a.numerator() / (double) a.denominator();
-    }
 
     constexpr friend fraction operator-(fraction a, fraction b)
     {
@@ -280,7 +276,12 @@ private:
     // std::abs is not constexpr
     constexpr static auto _abs = [](auto a) { return a < 0 ? -a : a; };
 
-    uint32_t _limiter{10000u};
+    /* 
+    The longest allowed min local match length is 1000 which means that the smallest meaningful error rate is 1 / 1000.
+    Adding a 5% allowance to account for floating point inexactness the _limiter gives a lower bound for the error rate.
+    It is crucial to have a lower bound for the error rate because values close to 0 have a detrimental effect on the runtime. 
+    */ 
+    uint32_t _limiter{1050u}; 
     difference_t _numerator{0u};
     size_t _denominator{1u};
 };

@@ -18,11 +18,11 @@ User specified parameters:
 
 Calculated parameters:
   k-mer length : 32
-  s^min        : 1000
+  s^min        : 525
   threshold    : 969
-  distance cut : 1000
+  distance cut : 1032
   delta        : 16
-  overlap      : 0
+  overlap      : 1
 
 Loaded 1 query sequence.
 Loaded 1 database sequence.
