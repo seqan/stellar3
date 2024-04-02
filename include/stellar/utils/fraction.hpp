@@ -88,7 +88,7 @@ struct fraction
     static fraction from_double_with_limit(long double value, uint32_t const precision_limit)
     {
         // Applying a lower bound to the error rate because values close to 0 increase runtime dramatically  
-        if (abs(value) < (1.0 / (precision_limit * 1.05)))
+        if (std::abs(value) < (1.0 / (precision_limit * 1.05)))
         {
             return fraction(precision_limit);
         }    
