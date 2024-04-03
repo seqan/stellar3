@@ -35,21 +35,18 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   chr2
-    # SWIFT hits      : 40
-    Longest hit       : 32
-    Avg hit length    : 32
+    # SWIFT hits      : 2
+    Longest hit       : 52
+    Avg hit length    : 51
   chr3
-    # SWIFT hits      : 6
-    Longest hit       : 32
-    Avg hit length    : 32
   chr2, complement
-    # SWIFT hits      : 58
-    Longest hit       : 32
-    Avg hit length    : 32
+    # SWIFT hits      : 3
+    Longest hit       : 51
+    Avg hit length    : 50
   chr3, complement
-    # SWIFT hits      : 20
-    Longest hit       : 32
-    Avg hit length    : 32
+    # SWIFT hits      : 1
+    Longest hit       : 51
+    Avg hit length    : 51
 
 # Eps-matches     : 6
 Longest eps-match : 52

@@ -58,8 +58,8 @@ testsConfig = {
         '--sortThresh', '10000',
         '--verbose',
     ],
-    'e-4' : [
-        '--epsilon', '0.0001',
+    '0' : [
+        '--epsilon', '0',
         '--minLength', '50',
         '--xDrop', '10',
         '--kmer', '7',
@@ -243,14 +243,14 @@ def main(source_base, binary_base, alphabets, database_strands, output_extension
                 # Error rate 0.05:
                 testSuite.addTest('stellar', errorRate = '5e-2', testName = '5e-2', alphabet = alphabet, databaseStrand = databaseStrand, outputExt = outputExt)
 
-                # Error rate 0.25:
+                # Error rate 0.025:
                 testSuite.addTest('stellar', errorRate = '25e-3', testName = '25e-3', alphabet = alphabet, databaseStrand = databaseStrand, outputExt = outputExt)
 
-                # Error rate 0.75:
+                # Error rate 0.075:
                 testSuite.addTest('stellar', errorRate = '75e-3', testName = '75e-3', alphabet = alphabet, databaseStrand = databaseStrand, outputExt = outputExt)
 
-                # Error rate 0.0001:
-                testSuite.addTest('stellar', errorRate = 'e-4', testName = 'e-4', alphabet = alphabet, databaseStrand = databaseStrand, outputExt = outputExt)
+                # Error rate 0:
+                testSuite.addTest('stellar', errorRate = '0', testName = '0', alphabet = alphabet, databaseStrand = databaseStrand, outputExt = outputExt)
 
                 # Minimal length: 20, Error rate 0.05:
                 testSuite.addTest('stellar', errorRate = '5e-2', testName = 'minLen20', alphabet = alphabet, databaseStrand = databaseStrand, outputExt = outputExt)

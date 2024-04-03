@@ -1,6 +1,6 @@
 I/O options:
   database file   : ref.fasta
-  query file      : query_e0.0009.fasta
+  query file      : query_e0.001.fasta
   alphabet        : dna5
   output file     : er_edge_case/e0.gff
   output format   : gff
@@ -18,11 +18,11 @@ User specified parameters:
 
 Calculated parameters:
   k-mer length : 32
-  s^min        : 1000
+  s^min        : 525
   threshold    : 969
-  distance cut : 1000
+  distance cut : 1032
   delta        : 16
-  overlap      : 0
+  overlap      : 1
 
 Loaded 1 query sequence.
 Loaded 1 database sequence.
@@ -34,9 +34,6 @@ Constructing index...
 
 Aligning all query sequences to database sequence...
   1
-    # SWIFT hits      : 1087
-    Longest hit       : 32
-    Avg hit length    : 32
   1, complement
 
 # Eps-matches     : 0

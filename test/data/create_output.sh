@@ -44,7 +44,11 @@ done
 # ZERO ERRORS EDGE CASE
 ############################################################
 minLen=1000
-simulationErrRate=0.0009
-searchErrRate=0
-${STELLAR} -e $searchErrRate -l $minLen -v -o er_edge_case/e$searchErrRate.gff ref.fasta query_e$simulationErrRate.fasta > er_edge_case/e$searchErrRate.stdout
+simulationErrRate=0.001
 ${STELLAR} -e $simulationErrRate -l $minLen -v -o er_edge_case/e$simulationErrRate.gff ref.fasta query_e$simulationErrRate.fasta > er_edge_case/e$simulationErrRate.stdout
+
+for searchErrRate in 0 0.0009
+do 
+   ${STELLAR} -e $searchErrRate -l $minLen -v -o er_edge_case/e$searchErrRate.gff ref.fasta query_e$simulationErrRate.fasta > er_edge_case/e$searchErrRate.stdout
+done
+

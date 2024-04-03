@@ -198,7 +198,7 @@ void run_stellar(sharg::parser & parser)
     }
 
     options.outputFormat = options.outputFile.substr(options.outputFile.size() - 3);    // file extension previously validated
-    options.epsilon = stellar::utils::fraction::from_double(options.numEpsilon).limit_denominator();
+    options.epsilon = stellar::utils::fraction::from_double_with_limit(options.numEpsilon, options.minLength).limit_denominator();
 
     if (options.strVerificationMethod == to_string(StellarVerificationMethod{AllLocal{}}))
         options.verificationMethod = StellarVerificationMethod{AllLocal{}};

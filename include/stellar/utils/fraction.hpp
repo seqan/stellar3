@@ -16,6 +16,15 @@ struct fraction
 
     fraction() = default;
 
+    constexpr explicit fraction(uint32_t const precision_limit) :
+        _numerator{1}
+    {
+        _limiter = std::max(_limiter, precision_limit);
+        _denominator = limiter();
+        if (_denominator == 0u)
+            throw std::domain_error{"denominator shouldn't be zero."};
+    }
+
     template <typename TDenominator>
     constexpr explicit fraction(difference_t const numerator, TDenominator const denominator, std::enable_if_t<std::is_unsigned_v<TDenominator>, int> = 0) :
         _numerator{numerator},
@@ -76,6 +85,17 @@ struct fraction
         return from_double(value);
     }
 
+    static fraction from_double_with_limit(long double value, uint32_t const precision_limit)
+    {
+        // Applying a lower bound to the error rate because values close to 0 increase runtime dramatically  
+        if (std::abs(value) < (1.0 / (precision_limit * 1.05)))
+        {
+            return fraction(precision_limit);
+        }    
+        else
+            return from_double(value);        
+    }
+
     static fraction from_double(long double value)
     {
         constexpr size_t max_iterations = 400;
@@ -103,8 +123,7 @@ struct fraction
         {
             denominator <<= -exponent;
         }
-
-        return {numerator, denominator};
+        return fraction(numerator, denominator);
     }
 
     constexpr operator double() const
@@ -120,6 +139,11 @@ struct fraction
     constexpr size_t denominator() const
     {
         return _denominator;
+    }
+
+    constexpr uint32_t limiter() const
+    {
+        return _limiter;
     }
 
     constexpr bool is_proper() const
@@ -236,7 +260,10 @@ struct fraction
     friend std::basic_ostream<CharT, Traits> &
     operator<<(std::basic_ostream<CharT,Traits> & os, fraction const & fraction)
     {
-        os << ((double)fraction.numerator() / fraction.denominator()) << " = (" << fraction.numerator() << "/" << fraction.denominator() << ")";
+        if (fraction.denominator() != fraction.limiter())
+            os << ((double)fraction.numerator() / fraction.denominator()) << " = (" << fraction.numerator() << "/" << fraction.denominator() << ")";
+        else
+            os << "0 = (0/1)";  // if floating point value <10e6 treat it as 0
         return os;
     }
 
@@ -249,6 +276,12 @@ private:
     // std::abs is not constexpr
     constexpr static auto _abs = [](auto a) { return a < 0 ? -a : a; };
 
+    /* 
+    The longest allowed min local match length is 1000 which means that the smallest meaningful error rate is 1 / 1000.
+    Adding a 5% allowance to account for floating point inexactness the _limiter gives a lower bound for the error rate.
+    It is crucial to have a lower bound for the error rate because values close to 0 have a detrimental effect on the runtime. 
+    */ 
+    uint32_t _limiter{1050u}; 
     difference_t _numerator{0u};
     size_t _denominator{1u};
 };
