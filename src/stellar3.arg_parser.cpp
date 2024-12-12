@@ -117,7 +117,7 @@ void init_parser(sharg::parser & parser, StellarOptions & options)
                 sharg::config{.short_id = 'k',
                                 .long_id = "kmer",
                                 .description = "Length of the q-grams.",
-                                .validator = sharg::arithmetic_range_validator{1, 32}});
+                                .validator = sharg::arithmetic_range_validator{1, 31}});
     parser.add_option(options.maxRepeatPeriod,
                 sharg::config{.short_id = '\0',
                                 .long_id = "repeatPeriod",
