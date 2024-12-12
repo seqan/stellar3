@@ -17,9 +17,9 @@ User specified parameters:
   duplicate removal every          : 500
 
 Calculated parameters:
-  k-mer length : 32
+  k-mer length : 31
   s^min        : 50
-  threshold    : 19
+  threshold    : 20
   distance cut : 50
   delta        : 16
   overlap      : 0

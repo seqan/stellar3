@@ -28,7 +28,7 @@ declare_datasource (FILE subset_0_1_2_e0.gff
                 URL_HASH SHA256=4de36c19a71a200cca9bdfd17505076394aeb98efda1206773e5e87a885759b4)
 declare_datasource (FILE subset_0_1_2_e0.stdout
                 URL ${CMAKE_SOURCE_DIR}/test/data/subset/0_1_2_e0.stdout
-                URL_HASH SHA256=e220f88d7ae90fd92383402b19ece14357596407efcc07ac855c2ef2483c0da4)
+                URL_HASH SHA256=bdf6f06f076916c07759d54280db8b1a7bf1f51aa435ca30eeb0c55328ceb51d)
 declare_datasource (FILE subset_0_1_e0.05.gff
                 URL ${CMAKE_SOURCE_DIR}/test/data/subset/0_1_e0.05.gff
                 URL_HASH SHA256=95dae6f338266952f6b9d6aeb2c62347c7c43b3e2138e7ae2e0b839547a122d6)
@@ -40,7 +40,7 @@ declare_datasource (FILE subset_0_1_e0.gff
                 URL_HASH SHA256=cec48374f0094b7553356b9c662150126eb9a9fdf80fb147a162af6ebdfd9e9f)
 declare_datasource (FILE subset_0_1_e0.stdout
                 URL ${CMAKE_SOURCE_DIR}/test/data/subset/0_1_e0.stdout
-                URL_HASH SHA256=f1097a6a6c564c35bbd47993f2d09f2c569f6a7886b6c7901ae319ae2093bbed)
+                URL_HASH SHA256=28e66ce35f3e35c022722ff1580a3ee224ac1e21d335f2bfa04b8ac5e8f8059b)
 declare_datasource (FILE subset_1_2_e0.05.gff
                 URL ${CMAKE_SOURCE_DIR}/test/data/subset/1_2_e0.05.gff
                 URL_HASH SHA256=8588f387723d77073b4c3d18ad60ab715950e206b9e6288854ed17b950b2db14)
@@ -52,7 +52,7 @@ declare_datasource (FILE subset_1_2_e0.gff
                 URL_HASH SHA256=e000a5c3b53539126c336a03e2216cc5bdcebdaa768463c684ad323d38144d19)
 declare_datasource (FILE subset_1_2_e0.stdout
                 URL ${CMAKE_SOURCE_DIR}/test/data/subset/1_2_e0.stdout
-                URL_HASH SHA256=cea778738e10be43b7885cb9454206591bb5ec16d6b7fcfc1b4d0591d8c1bc16)
+                URL_HASH SHA256=32bc5adc1b589bb068e1f975d61513e52dacfae8dc6d10172616d3b81720b3bc)
 declare_datasource (FILE subset_1_e0.05.gff
                 URL ${CMAKE_SOURCE_DIR}/test/data/subset/1_e0.05.gff
                 URL_HASH SHA256=8588f387723d77073b4c3d18ad60ab715950e206b9e6288854ed17b950b2db14)
@@ -64,7 +64,7 @@ declare_datasource (FILE subset_1_e0.gff
                 URL_HASH SHA256=2fac598ed9e83eb8a525c4c643a0805ae9baeec55b0af12f864efd91b8159b2c)
 declare_datasource (FILE subset_1_e0.stdout
                 URL ${CMAKE_SOURCE_DIR}/test/data/subset/1_e0.stdout
-                URL_HASH SHA256=8ddf8c6cca04308063b10462d92c072609881bc4f203f394026147ff5485f112)
+                URL_HASH SHA256=6d6eccab76af1f33904c6d5c0cded0684fd96f5f87a870c7190d68d55dac44eb)
 declare_datasource (FILE subset_all_e0.05.gff
                 URL ${CMAKE_SOURCE_DIR}/test/data/subset/all_e0.05.gff
                 URL_HASH SHA256=95dae6f338266952f6b9d6aeb2c62347c7c43b3e2138e7ae2e0b839547a122d6)
@@ -76,7 +76,7 @@ declare_datasource (FILE subset_all_e0.gff
                 URL_HASH SHA256=4de36c19a71a200cca9bdfd17505076394aeb98efda1206773e5e87a885759b4)
 declare_datasource (FILE subset_all_e0.stdout
                 URL ${CMAKE_SOURCE_DIR}/test/data/subset/all_e0.stdout
-                URL_HASH SHA256=8d43fab8953a7028f19bf6c42b8ce900a6af109f857e57119aad854144aa32cb)
+                URL_HASH SHA256=252bdd6ff50a73d3e1a7354f66946fc934f0fa1ed0fc8fee3617a84a40ad6e44)
 declare_datasource (FILE segment_0_0_400_e0.05.gff
                 URL ${CMAKE_SOURCE_DIR}/test/data/segment/0_0_400_e0.05.gff
                 URL_HASH SHA256=ffab7e7f20e0b6e503cdde799a1e06609d91a6a35223326b86ec8c8f07d4d9e9)
@@ -88,7 +88,7 @@ declare_datasource (FILE segment_0_0_400_e0.gff
                 URL_HASH SHA256=1edec71b73c451ec2694b486166bd72f95b99fe20e85e5be140a88b0829f9042)
 declare_datasource (FILE segment_0_0_400_e0.stdout
                 URL ${CMAKE_SOURCE_DIR}/test/data/segment/0_0_400_e0.stdout
-                URL_HASH SHA256=b3a5c493dff3d1374147f34b56011a138bb5fcc910b6a409f325f162c7aae383)
+                URL_HASH SHA256=8bdbab126ef2e2fb2a6e7c417bfb713d60f7c0fa05dff522099524ac8556ccb5)
 declare_datasource (FILE segment_0_500_800_e0.05.gff
                 URL ${CMAKE_SOURCE_DIR}/test/data/segment/0_500_800_e0.05.gff
                 URL_HASH SHA256=5a1319cd3704e9ea6da0f37711a95647d44db09cb69431a3ed508bde145fb8ad)
@@ -100,7 +100,7 @@ declare_datasource (FILE segment_0_500_800_e0.gff
                 URL_HASH SHA256=76d780587daabf0361f1b3749d253583f17014039e49ecddcea278dc9a32f39d)
 declare_datasource (FILE segment_0_500_800_e0.stdout
                 URL ${CMAKE_SOURCE_DIR}/test/data/segment/0_500_800_e0.stdout
-                URL_HASH SHA256=02a47ced54eb741490d5de5039b7b099545a8006d4c0ec165b446e779b1a7df3)
+                URL_HASH SHA256=6ba74f2133356cfa83fc676e3d5d8f8134601fd2936037927a1da3acc3f38389)
 declare_datasource (FILE segment_all_e0.05.gff
                 URL ${CMAKE_SOURCE_DIR}/test/data/segment/all_e0.05.gff
                 URL_HASH SHA256=565adf028b7ad81af650b5077fb6d882401cd441763c78f3f12912998643d53f)
@@ -112,22 +112,22 @@ declare_datasource (FILE segment_all_e0.gff
                 URL_HASH SHA256=f2bd978006259862b953dc1a2d2a8d052cf936fc68f7303ee8a0126ea93f8fd7)
 declare_datasource (FILE segment_all_e0.stdout
                 URL ${CMAKE_SOURCE_DIR}/test/data/segment/all_e0.stdout
-                URL_HASH SHA256=b9755a5a95e7c7ae98e0b553dfb12b0a2027a985626c1484272d2c572d5fe9bc)
+                URL_HASH SHA256=b80181e12bbc619f1de49927eec44bac16e8fe994860f59c3971251086cfc443)
 declare_datasource (FILE er_edge_case_e0.0009.gff
                 URL ${CMAKE_SOURCE_DIR}/test/data/er_edge_case/e0.0009.gff
                 URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
 declare_datasource (FILE er_edge_case_e0.0009.stdout
                 URL ${CMAKE_SOURCE_DIR}/test/data/er_edge_case/e0.0009.stdout
-                URL_HASH SHA256=02872181bee3195a2be68a97ea8f0ab92d151b1d73e97ce7f79ed178255ce579)
+                URL_HASH SHA256=502671662ae997ba96068e6b000afb945a618fab622717574889598d2c5f2ffe)
 declare_datasource (FILE er_edge_case_e0.001.gff
                 URL ${CMAKE_SOURCE_DIR}/test/data/er_edge_case/e0.001.gff
                 URL_HASH SHA256=3c91be74c5473c098e507a6974755cba5f57f3266dc6c507e9c49fd92d9c11e5)
 declare_datasource (FILE er_edge_case_e0.001.stdout
                 URL ${CMAKE_SOURCE_DIR}/test/data/er_edge_case/e0.001.stdout
-                URL_HASH SHA256=ff38ce270a2aeeb86bd6c9a31c2a341a9280ef8483d5c502b355c8250b6d5007)
+                URL_HASH SHA256=e7cc17d5d4fbfb5de38721e36ec795c6c226b9ed8e4030404dc659e31ce99c1e)
 declare_datasource (FILE er_edge_case_e0.gff
                 URL ${CMAKE_SOURCE_DIR}/test/data/er_edge_case/e0.gff
                 URL_HASH SHA256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)
 declare_datasource (FILE er_edge_case_e0.stdout
                 URL ${CMAKE_SOURCE_DIR}/test/data/er_edge_case/e0.stdout
-                URL_HASH SHA256=13855cbb45605c468436fa241449595a1d2d41eb150878ba31ebd2cc4950b38e)
+                URL_HASH SHA256=c847f28f5dba577a0912af93e5e9e6854c73333e3a0d653d1b84bcdc8abaab12)
