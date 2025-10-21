@@ -68,8 +68,8 @@ void init_parser(sharg::parser & parser, StellarOptions & options)
     parser.add_option(options.minLength,
                     sharg::config{.short_id = 'l',
                                     .long_id = "minLength",
-                                    .description = "Maximal error rate (max 0.25).",
-                                    .validator = sharg::arithmetic_range_validator{20, 1000}});
+                                    .description = "Minimal length of epsilon-matches.",
+                                    .validator = sharg::arithmetic_range_validator{2, 1000}});
     parser.add_flag(options.onlyForward,
                     sharg::config{.short_id = 'f',
                                     .long_id = "forward",
